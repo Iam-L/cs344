@@ -1,0 +1,250 @@
+Name: Joseph Jinn
+Date: 2-7-19
+Course: CS-344 Artificial Intelligence
+Instructor: Professor Keith VanderLinden
+Assignment: Lab02 - Local Search 
+
+Answers to Lab questions:
+
+Note: Refer to u02local folder in cs344 repository and specifically abs.py, sine.py, sine_random_restarts.py for changes I made (if any).
+
+============================================================================================================
+Exercise 2.1
+Run abs.py, an absolute value variant module and answer the following questions:
+============================================================================================================
+
+Which of the local search algorithms solves the problem? How well does each algorithm do?
+============================================
+Both algorithms solves the problem.
+
+Initial                      x: 8		value: 8.0
+Hill-climbing solution       x: 15.0	value: 15.0
+Simulated annealing solution x: 15.0	value: 15.0
+
+============================================
+Which algorithm works more quickly?
+============================================
+With default values, you can't tell.
+
+Initial                      x: 19		value: 11.0
+Hill-climbing solution       x: 15.0	value: 15.0
+Simulated annealing solution x: 15.0	value: 15.0
+
+Hill-climbing elapsed time is: 0.0
+Annealing elapsed time is: 0.00698089599609375
+
+By decreasing the delta value to 0.0001, annealing is by far faster, though it begins to find different x-values and y-values as the solution.
+
+Initial                      x: 21		value: 9.0
+Hill-climbing solution       x: 15.000000000013983	value: 14.999999999986017
+Simulated annealing solution x: 21.00419999999999	value: 8.99580000000001
+
+Hill-climbing elapsed time is: 0.6592965126037598
+Annealing elapsed time is: 0.0069506168365478516
+
+============================================
+Does the starting value for x make any difference? Why or why not?
+============================================
+No, because the absolute value function has a single discontinuous max value, which should be the only solution found, if the search succeeded.
+(using default step value of 1.0)
+
+============================================
+What affect does changing the delta step value make on each algorithm? Why?
+============================================
+Decreasing the value (1.0 --> 0.00000001) increases execution time.
+Increasing the value (1.0 --> 5.0) decreases execution time.
+
+Also, the results between simulated annealing and hill-climbing differ starting with a delta value of 0.01 or smaller.  Simulated annealing begins to
+fail to find the global maximum/minimum.
+
+As to why, it probably has to do with how simulated annealing uses a exponential cooling (temperature) function and with a really small step-size
+it can't search far enough to find the global maximum/minimum and instead returns a local maximum/minimum.
+
+Also, with a step-size of 10.0 or larger, both algorithms fail to find the global maximum/minimum.
+This might be because it is simply consistently skipping over the global max/min due to the large steps it takes.
+
+============================================
+What is the purpose of the exp_schedule() method in the simulated annealing function call?
+============================================
+The method determines the parameters for the exponential cooling (temperature) of the simulated annealing algorithm.
+This allows the algorithm to escape local maxima or minima (solutions) in order to explore nearby, possibly worse solutions,
+in order to try to find the global maxima or minima (solutions).
+
+============================================
+Save the answers to these questions in a text file, lab.txt, so that you can submit them later.
+
+============================================================================================================
+Exercise 2.2
+Create a new module (sine.py), similar to the absolute value variant from exercise 2.1, that uses the sine function variant specified above as its objective function. Get your new implementation running and then answer the following (similar) questions:
+============================================================================================================
+
+============================================
+How do each of the algorithms do on this problem space? Why?
+============================================
+Both algorithms seem to find different solutions each execution.
+
+The absolute sine function is cyclical in nature, with a increasing maximum as x-value becomes more positive or negative.
+There is no global maximum per se as the maximum increases to infinity as x increases to plus/minus infinity, unless we restrict our range.
+There is a global minimum of 0.
+
+Therefore, depending on the direction and how far the search goes, the results can be a different local maximum.
+
+D:\Dropbox\CS_344\venv\Scripts\python.exe D:/Dropbox/CS_344/u02local/sine.py
+Initial                      x: 28		value: 7.585362072620333
+Hill-climbing solution       x: 27.0	value: 25.82215006692158
+Simulated annealing solution x: 42.0	value: 38.49390501245662
+
+Hill-climbing elapsed time is: 0.0
+Annealing elapsed time is: 0.009996652603149414
+
+Process finished with exit code 0
+
+
+D:\Dropbox\CS_344\venv\Scripts\python.exe D:/Dropbox/CS_344/u02local/sine.py
+Initial                      x: 29		value: 19.245382642176057
+Hill-climbing solution       x: 30.0	value: 29.640948722785854
+Simulated annealing solution x: 24.0	value: 21.733880688158973
+
+Hill-climbing elapsed time is: 0.0
+Annealing elapsed time is: 0.009996414184570312
+
+Process finished with exit code 0
+
+
+============================================
+Does the starting value make any difference here?
+============================================
+For both algorithms, the starting value seems to affect/determine the x-value and y-value of the solution that is returned.
+
+============================================
+Does modifying the step size (i.e., delta) affect the operation of the two algorithms? Why or why not?
+============================================
+Decreasing the step-size seems to increase the time required to execute both algorithms, at least for very small values.
+It also seems to cause both algorithms to return x-value solutions that are closer to the initial x-value selected for the execution of the program.
+
+Increasing the step-size decreases the time required to execute both algorithms.
+It also seems to cause both algorithms to return x-value solutions that are further away from the initial x-value selected for the execution of the program.
+
+============================================
+What are the maximum and minimum possible values here, and how do the two algorithms score with respect to them?
+============================================
+For both algorithms, there are limitless possibilities for maximum and minimum values depending on adjustments to the parameters of the search algorithms.
+
+With a default step size of 1.0, both algorithms will return x-values that are both positive and negative corresponding to some positive min/max value found.
+
+The x-value returned by the hill-climbing algorithm seems to be close to the initially selected x-value while the x-value returned by the simulated annealing
+algorithm can differ greatly from the initial x-value.
+
+============================================
+Add the answers to these questions to lab.txt.
+
+============================================================================================================
+Exercise 2.3
+Add code to your abs-sine implementation that implements random restarts.
+============================================================================================================
+-Not sure I implemented this correctly =O
+
+============================================
+How does each algorithm do with these restarts? Why?
+============================================
+I am using a step value of 1.0.
+
+Hill-climbing seems faster at this step value.
+
+Hill-climbing elapsed time is: 0.0009999275207519531
+Annealing elapsed time is: 0.10596609115600586
+
+However, at smaller step values, simulated annealing is still faster than hill-climbing.
+
+I am using a while loop for each algorithm and having them run 11 iterations each, with each algorithm randomly selecting a initial value
+for each of their iterations.
+
+I am using a if statement to keep track of the highest recorded maximum and returning its associated x-value as the solution.
+
+Otherwise, things seem to be mostly the same as with the sine function without random restarts.
+
+D:\Dropbox\CS_344\venv\Scripts\python.exe D:/Dropbox/CS_344/u02local/sine_random_restart.py
+Initial                      x: 10		value: 5.440211108893697
+Initial                      x: 11		value: 10.999892272057739
+Initial                      x: 29		value: 19.245382642176057
+Initial                      x: 21		value: 17.56976840925718
+Initial                      x: 26		value: 19.82651971246967
+Initial                      x: 23		value: 19.463069296028923
+Initial                      x: 13		value: 5.462171478746332
+Initial                      x: 11		value: 10.999892272057739
+Initial                      x: 1		value: 0.8414709848078965
+Initial                      x: 11		value: 10.999892272057739
+Initial                      x: 2		value: 1.8185948536513634
+Initial                      x: 4		value: 3.027209981231713
+Initial                      x: 21		value: 17.56976840925718
+Initial                      x: 17		value: 16.343757361952466
+Initial                      x: 2		value: 1.8185948536513634
+Initial                      x: 24		value: 21.733880688158973
+Initial                      x: 5		value: 4.794621373315692
+Initial                      x: 3		value: 0.4233600241796016
+Initial                      x: 22		value: 0.1947288043888853
+Initial                      x: 26		value: 19.82651971246967
+Initial                      x: 14		value: 13.868502979728184
+Initial                      x: 5		value: 4.794621373315692
+
+Hill-climbing elapsed time is: 0.0009996891021728516
+Annealing elapsed time is: 0.10596632957458496
+
+
+Hill-climbing solution       x: 30.0	value: 29.640948722785854
+Simulated annealing solution x: 36.0	value: 35.704038723952166
+
+Process finished with exit code 0
+
+
+============================================
+What are the average values of the runs for each of the algorithms?
+============================================
+For hill-climbing, the results vary in the 20-30 x-value range (usually)
+For simulated annealing the results vary in the 30-42 x-value range (usually)
+
+============================================
+If one of the algorithms does better, explain why; if not, explain why not.
+============================================
+Provided I understood and implemented random restarts correctly, simulated annealing seems to manage to find a higher x-value and associated maximum value
+than hill-climbing. (at a step value of 1)
+
+If this is the definition of "better", then I will assume that the fact that simulated annealing utilizes the exp_schedule method for its exponential cooling
+function allows it to search further than hill climbing for the optimal solution.
+
+I am not sure random restarts has anything to do with this other than to make it easier to see that simulated annealing indeed, on the average, does find a
+higher x-value and associated maximum value for the sine variant function.
+
+============================================
+Add the answers to these questions to lab.txt.
+
+============================================================================================================
+Exercise 2.4
+Consider the use of local beam search in which the successor states are chosen using one of the two algorithms as applied to the abs-sin function.
+============================================================================================================
+
+============================================
+For which algorithm does beam search make the most sense?
+============================================
+Simulated annealing.
+
+We need to be able to obtain a set of states that could lead to the optimal solution whereas hill-climbing only progresses if the next solution is
+better than the previous solution.
+
+============================================
+How many solutions could you maintain with reasonable space and time constraints?
+============================================
+Whatever breadth-first search can usually maintain before bogging down to infinity and beyond.
+Can also depend on your hardware specs.
+
+============================================
+How would you modify the code to implement beam search? How is it different from random restarts, if at all?
+============================================
+I suppose I wouldn't just have each iteration of simulated annealing choose a completely random initial starting x-value.
+I would apply some sort of heuristic that could change/narrow down the range of the randomized starting x-value, based on the results of the
+previous batch of iterations of the simulated annealing algorithm and their initial starting x-value.
+
+============================================
+Add the answers to these questions to lab.txt. You are not required to implement this.
+
+============================================================================================================
