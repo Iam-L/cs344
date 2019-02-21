@@ -21,7 +21,7 @@ def print_solution(result):
             if val == h: print('\t', var)
 
 
-puzzle = Zebra()
+puzzle = Courses()
 
 # result = depth_first_graph_search(puzzle)
 # result = AC3(puzzle)
@@ -37,6 +37,9 @@ else:
     puzzle.display(puzzle.infer_assignment())
 
 # The Zebra Puzzle
+
+
+def Courses():
 
 
 

@@ -11,6 +11,7 @@ import itertools
 import math
 
 class Salesman(Problem):
+
     """An implementation of NQueens for local search. This is a complete-state
     reformulation of the partial-state AIMA-Python version.
 
