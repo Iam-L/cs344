@@ -10,7 +10,7 @@ from search import Problem, hill_climbing, simulated_annealing, exp_schedule
 import itertools
 import math
 
-class NQueens(Problem):
+class Salesman(Problem):
     """An implementation of NQueens for local search. This is a complete-state
     reformulation of the partial-state AIMA-Python version.
 
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     print('Start:    ' + str(board))
 
     # Initialize the NQueens problem
-    p = NQueens(n, board)
+    p = Salesman(n, board)
     print('Value:    ' + str(p.value(board)))
 
     # Solve the problem using hill climbing.
