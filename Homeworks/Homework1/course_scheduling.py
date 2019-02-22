@@ -92,19 +92,33 @@ def courses():
     # FIXME - I'm obviously not understanding how this is supposed to work.
     def scheduling_constraint(A, a, B, b):
 
-        # Fail if in the same room at the same time.
-        for myRoom in Classrooms:
-            if A == myRoom and B == myRoom:
-                for myTime in TimeSlots:
-                    if A == myTime and B == myTime:
-                        return False
+        for myCourses in Courses:
+            if myCourses == A or myCourses == B:
+                for r in Classrooms:
+                    if a == r and b == r:
+                        for t in TimeSlots:
+                            if a == t and b == t:
+                                return False
+                for f in Faculty:
+                    if a == f and b == f:
+                        for t in TimeSlots:
+                            if a == t and b == t:
+                                return False
 
-        # Fail if the same faculty at the same time.
-        for myTeacher in Faculty:
-            if A == myTeacher and B == myTeacher:
-                for myTime in TimeSlots:
-                    if A == myTime and B == myTime:
-                        return False
+
+        # # Fail if in the same room at the same time.
+        # for myRoom in Classrooms:
+        #     if A == myRoom and B == myRoom:
+        #         for myTime in TimeSlots:
+        #             if a == myTime and b == myTime:
+        #                 return False
+        #
+        # # Fail if the same faculty at the same time.
+        # for myTeacher in Faculty:
+        #     if A == myTeacher and B == myTeacher:
+        #         for myTime in TimeSlots:
+        #             if a == myTime and b == myTime:
+        #                 return False
 
         return True
         # raise Exception('error')

@@ -16,6 +16,7 @@ FIXME - errors galore!
 ############################################################################################
 ############################################################################################
 
+import itertools
 # Time how long each algorithm takes.
 import time
 # Random number generator.
@@ -116,6 +117,18 @@ if __name__ == '__main__':
 
     # Debug statement.
     for key, value in cityDistances.items():
+        print("Key is: " + str(key))
+        print("Value is: " + str(value))
+
+    # Create dictionary of distances between all possible pairs of cities (unique).
+    cityPairs = itertools.combinations(cities, 2)
+    cityDistancesUnique = {}
+    for element in cityPairs:
+        cityDistancesUnique[element] = get_rng()
+        print("Unique city pairs: " + str(element))
+
+    # Debug statement.
+    for key, value in cityDistancesUnique.items():
         print("Key is: " + str(key))
         print("Value is: " + str(value))
 
