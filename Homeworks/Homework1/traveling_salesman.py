@@ -33,7 +33,7 @@ Defines the Traveling Salesman problem by modifying queens.py from u02local dire
 
 
 class Salesman(Problem):
-    """ Initalize class variables. """
+    """ Initialize class variables. """
 
     def __init__(self, distances, city):
         self.distances = distances
@@ -47,8 +47,14 @@ class Salesman(Problem):
         c = state
 
         # Does the actual city swapping.
-        key1, key2 = random.sample(list(c), 2)
-        c[key1], c[key2] = c[key2], c[key1]
+        # FIXME - does not work at the moment. (what is a state in actuality?)
+        # key1, key2 = random.sample(list(c), 2)
+        # c[key1], c[key2] = c[key2], c[key1]
+
+        idx = range(len(c))
+
+        i1, i2 = random.sample(idx, 2)
+        c[i1], c[i2] = c[i2], c[i1]
 
         actions.append(c)
         return actions
@@ -70,6 +76,7 @@ class Salesman(Problem):
         # Refer to defined distances between pairs of cities in dictionary.
         # Calculate the distance traveled for this circuit.
         # Return the result.
+        # FIXME - not sure how to do it with my current implementation.
 
         definedDistances = self.distances
         totalDistance = 0
@@ -99,6 +106,7 @@ if __name__ == '__main__':
     print('My cities:    ' + str(cities))
 
     # Create dictionary of distances between all possible pairs of cities.
+    # FIXME - distances should be the same A --> B and B --> A.
     cityDistances = {}
     tuples = {}
     for c1 in cities:
