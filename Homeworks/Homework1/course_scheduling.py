@@ -7,11 +7,10 @@ Date: 2-20-19
 Homework 1 - Problem Solving
 Course Scheduling Constraint Satisfaction Problem
 
-Note to self:
+Notes:
 
-TODO - Ask Professor VanderLinden about the parts I don't quite understand.
+None at the moment.
 
-FIXME - Not working at the moment.
 """
 
 ############################################################################################
@@ -24,81 +23,93 @@ import time
 import csp
 import search
 
+import time
 
 ############################################################################################
 ############################################################################################
+
+# Turn debugging on or off.
+debug = False
+
 
 # Define a course scheduling formulation.
 def courses():
-    # Defines the variables.
+    # Defines the variables and values.
     Courses = 'cs108 cs112 cs212 cs214 cs232 cs262 cs344'.split()
     Faculty = 'adams vanderlinden plantinga wieringa norman'.split()
     TimeSlots = 'mwf8:00-8:50 mwf9:00-9:50 mwf10:30-11:20 tth11:30-12:20 tth12:30-1:20'.split()
     Classrooms = 'nh253 sb382'.split()
-    variables = Courses + Faculty + TimeSlots + Classrooms
+
+    if debug:
+        # Debug statements.
+        print('Courses list:' + str(Courses))
+        print('Faculty list:' + str(Faculty))
+        print('TimeSlots list:' + str(TimeSlots))
+        print('Classrooms list:' + str(Classrooms))
+
+    variables = Courses
+    values = Faculty + TimeSlots + Classrooms
+
+    if debug:
+        # Debug statements.
+        print('My variables: ' + str(variables))
+        print('My values: ' + str(values))
 
     # Defines the domain.
-    domains = {}
+    domain = {}
     for var in variables:
-        domains[var] = list(range(1, 7))
-    domains['cs108'] = [1]
-    domains['cs112'] = [2]
-    domains['cs212'] = [3]
-    domains['cs214'] = [4]
-    domains['cs232'] = [5]
-    domains['cs262'] = [6]
-    domains['cs344'] = [7]
+        domain[var] = values
 
-    # Debug.
-    for d in domains:
-        print("Domain value: " + d)
+    if debug:
+        # Debug statements.
+        for key, value in domain.items():
+            print("My domain key: " + key)
+            print("My domain values: " + str(value))
 
-    # Define the values associated with variables.
-    neighbors = csp.parse_neighbors("""adams: cs112;
-                adams: cs214; vanderlinden: cs344; wieringa: cs108;
-                plantinga: cs212; norman: cs232; vanderlinden: cs262""", variables)
+    # Define neighbors of each variable.
+    neighbors = csp.parse_neighbors("""cs108: cs112 cs212 cs214 cs232 cs262 cs344;
+                cs112: cs108 cs212 cs214 cs232 cs262 cs344; 
+                cs212: cs108 cs112 cs214 cs232 cs262 cs344; 
+                cs214: cs108 cs112 cs212 cs232 cs262 cs344;
+                cs232: cs108 cs112 cs212 cs214 cs262 cs344; 
+                cs262: cs108 cs112 cs212 cs214 cs232 cs344; 
+                cs344: cs108 cs112 cs212 cs214 cs232 cs262""")
 
-    # Debug.
-    for n in neighbors:
-        print("Neighbors Value:" + n)
+    if debug:
+        # Debug statements.
+        for key, value in neighbors.items():
+            print("Neighbors Key:" + key)
+            print("Neighbors Values: " + str(value))
 
-    for types in [Courses, Faculty, TimeSlots, Classrooms]:
-        for A in types:
-            for B in types:
-                if A != B:
-                    if B not in neighbors[A]:
-                        neighbors[A].append(B)
-                    if A not in neighbors[B]:
-                        neighbors[B].append(A)
+    """
+        The constraints are that:
+            each course should be offered exactly once by the assigned faculty member.
+            a faculty member can only teach one thing at a time.
+            a room can only have one class at each time.
+    """
 
     # Define the constraints on the variables.
-    def scheduling_constraint(A, a, B, b, recurse=0):
-        same = (a == b)
-        next_to = abs(a - b) == 1
-        if A == 'adams' and B == 'cs112':
-            return same
-        if A == 'adams' and B == 'cs214':
-            return same
-        if A == 'vanderlinden' and B == 'cs344':
-            return same
-        if A == 'wieringa' and B == 'cs108':
-            return same
-        if A == 'plantinga' and B == 'cs212':
-            return same
-        if A == 'norman' and B == 'cs232':
-            return same
-        if A == 'vanderlinden' and B == 'cs262':
-            return same
-        if recurse == 0:
-            return scheduling_constraint(B, b, A, a, 1)
-        if ((A in Courses and B in Courses) or
-                (A in Faculty and B in Faculty) or
-                (A in TimeSlots and B in TimeSlots) or
-                (A in Classrooms and B in Classrooms)):
-            return not same
-        raise Exception('error')
+    # FIXME - I'm obviously not understanding how this is supposed to work.
+    def scheduling_constraint(A, a, B, b):
 
-    return csp.CSP(variables, domains, neighbors, scheduling_constraint)
+        # Fail if in the same room at the same time.
+        for myRoom in Classrooms:
+            if A == myRoom and B == myRoom:
+                for myTime in TimeSlots:
+                    if A == myTime and B == myTime:
+                        return False
+
+        # Fail if the same faculty at the same time.
+        for myTeacher in Faculty:
+            if A == myTeacher and B == myTeacher:
+                for myTime in TimeSlots:
+                    if A == myTime and B == myTime:
+                        return False
+
+        return True
+        # raise Exception('error')
+
+    return csp.CSP(variables, domain, neighbors, scheduling_constraint)
 
 
 ############################################################################################
@@ -117,14 +128,13 @@ result = csp.min_conflicts(problem, max_steps=1000)
 
 endTime = time.time()
 
-
 """ A CSP solution printer copied from csp.py. """
 
 
-def print_solution(result):
+def print_solution(my_results):
     for h in range(1, 6):
         print('House', h)
-        for (var, val) in result.items():
+        for (var, val) in my_results.items():
             if val == h:
                 print('\t', var)
 
@@ -138,6 +148,8 @@ else:
     print("failed...")
     print(problem.curr_domains)
     problem.display(problem.infer_assignment())
+
+    print("Time taken to execute algorithm: " + str(endTime - startTime))
 
 ############################################################################################
 ############################################################################################
