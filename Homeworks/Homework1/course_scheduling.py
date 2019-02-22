@@ -9,7 +9,9 @@ Course Scheduling Constraint Satisfaction Problem
 
 Notes:
 
-None at the moment.
+Only succeeds when using backtracking search (consistently gives same solution)
+
+All other algorithms consistently fail miserably.
 
 """
 
@@ -23,8 +25,6 @@ import time
 import csp
 import search
 
-import time
-
 ############################################################################################
 ############################################################################################
 
@@ -35,30 +35,43 @@ debug = False
 # Define a course scheduling formulation.
 def courses():
     # Defines the variables and values.
-    Courses = 'cs108 cs112 cs212 cs214 cs232 cs262 cs344'.split()
-    Faculty = 'adams vanderlinden plantinga wieringa norman'.split()
-    TimeSlots = 'mwf8:00-8:50 mwf9:00-9:50 mwf10:30-11:20 tth11:30-12:20 tth12:30-1:20'.split()
-    Classrooms = 'nh253 sb382'.split()
+    courses = 'cs108 cs112 cs212 cs214 cs232 cs262 cs344'.split()
+    faculty = 'adams vanderlinden plantinga wieringa norman'.split()
+    time_slots = 'mwf8:00-8:50 mwf9:00-9:50 mwf10:30-11:20 tth11:30-12:20 tth12:30-1:20'.split()
+    classrooms = 'nh253 sb382'.split()
 
     if debug:
         # Debug statements.
-        print('Courses list:' + str(Courses))
-        print('Faculty list:' + str(Faculty))
-        print('TimeSlots list:' + str(TimeSlots))
-        print('Classrooms list:' + str(Classrooms))
+        print('\ncourses list:' + str(courses))
+        print('faculty list:' + str(faculty))
+        print('time_slots list:' + str(time_slots))
+        print('classrooms list:' + str(classrooms))
 
-    variables = Courses
-    values = Faculty + TimeSlots + Classrooms
+    variables = courses
+    values = faculty + time_slots + classrooms
 
     if debug:
         # Debug statements.
-        print('My variables: ' + str(variables))
+        print('\nMy variables: ' + str(variables))
         print('My values: ' + str(values))
+
+    # Combine values into triplets for use as part of domain.
+    value_triplets = []
+
+    for faculty in faculty:
+        for timeslots in time_slots:
+            for classroom in classrooms:
+                triplet = faculty + ' ' + timeslots + ' ' + classroom
+                value_triplets.append(triplet)
+
+    if debug:
+        # Debug statement.
+        print("\nContents of value_triplets: " + str(value_triplets) + "\n")
 
     # Defines the domain.
     domain = {}
     for var in variables:
-        domain[var] = values
+        domain[var] = value_triplets
 
     if debug:
         # Debug statements.
@@ -77,6 +90,7 @@ def courses():
 
     if debug:
         # Debug statements.
+        print("\n\n")
         for key, value in neighbors.items():
             print("Neighbors Key:" + key)
             print("Neighbors Values: " + str(value))
@@ -89,37 +103,32 @@ def courses():
     """
 
     # Define the constraints on the variables.
-    # FIXME - I'm obviously not understanding how this is supposed to work.
+    # FIXME - WTB more documentation for AIMA code.
     def scheduling_constraint(A, a, B, b):
 
-        for myCourses in Courses:
-            if myCourses == A or myCourses == B:
-                for r in Classrooms:
-                    if a == r and b == r:
-                        for t in TimeSlots:
-                            if a == t and b == t:
-                                return False
-                for f in Faculty:
-                    if a == f and b == f:
-                        for t in TimeSlots:
-                            if a == t and b == t:
-                                return False
+        if debug:
+            # Debug statement.
+            print("\nvalue of A: " + A)
+            print("value of B: " + B)
+            print("value of a: " + a)
+            print("value of b: " + b)
 
+        # Split "a" and "b" from triplets into singlets to test for same'ness.
+        a_split = str(a).split()
+        b_split = str(b).split()
 
-        # # Fail if in the same room at the same time.
-        # for myRoom in Classrooms:
-        #     if A == myRoom and B == myRoom:
-        #         for myTime in TimeSlots:
-        #             if a == myTime and b == myTime:
-        #                 return False
-        #
-        # # Fail if the same faculty at the same time.
-        # for myTeacher in Faculty:
-        #     if A == myTeacher and B == myTeacher:
-        #         for myTime in TimeSlots:
-        #             if a == myTime and b == myTime:
-        #                 return False
+        if debug:
+            # Debug statement.
+            print("\na split contents: " + str(a_split))
+            print("b split contents: " + str(b_split))
 
+        # Important note: (faculty, timeslot, classroom) is the order of the split triplet!!!
+        if a_split[0] == b_split[0] and a_split[1] == b_split[1]:
+            return False
+        if a_split[1] == b_split[1] and a_split[2] == b_split[2]:
+            return False
+
+        # If no constraint violations, return true.
         return True
         # raise Exception('error')
 
@@ -137,33 +146,36 @@ startTime = time.time()
 
 # result = search.depth_first_graph_search(problem)
 # result = csp.AC3(problem)
-# result = csp.backtracking_search(problem)
-result = csp.min_conflicts(problem, max_steps=1000)
+result = csp.backtracking_search(problem)
+# result = csp.min_conflicts(problem, max_steps=100000)
 
 endTime = time.time()
 
-""" A CSP solution printer copied from csp.py. """
+""" A CSP solution printer copied from csp.py. and modified for course scheduling. """
 
 
 def print_solution(my_results):
-    for h in range(1, 6):
-        print('House', h)
-        for (var, val) in my_results.items():
-            if val == h:
-                print('\t', var)
+    print("\nSolution: " + str(my_results))
+    split_results = str(my_results).split()
+
+    if debug:
+        for split in split_results:
+            print("Split solution: " + str(split))
+
+    print("\nTime taken to find solution: " + str(endTime - startTime))
 
 
-""" Print the solution. """
+""" Print the solution (or lack thereof). """
 
 if problem.goal_test(problem.infer_assignment()):
     print("Solution:\n")
     print_solution(result)
 else:
-    print("failed...")
+    print("\nfailed...")
     print(problem.curr_domains)
     problem.display(problem.infer_assignment())
 
-    print("Time taken to execute algorithm: " + str(endTime - startTime))
+    print("\nTime taken to execute algorithm: " + str(endTime - startTime))
 
 ############################################################################################
 ############################################################################################
