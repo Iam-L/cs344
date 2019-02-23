@@ -65,22 +65,33 @@ Compute the value of P(Cavity|catch) :
 
 First, compute it by hand.
 
+
 P(Cavity | Catch) = P(Cavity and Catch) / P(Catch) = 
 
-= 0.5294117647 (using Maple software)
+= 0.5294117647 (using Maple software to do the actual arithmetic)
+
 
 ##############################################
 Verify your answer (and the AIMA implementation) by adding code to compute the specified value.
 
+
 Probability of Cavity | Catch
 False: 0.471, True: 0.529
+
 
 #############################################################################################
 Does the answer confirm what you believe to be true about the probabilities of flipping coins?
 
+
+Probability of Coin2 | Coin1 = Heads
+True = Heads; False = Tails
+False: 0.5, True: 0.5
+
+
 Yes, they are independent events so the outcome of one does not affect the outcome of the other.
 Hence, it is still a 50 percent chance of a heads or tails.
 (provided I programmed the joint probability distribution function correctly)
+
 
 #############################################################################################
 Can you see now why the full joint is generally not used in probabilistic systems?
@@ -105,5 +116,7 @@ effect on the other
 URL: https://www.cs.tut.fi/~elomaa/teach/AI-2012-7.pdf
 
 I guess that explains it?
+
+
 #############################################################################################
 """

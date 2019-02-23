@@ -11,6 +11,10 @@ Note:
 
 Discrete Mathematics ftw.
 
+Screenshots in this folder also show my manual hand calculations.
+
+Hopefully, I didn't make any stupid arithmetic errors.
+
 """
 
 #############################################################################################
@@ -31,16 +35,56 @@ P(-test | user)
 P(test | -user)
 P(User | test)
 
+
+
+                    Drug User:                  Non Drug User:
+TEST:
+
+Positive            0.99                        0.02
+
+Negative            0.01                        0.98
+
+American            0.089                       0.911
+
+
+
+P(user) = 0.99 + 0.01 = 1.00
+
+P(test | user) = P(+ | user) = P(+ ^ user) / P(user) = 0.99 / (0.99 + 0.01) = 0.99 / 1.00 = 0.99
+
+P(-test | user) = P(- | user) = P(- ^ user) / P(user) = 0.01 / (0.99 + 0.01) = 0.01 / 1.00 = 0.01
+
+P(test | -user) = P(+ | not user) = P(+ ^ not user) / P(not user) = 0.02 / (0.02 + 0.98) = 0.02 / 1.00 = 0.02
+
+P(user | test) = P(user | +) = P(user ^ +) / P(+) = 0.99 / (0.99 + 0.02) = 0.99 / 1.01 = 0.9801980198
+
+
 #############################################################################################
 
 Breast cancer2 - 1% of women at age forty who participate in routine screening have breast cancer.
 80% of women with breast cancer will get positive mammographies.
 9.6% of women without breast cancer will also get positive mammographies.
 
+
+Mammography                 Breast Cancer:                      No Breast Cancer:
+
+Positive                    0.80                                0.096
+
+Negative                    0.20                                0.904
+
+Age 40                      0.01                                0.99
+
+
 #############################################################################################
 
 A woman in this age group is found to have a positive mammography in a routine screening.
 What are the chances that she has/doesn't have cancer?
+
+
+P(cancer | positive) = P(cancer ^ positive) / P(positive) = 0.80 / (0.80 + 0.096) = 0.80 / 0.896 = 0.8928571429
+
+P(no cancer | positive) = P(no cancer ^ positive) / P(positive) = 0.096 / (0.80 + 0.096) = 0.096 / 0.896 = 0.1071428571
+
 
 #############################################################################################
 
@@ -51,8 +95,4 @@ Store this in lab_3.txt.
 #############################################################################################
 #############################################################################################
 
-PLease refer to screenshots in this folder, it's a PITA (pain in the arse) to try to type out
-the handwork showing all steps for mathematical calculations.
-
-Well, I did copy my work from Maple software.
 
