@@ -1,0 +1,58 @@
+"""
+Name: Joseph Jinn
+Date: 2-22-19
+Course: CS-344 Artificial Intelligence
+Instructor: Professor Keith VanderLinden
+Assignment: Lab04 - Probability
+
+Answers to Lab 4 questions:
+
+Note:
+
+Discrete Mathematics ftw.
+
+"""
+
+#############################################################################################
+#############################################################################################
+
+Exercise 4.3
+Use probability theory and Bayes’ rule to compute the following (manually, showing all steps):
+
+#############################################################################################
+
+Drug testing1 - Given that a drug test is 99% sensitive (i.e., drug users get positive results 99% of the time)
+and 98% specific (i.e., non drug users get negative results 98% of the time)
+and also that 8.9% of Americans are drug users of some sort, compute the following probabilities:
+
+P(User)
+P(test | user)
+P(-test | user)
+P(test | -user)
+P(User | test)
+
+#############################################################################################
+
+Breast cancer2 - 1% of women at age forty who participate in routine screening have breast cancer.
+80% of women with breast cancer will get positive mammographies.
+9.6% of women without breast cancer will also get positive mammographies.
+
+#############################################################################################
+
+A woman in this age group is found to have a positive mammography in a routine screening.
+What are the chances that she has/doesn't have cancer?
+
+#############################################################################################
+
+According to Yudkowsky, only 15% of doctors have the right intuition on this problem.
+
+Store this in lab_3.txt.
+
+#############################################################################################
+#############################################################################################
+
+PLease refer to screenshots in this folder, it's a PITA (pain in the arse) to try to type out
+the handwork showing all steps for mathematical calculations.
+
+Well, I did copy my work from Maple software.
+

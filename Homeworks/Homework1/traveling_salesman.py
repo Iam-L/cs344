@@ -46,10 +46,10 @@ Defines the Traveling Salesman problem by modifying queens.py from u02local dire
 class Salesman(Problem):
     """ Initialize class variables. """
 
-    def __init__(self, distances, cities):
-        self.distances = distances
+    def __init__(self, distances_for_cites, cities_to_travel_to):
+        self.distances = distances_for_cites
         # Note: must have self.initial as defined in search.py
-        self.initial = cities
+        self.initial = cities_to_travel_to
 
     ################################################################################################
 
@@ -63,7 +63,8 @@ class Salesman(Problem):
         actions = []
 
         # Randomly pick cities to swap based on their indices.
-        for i in range(0, 10):
+        # Note: Will be duplicates as it is randomly picked.  Use large range to try to obtain all possible swaps.
+        for i in range(0, 100):
             # Selects pairs of cities of specified size at random from set of cities.
             sample_size = 2
             my_sample = random.sample(range(len(state)), sample_size)
@@ -181,6 +182,8 @@ class Salesman(Problem):
 def get_rng():
     return random.randint(1, 1000)
 
+################################################################################################
+
 
 """ Attempt to solve a sample Traveling Salesman Problem and print solution to console. """
 
@@ -234,7 +237,7 @@ if __name__ == '__main__':
     print('Hill-climbing:')
     print('\tSolution: ' + str(hill_solution))
     print('\tValue:    ' + str(travel.value(hill_solution)))
-    print('\tTime to find solution using hill-climbing' + str(hillEndTime - hillStartTime))
+    print('\tTime to find solution using hill-climbing: ' + str(hillEndTime - hillStartTime))
 
     # Solve the problem using simulated annealing.
     annealStartTime = time.time()
@@ -244,7 +247,7 @@ if __name__ == '__main__':
     print('Simulated annealing:')
     print('\tSolution: ' + str(annealing_solution))
     print('\tValue:    ' + str(travel.value(annealing_solution)))
-    print('\tTime to find solution using simulated annealing' + str(annealEndTime - annealStartTime))
+    print('\tTime to find solution using simulated annealing: ' + str(annealEndTime - annealStartTime))
 
     ################################################################################################
     ################################################################################################

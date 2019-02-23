@@ -33,7 +33,7 @@ debug = False
 
 
 # Define a course scheduling formulation.
-def courses():
+def courses_scheduling():
     # Defines the variables and values.
     courses = 'cs108 cs112 cs212 cs214 cs232 cs262 cs344'.split()
     faculty = 'adams vanderlinden plantinga wieringa norman'.split()
@@ -139,7 +139,7 @@ def courses():
 ############################################################################################
 
 # Assign problem definition to variable.
-problem = courses()
+problem = courses_scheduling()
 
 """ Select a AIMA search algorithm to use to solve the problem and time its runtime. """
 startTime = time.time()
