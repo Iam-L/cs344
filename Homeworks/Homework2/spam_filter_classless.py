@@ -39,7 +39,6 @@ from collections import Counter
 from itertools import islice
 
 ############################################################################################
-############################################################################################
 
 # Define list of words to test (the message).
 spam_corpus = [["I", "am", "spam", "spam", "I", "am"], ["I", "do", "not", "like", "that", "spamiam"]]
@@ -59,6 +58,9 @@ number_good_messages = len(spam_corpus[1])
 algorithm_threshold_value = 1
 spam_message_threshold_value = 0.9
 interesting_tokens_threshold_value = 15
+
+############################################################################################
+############################################################################################
 
 
 class SpamFilter:
@@ -231,6 +233,9 @@ def message_spam_chance(word_probabilities_dict):
     return spam_message_probability
 
 
+############################################################################################
+
+
 def find_interesting_tokens(word_spam_chance_dict):
     """
     Prunes dictionary containing the words in the message to the most interesting 15 tokens based
@@ -278,6 +283,7 @@ def find_interesting_tokens(word_spam_chance_dict):
     return first15_unnormalized
 
 
+############################################################################################
 ############################################################################################
 
 if __name__ == '__main__':
