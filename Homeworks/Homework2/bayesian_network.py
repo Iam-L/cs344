@@ -17,7 +17,7 @@ cloudy = BayesNet([
     ('Rain', 'Cloudy', {T: 0.80, F: 0.20}),
     ('Sprinkler', 'Cloudy', {T: 0.10, F: 0.50}),
     ('WetGrass', 'Sprinkler Rain', {(T, T): 0.99, (T, F): 0.90, (F, T): 0.90, (F, F): 0.00})
-    ])
+])
 
 # Compute P(Cloudy)
 print("\nP(Cloudy)")
@@ -81,3 +81,5 @@ print(gibbs_ask('Cloudy', dict(WetGrass=F), cloudy).show_approx())
 # See the explanation of the algorithms in AIMA Section 14.4.
 print(rejection_sampling('Cloudy', dict(WetGrass=F), cloudy).show_approx())
 print(likelihood_weighting('Cloudy', dict(WetGrass=F), cloudy).show_approx())
+
+# TODO - fix module not found error in jupyter notebook.
