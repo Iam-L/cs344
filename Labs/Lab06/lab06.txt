@@ -1,0 +1,175 @@
+"""
+Course: CS 344 - Artificial Intelligence
+Instructor: Professor VanderLinden
+Name: Joseph Jinn
+Date: 3-4-19
+
+Lab 06 - Machine Learning - Framing and Formulating a Machine Learning Problem.
+
+Notes:
+
+"""
+
+#######################################################################################################################
+#######################################################################################################################
+
+Exercise 1: Start Clearly and Simply
+Write what you'd like the machine learned model to do.
+
+We want the machine learned model to:
+
+We want the machine learned model to identify whether an e-mail in G-mail is "important" based on the header and
+contents of that e-mail.
+
+#######################################################################################################################
+
+Exercise 2: Your Ideal Outcome
+Adding your ML model to your system should produce a desirable outcome. What is this outcome,
+independent of the model itself? Note that this outcome may be quite different from how you assess the
+model and its quality.
+
+Our ideal outcome is:
+
+Our ideal outcome is to identify those email in G-mail that are urgent and require the receiver to respond to the
+sender ASAP.  Otherwise, the receiver may face dire consequences - financially, legally, etc.
+
+#######################################################################################################################
+
+Exercise 3: Your Success Metrics
+Write down your metrics for success and failure with the ML system.
+The failure metrics are important, that is, how will you know whether the ML system has failed?
+Both the success and failure metrics should be phrased independently of evaluation metrics for the model.
+For example, don't talk about precision, recall, or AUC; talk about the anticipated outcomes, instead.
+Frequently these metrics will be tied to the ideal outcome you specified above.
+
+Our success metrics are:
+
+The receiver of the e-mails in G-mail manages to respond in time to all urgent e-mails without facing repercussions
+for non-response.
+
+Our key results (KR) for the success metrics are:
+
+The receiver of the e-mails in G-mail successfully sends a reply e-mail back to the sender for every e-mail marked as
+"important" within a specific time frame of X hours or days.
+
+Our ML model is deemed a failure if:
+
+The receiver of the e-mails in G-mail receives a second notice from the same sender requesting a response.
+The receiver of the e-mails in G-mail never responds to a e-mail that is marked as "important".
+The receiver of the e-mails in G-mail does not receive an e-mail that should be marked as "important".
+The receiver of the e-mails in G-mail receives a e-mail that should NOT be marked as "important".
+
+#######################################################################################################################
+
+Exercise 4: Your Output
+Write the output that you want your ML model to produce.
+
+The output from our ML model will be:
+
+Clustering: group similar examples.
+
+The output is defined as:
+
+Predict whether an e-mail is important or NOT important based on certain keywords in the header and contents
+ of the e-mail.
+
+#######################################################################################################################
+
+Exercise 5: Using the Output
+Write when your output must be obtained from the ML model, and how it is used in your product.
+
+The output from the ML model will be made:
+
+As the e-mail arrives in the user's G-mail inbox, the model should predict the importance of that e-mail within the
+span of one minute or 60 seconds.  The e-mail should then be categorized and marked as important or not important.
+
+The outcome will be used for:
+
+The e-mails marked as important should be moved to a special tab in the user's G-mail inbox that is titled
+"Important" or "Urgent".
+
+The user should then receive a text or automated call to his or her smart-phone indicating that he or she has
+received important or urgent e-mails that require his or her attention.
+
+#######################################################################################################################
+
+Exercise 6: Your Heuristics
+Write how you would solve the problem if you didn't use ML. For example, what heuristics you might use.
+
+If we didn't use ML, we would:
+
+We would hard-code business logic that scans for certain keywords in e-mail header and contents such as:
+
+e-mails ending with .gov, .edu
+e-mails with the title "DoNotReply" or similar should be excluded from being marked as important.
+e-mails with "social", "promotions", "forums", or other default tags should be excluded from being marked as important.
+
+
+#######################################################################################################################
+
+Exercise 7a: Your Problem, Formulated as an ML Problem
+
+Write down or click on the checkbox for what you think is the best technical solution for your problem.
+Our problem is best framed as:
+
+Classification flow chart --> =2 binary classification
+
+which predicts:
+
+whether an e-mail is important or NOT important. --> {IMPORTANT, NOT IMPORTANT}
+
+in real-time as the e-mail is received from a sender in the G-mail inbox of the user.
+
+#######################################################################################################################
+
+Exercise 7b: Cast your Problem as a Simpler Problem
+When first starting out, simpler problem formulations are easier to reason about and implement.
+Take your given problem and state it as a binary classification or a unidimensional regression problem (or both).
+
+We will predict in real-time whether a email in G-mail is "important" or "not important". (binary classification)
+
+#######################################################################################################################
+
+Exercise 8: Design your Data for the Model
+
+Write the data you want the ML model to use to make predictions.
+
+Input 1 (string): Sender e-mail address
+Input 2 (date): Timestamp of received e-mail
+Input 3 (string): Subject of the e-mail
+Input 3 (string): Other e-mail header information
+Input 4 (string): Contents of the e-mail
+
+Output: "Important"
+Output: "NOT important"
+
+#######################################################################################################################
+
+Exercise 9: Where the Data Comes From
+
+Write down where each input comes from.
+Assess how much work it will be to develop a data pipeline to construct each column for a row.
+
+Input 1: From the header information attached to every e-mail sent/received.
+Input 2: From the header information attached to every e-mail sent/received.
+Input 3: From the header information attached to every e-mail sent/received.
+Input 4: From the body (text) of the e-mail.
+
+Output: Store in "important" tab of inbox.
+Output: Leave as is if not marked "important".
+
+#######################################################################################################################
+
+Exercise 10: Easily Obtained Inputs
+
+Among the inputs you listed in Exercise 8, pick 1-3 inputs that are easy to obtain,
+and that you believe would produce a reasonable, initial outcome.
+
+Input 1: Sender e-mail address
+Input 2: Subject of the e-mail
+Input 3: Contents of the e-mail
+
+Output: "Important"
+Output: "NOT important"
+
+#######################################################################################################################
