@@ -30,6 +30,9 @@ https://stackoverflow.com/questions/3845362/how-can-i-check-if-a-key-exists-in-a
 
 https://www.pythoncentral.io/how-to-sort-python-dictionaries-by-key-or-value/
 (sort a dictionary by its values)
+
+https://www.tutorialspoint.com/How-to-convert-Python-dictionary-keys-values-to-lowercase
+(convert dict keys to lower-case)
 """
 
 ############################################################################################
@@ -40,24 +43,25 @@ from itertools import islice
 
 ############################################################################################
 
-# Define list of words to test (the message).
+# Spam corpus contains spam e-mails.
 spam_corpus = [["I", "am", "spam", "spam", "I", "am"], ["I", "do", "not", "like", "that", "spamiam"]]
+# Ham corpus contains non-spam e-mails.
 ham_corpus = [["do", "i", "like", "green", "eggs", "and", "ham"], ["i", "do"]]
 
-# FIXME - how exactly do we determine the # of good and bad messages? (currently using list lengths inside corpus)
 """
 The especially observant will notice that while I consider each corpus to be a single long stream of text for purposes 
 of counting occurrences, I use the number of emails in each, rather than their combined length, 
 as the divisor in calculating spam probabilities. This adds another slight bias to protect against false positives.
 """
-# Number of spam and non-spam messages.
-number_bad_message = len(spam_corpus[0])
-number_good_messages = len(spam_corpus[1])
+# Number of spam and non-spam e-mails messages (not words).
+number_bad_message = len(spam_corpus)
+number_good_messages = len(spam_corpus)
 
 # Threshold value for the spam filter algorithm.
 algorithm_threshold_value = 1
 spam_message_threshold_value = 0.9
 interesting_tokens_threshold_value = 15
+
 
 ############################################################################################
 ############################################################################################
@@ -68,7 +72,7 @@ class SpamFilter:
     The SpamFilter class accepts a corpus and analyzes it to determine what words are spam and what words are
     legitimate.
 
-    # FIXME - refactor spam filter to be class-based rather than just individual floating functions.
+    # TODO - refactor spam filter to be class-based rather than just individual floating functions.
     Note: Placeholder for now.
     """
 
@@ -201,7 +205,7 @@ def message_spam_chance(word_probabilities_dict):
 
     # Remove the keys from the dictionary and store only the associated values.
     word_probability_values = sorted(word_probabilities_dict.values())
-    print("word spam probability values only, keys removed: " + str(word_probability_values))
+    print("\nword spam probability values only, keys removed: " + str(word_probability_values))
 
     # Calculate the product of all individual word probabilities.
     product_of_probabilities = 1.0
@@ -257,11 +261,11 @@ def find_interesting_tokens(word_spam_chance_dict):
         normalized_word_spam_chance = {}
         for key, value in word_spam_chance_dict.items():
             normalized_word_spam_chance[key] = abs(0.5 - value)
-        print("normalized word spam chances: " + str(normalized_word_spam_chance))
+        print("\nnormalized word spam chances: " + str(normalized_word_spam_chance))
 
         # Sort dictionary so that largest deviations are at the front.
         sorted_dict = sorted(normalized_word_spam_chance.items())
-        print("my sorted dict with normalized values: " + str(sorted_dict))
+        print("\nmy sorted dict with normalized values: " + str(sorted_dict))
 
         # Slice dictionary so only first 15 key-value pairs are left.
         slice_dict = islice(sorted_dict, interesting_tokens_threshold_value)
@@ -270,7 +274,7 @@ def find_interesting_tokens(word_spam_chance_dict):
         first15 = {}
         for each in slice_dict:
             first15[each[0]] = each[1]
-        print("first 15 tokens with normalized keys and values: " + str(first15))
+        print("\nfirst 15 tokens with normalized keys and values: " + str(first15))
 
         # Un-normalize and return to original values by assigning original values.
         first15_unnormalized = {}
@@ -283,8 +287,42 @@ def find_interesting_tokens(word_spam_chance_dict):
     return first15_unnormalized
 
 
+def convert_to_lowercase_and_combine_dict(spam_occurrences, nonspam_occurrences):
+    """
+    Convert all keys to lower-case as words should not be case-sensitive.
+    Also, collapse all messages and their individual words into one combined dictionary containing
+    all unique component words and their occurrences.
+
+    :param spam_occurrences: contains all spam words and their occurrences as multiple dictionaries.
+    :param nonspam_occurrences: contains all non-spam words and their occurrences as multiple dictionaries.
+    :return:  two dictionaries, one for spam and one for non-spam, containing their lower-case words and
+    associated occurrences.
+    """
+    lowercase_only_spam_word_occurrences = {}
+    for each_dictionary in spam_occurrences:
+        for key, value in each_dictionary.items():
+            if key.lower() not in lowercase_only_spam_word_occurrences:
+                lowercase_only_spam_word_occurrences[key.lower()] = value
+            else:
+                lowercase_only_spam_word_occurrences[key.lower()] += value
+    print("\nlower-case only word spam word occurrences: " + str(lowercase_only_spam_word_occurrences))
+
+    lowercase_only_nonspam_word_occurrences = {}
+    for each_dictionary in nonspam_occurrences:
+        for key, value in each_dictionary.items():
+            if key.lower() not in lowercase_only_nonspam_word_occurrences:
+                lowercase_only_nonspam_word_occurrences[key.lower()] = value
+            else:
+                lowercase_only_nonspam_word_occurrences[key.lower()] += value
+    print("lower-case only word non-spam word occurrences: " + str(lowercase_only_nonspam_word_occurrences))
+
+    all_occurrences = [lowercase_only_spam_word_occurrences, lowercase_only_nonspam_word_occurrences]
+    return all_occurrences
+
+
 ############################################################################################
 ############################################################################################
+
 
 if __name__ == '__main__':
     """
@@ -296,17 +334,18 @@ if __name__ == '__main__':
     print("\n\n")
 
     # Get occurrences of each word in the list of words - returned as dictionary.
-    tokenOccurrencesDict = word_occurrences(spam_corpus)
-    print("occurrences of each word in spam and non-spam dictionary: " + str(tokenOccurrencesDict))
+    spamWordOccurrencesDict = word_occurrences(spam_corpus)
+    nonSpamWordOccurrencesDict = word_occurrences(ham_corpus)
+    print("\noccurrences of each word in spam dictionary: " + str(spamWordOccurrencesDict))
+    print("occurrences of each word in non-spam dictionary: " + str(nonSpamWordOccurrencesDict))
 
-    # Convert "Counter" to dict.
-    spamWordsDict = dict(tokenOccurrencesDict[0])
-    nonSpamWordsDict = dict(tokenOccurrencesDict[1])
-    print("spam dictionary: " + str(spamWordsDict))
-    print("non-spam dictionary: " + str(nonSpamWordsDict))
+    # Convert words to lower-case, sum occurrences of unique words, and return as list containing 2 dictionaries -
+    # one for spam and another for non-spam.
+    combined_occurrences = convert_to_lowercase_and_combine_dict(spamWordOccurrencesDict, nonSpamWordOccurrencesDict)
 
     # Determine probability that each word in the message is spam - returned as dictionary.
-    word_spam_chance = individual_word_spam_chance(spamWordsDict, nonSpamWordsDict, algorithm_threshold_value)
+    word_spam_chance = individual_word_spam_chance(combined_occurrences[0],
+                                                   combined_occurrences[1], algorithm_threshold_value)
     print("words spam probabilities: " + str(word_spam_chance))
 
     # Obtain the 15 most interesting tokens in the message.
