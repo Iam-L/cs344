@@ -311,13 +311,13 @@ def find_interesting_tokens(test_corpus_words, word_spam_chance_dict):
         first15[each[0]] = each[1]
     print("\nfirst 15 tokens with normalized keys and values: " + str(first15))
 
-    # # Un-normalize and return to original values by assigning original values.
-    # first15_unnormalized = {}
-    # for key, value in first15.items():
-    #     first15_unnormalized[key] = word_spam_chance_dict[key]
-    # print("first 15 tokens un-normalized keys and values: " + str(first15_unnormalized))
+    # Un-normalize and return to original values by assigning original values.
+    first15_unnormalized = {}
+    for key, value in first15.items():
+        first15_unnormalized[key] = test_corpus_word_probability_dict[key]
+    print("first 15 tokens un-normalized keys and values: " + str(first15_unnormalized))
 
-    return first15
+    return first15_unnormalized
 
 
 ############################################################################################
@@ -404,8 +404,8 @@ if __name__ == '__main__':
     """
 
     # Obtain the 15 most interesting tokens in the message based on their normalized spam probabilities.
-    interesting_words_only = find_interesting_tokens(test_corpus[0], word_spam_chance)
-    # interesting_words_only = find_interesting_tokens(spam_corpus[0], word_spam_chance)
+    # interesting_words_only = find_interesting_tokens(test_corpus[0], word_spam_chance)
+    interesting_words_only = find_interesting_tokens(spam_corpus[0], word_spam_chance)
     # interesting_words_only = find_interesting_tokens(spam_corpus[1], word_spam_chance)
     # interesting_words_only = find_interesting_tokens(ham_corpus[0], word_spam_chance)
     # interesting_words_only = find_interesting_tokens(ham_corpus[1], word_spam_chance)
@@ -422,5 +422,3 @@ if __name__ == '__main__':
 
 ############################################################################################
 ############################################################################################
-
-# TODO - ask Professor VanderLiden about jupyter notebook errors.
