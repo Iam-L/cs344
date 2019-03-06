@@ -271,7 +271,7 @@ def find_interesting_tokens(test_corpus_words, word_spam_chance_dict):
     where interesting is measured by how far their spam probability is from a neutral .5,
     are used to calculate the probability that the mail is spam.
 
-    TODO - ask Professor VanderLinden if this is done correctly.
+    TODO - ask Professor VanderLinden if this is done correctly. (do we use normalized or unormalized values?
     """
 
     # Assign probabilities to words in the test corpus based on established dataset of words and spam probabilities.
@@ -289,7 +289,12 @@ def find_interesting_tokens(test_corpus_words, word_spam_chance_dict):
     # Determine the 15 tokens with the largest deviation from neutral 0.5.
     normalized_word_spam_chance = {}
     for key, value in test_corpus_word_probability_dict.items():
-        normalized_word_spam_chance[key] = abs(0.5 - value)
+
+        # Prevent normalized values = 0.0.
+        if value == 0.5:
+            normalized_word_spam_chance[key] = abs(0.51 - value)
+        else:
+            normalized_word_spam_chance[key] = abs(0.5 - value)
     print("\nnormalized word spam chances: " + str(normalized_word_spam_chance))
 
     # Sort dictionary so that largest deviations are at the front.
@@ -400,11 +405,16 @@ if __name__ == '__main__':
 
     # Obtain the 15 most interesting tokens in the message based on their normalized spam probabilities.
     interesting_words_only = find_interesting_tokens(test_corpus[0], word_spam_chance)
+    # interesting_words_only = find_interesting_tokens(spam_corpus[0], word_spam_chance)
+    # interesting_words_only = find_interesting_tokens(spam_corpus[1], word_spam_chance)
+    # interesting_words_only = find_interesting_tokens(ham_corpus[0], word_spam_chance)
+    # interesting_words_only = find_interesting_tokens(ham_corpus[1], word_spam_chance)
 
     # Obtain the spam message probability value.
     result = message_spam_chance(interesting_words_only)
 
     # Compare spam message probability value against threshold spam probability value.
+    print("\nThreshold value above which e-mail message is considered spam: " + str(spam_message_threshold_value))
     if result >= spam_message_threshold_value:
         print("Spam!!!!")
     else:
@@ -412,3 +422,5 @@ if __name__ == '__main__':
 
 ############################################################################################
 ############################################################################################
+
+# TODO - ask Professor VanderLiden about jupyter notebook errors.
