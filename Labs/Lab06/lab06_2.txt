@@ -1,0 +1,24 @@
+"""
+Course: CS 344 - Artificial Intelligence
+Instructor: Professor VanderLinden
+Name: Joseph Jinn
+Date: 3-4-19
+
+Lab 06 - Machine Learning - Framing and Formulating a Machine Learning Problem.
+
+Notes:
+
+Please refer to screen captures in the Lab06 directory for all algebraic steps.
+
+"""
+
+#######################################################################################################################
+#######################################################################################################################
+
+Entropy(hungry): 0.9798687567
+
+Remainder(hungry-wait): 0.8042903712
+
+Information Gain(hungry) = Entropy(hungry) - Remainder(hungry-wait) = 0.1755783855
+
+#######################################################################################################################

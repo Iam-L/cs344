@@ -4,6 +4,9 @@ It's taken from the AIMA Python code.
 
 @author: kvlinden
 @version Jan 2, 2013
+
+Note: Don't start Jupyter network using the terminal, use the ghetto method described in lab.
+
 '''
 
 from probability import BayesNet, enumeration_ask, elimination_ask, gibbs_ask, rejection_sampling, likelihood_weighting
@@ -81,5 +84,3 @@ print(gibbs_ask('Cloudy', dict(WetGrass=F), cloudy).show_approx())
 # See the explanation of the algorithms in AIMA Section 14.4.
 print(rejection_sampling('Cloudy', dict(WetGrass=F), cloudy).show_approx())
 print(likelihood_weighting('Cloudy', dict(WetGrass=F), cloudy).show_approx())
-
-# TODO - fix module not found error in jupyter notebook.

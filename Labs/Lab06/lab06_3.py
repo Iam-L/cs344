@@ -45,7 +45,7 @@ Load the Keras version of the Boston Housing Price dataset (boston_housing) and 
 
 Print the number of training and testing examples.
 Print the rank, shape and data type of the examples.
-Save your code in lab06.py, including all partner’s names in the file.
+Save your code in lab06_3.py, including all partner’s names in the file.
 
 """
 

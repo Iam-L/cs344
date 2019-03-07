@@ -14,6 +14,8 @@ SPAM/HAM corpus (and only this corpus) using a minimum count threshold of 1 (rat
 
 Oh, god, functional languages...
 
+############################################
+
 Resources Used:
 
 https://stackoverflow.com/questions/2600191/how-can-i-count-the-occurrences-of-a-list-item
@@ -60,9 +62,11 @@ as the divisor in calculating spam probabilities. This adds another slight bias 
 number_bad_message = len(spam_corpus)
 number_good_messages = len(ham_corpus)
 
-# Threshold value for the spam filter algorithm.
+# Threshold value for the spam filter algorithm (function individual_word_spam_chance).
 algorithm_threshold_value = 1
+# Threshold value to determine if the message is actually spam.
 spam_message_threshold_value = 0.9
+# Threshold value for the number of interesting tokens to use in testing for spam.
 interesting_tokens_threshold_value = 15
 
 
@@ -99,7 +103,7 @@ def word_occurrences(corpus):
     Counts the number of times each word occurs in the message.
 
     :param corpus: list of words to count occurrences for.
-    :return:  dictionary of each word and their occurrences.
+    :return:  list of dictionaries of each word and their occurrences.
 
     ################################################################################
 
@@ -171,7 +175,7 @@ def individual_word_spam_chance(spam_words_dict, non_spam_words_dict, threshold)
     :param spam_words_dict: dictionary containing spam words.
     :param non_spam_words_dict: dictionary containing non-spam words.
     :param threshold: threshold value for statistical algorithm.
-    :return:  spam'liness value of each individual word as a dictionary.
+    :return:  spam'liness probability value of each individual word as a dictionary.
 
     ################################################################################
 
@@ -261,6 +265,9 @@ def find_interesting_tokens(test_corpus_words, word_spam_chance_dict):
     Prunes dictionary containing the words in the message to the most interesting 15 tokens based
     on the size of their deviation from the "Neutral" value of 0.5
 
+    To perform this function, it first assigns spam probability to each words by referencing a established dataset
+    of words and their spam probability.  If word not found in dataset, assigned a fixed specific value.
+
     :param test_corpus_words: the words in the message we wish to determine if it is spam.
     :param word_spam_chance_dict: dictionary containing the spam probabilities of each word.
     :return: the 15 most interesting words and their associated spam probabilities.
@@ -271,11 +278,11 @@ def find_interesting_tokens(test_corpus_words, word_spam_chance_dict):
     where interesting is measured by how far their spam probability is from a neutral .5,
     are used to calculate the probability that the mail is spam.
 
-    TODO - ask Professor VanderLinden if this is done correctly. (do we use normalized or unormalized values?
     """
 
     # Assign probabilities to words in the test corpus based on established dataset of words and spam probabilities.
     test_corpus_word_probability_dict = {}
+
     for each_word in test_corpus_words:
         # If dataset contains that word, assign previously calculated spam probability.
         if each_word.lower() in word_spam_chance_dict.keys():
@@ -285,9 +292,12 @@ def find_interesting_tokens(test_corpus_words, word_spam_chance_dict):
             test_corpus_word_probability_dict[each_word.lower()] = 0.4
     print("\ncontents of test corpus word probability dictionary: " + str(test_corpus_word_probability_dict))
 
+    ############################################
+
     # If more than 15 tokens, prune to the most "interesting" 15.
     # Determine the 15 tokens with the largest deviation from neutral 0.5.
     normalized_word_spam_chance = {}
+
     for key, value in test_corpus_word_probability_dict.items():
 
         # Prevent normalized values = 0.0.
@@ -297,12 +307,14 @@ def find_interesting_tokens(test_corpus_words, word_spam_chance_dict):
             normalized_word_spam_chance[key] = abs(0.5 - value)
     print("\nnormalized word spam chances: " + str(normalized_word_spam_chance))
 
+    ############################################
+
     # Sort dictionary so that largest deviations are at the front.
     # FIXME - figure out a way to properly sort the dictionary based on value.
     sorted_dict = sorted(normalized_word_spam_chance.items())
-    print("\nmy sorted dict with normalized values: " + str(sorted_dict))
+    print("\nsorted normalized word spam chances: " + str(sorted_dict))
 
-    # Slice dictionary so only first 15 key-value pairs are left.
+    # Slice so only first 15 key-value pairs are left.
     slice_dict = islice(sorted_dict, interesting_tokens_threshold_value)
 
     # Convert to dictionary as islice returns an iterator.
@@ -310,6 +322,8 @@ def find_interesting_tokens(test_corpus_words, word_spam_chance_dict):
     for each in slice_dict:
         first15[each[0]] = each[1]
     print("\nfirst 15 tokens with normalized keys and values: " + str(first15))
+
+    ############################################
 
     # Un-normalize and return to original values by assigning original values.
     first15_unnormalized = {}
@@ -382,7 +396,7 @@ if __name__ == '__main__':
     print("I like Spam! - Delicious!")
     print("\n\n")
 
-    # Get occurrences of each word in the list of words - returned as dictionary.
+    # Get occurrences of each word in the list of words - returned as list of dictionaries.
     spamWordOccurrencesDict = word_occurrences(spam_corpus)
     nonSpamWordOccurrencesDict = word_occurrences(ham_corpus)
     print("\noccurrences of each word in spam dictionary: " + str(spamWordOccurrencesDict))
@@ -394,9 +408,10 @@ if __name__ == '__main__':
 
     # Determine probability that each word in the message is spam based on spam and non-spam corpus
     # - returned as dictionary.
+    # TODO - this returns all the calculated probabilities for each word!!!!
     word_spam_chance = individual_word_spam_chance(lower_case_words_only[0],
                                                    lower_case_words_only[1], algorithm_threshold_value)
-    print("all words spam probabilities: " + str(word_spam_chance))
+    print("ALL WORDS SPAM PROBABILITIES (should make sense): " + str(word_spam_chance))
 
     ############################################
     """
@@ -404,16 +419,16 @@ if __name__ == '__main__':
     """
 
     # Obtain the 15 most interesting tokens in the message based on their normalized spam probabilities.
-    # interesting_words_only = find_interesting_tokens(test_corpus[0], word_spam_chance)
-    interesting_words_only = find_interesting_tokens(spam_corpus[0], word_spam_chance)
+    interesting_words_only = find_interesting_tokens(test_corpus[0], word_spam_chance)
+    # interesting_words_only = find_interesting_tokens(spam_corpus[0], word_spam_chance)
     # interesting_words_only = find_interesting_tokens(spam_corpus[1], word_spam_chance)
     # interesting_words_only = find_interesting_tokens(ham_corpus[0], word_spam_chance)
     # interesting_words_only = find_interesting_tokens(ham_corpus[1], word_spam_chance)
 
-    # Obtain the spam message probability value.
+    # Obtain the spam message final probability value.
     result = message_spam_chance(interesting_words_only)
 
-    # Compare spam message probability value against threshold spam probability value.
+    # Compare spam message final probability value against threshold spam probability value.
     print("\nThreshold value above which e-mail message is considered spam: " + str(spam_message_threshold_value))
     if result >= spam_message_threshold_value:
         print("Spam!!!!")
