@@ -408,7 +408,7 @@ if __name__ == '__main__':
 
     # Determine probability that each word in the message is spam based on spam and non-spam corpus
     # - returned as dictionary.
-    # TODO - this returns all the calculated probabilities for each word!!!!
+    # TODO - this returns all the calculated probabilities for each word in the spam and ham corpus!
     word_spam_chance = individual_word_spam_chance(lower_case_words_only[0],
                                                    lower_case_words_only[1], algorithm_threshold_value)
     print("ALL WORDS SPAM PROBABILITIES (should make sense): " + str(word_spam_chance))
