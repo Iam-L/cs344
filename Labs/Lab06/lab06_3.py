@@ -10,7 +10,7 @@ Lab 06 - Machine Learning - Numpy
 
 Notes:
 
-Exercise 6.2
+Exercise 6.3
 
 URL: https://www.tensorflow.org/guide/tensors
 (WTF is a tensor?)

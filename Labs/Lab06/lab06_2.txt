@@ -8,6 +8,8 @@ Lab 06 - Machine Learning - Framing and Formulating a Machine Learning Problem.
 
 Notes:
 
+Exercise 6.2
+
 Please refer to screen captures in the Lab06 directory for all algebraic steps.
 
 """
@@ -15,10 +17,10 @@ Please refer to screen captures in the Lab06 directory for all algebraic steps.
 #######################################################################################################################
 #######################################################################################################################
 
-Entropy(hungry): 0.9798687567
+Entropy(hungry): 1.000000000000
 
 Remainder(hungry-wait): 0.8042903712
 
-Information Gain(hungry) = Entropy(hungry) - Remainder(hungry-wait) = 0.1755783855
+Information Gain(hungry) = Entropy(hungry) - Remainder(hungry-wait) = 1.000000000000 - 0.8042903712 = 0.1957096288
 
 #######################################################################################################################
