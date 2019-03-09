@@ -8,7 +8,7 @@ Lab 06 - Machine Learning - Numpy
 
 ##################################################################################################
 
-Notes:
+Notes: (did this before you revised Lab 06)
 
 Exercise 6.3
 

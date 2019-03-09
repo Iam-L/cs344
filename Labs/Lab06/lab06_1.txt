@@ -10,7 +10,7 @@ Notes:
 
 Exercise 6.1
 
-Hopefully, I did this decently.
+Hopefully, I did this correctly.
 
 """
 
@@ -19,12 +19,12 @@ Hopefully, I did this decently.
 
 Exercise 1: Start Clearly and Simply
 
-Write what you'd like the machine learned model to do.
+Write what you'd like the machine-learned model to do.
 
 ####################################################
-We want the machine learned model to:
+We want the machine-learned model to:
 
-We want the machine learned model to identify whether an e-mail in G-mail is "important" based on the header and
+We want the machine-learned model to identify whether an e-mail in G-mail is "important" based on the header and
 contents of that e-mail.
 
 #######################################################################################################################
@@ -38,7 +38,7 @@ model and its quality.
 ####################################################
 Our ideal outcome is:
 
-Our ideal outcome is to identify those email in G-mail that are urgent and require the receiver to respond to the
+Our ideal outcome is to identify those emails in G-mail that are urgent and require the receiver to respond to the
 sender ASAP.  Otherwise, the receiver may face dire consequences - financially, legally, etc.
 
 #######################################################################################################################
@@ -67,9 +67,9 @@ The receiver of the e-mails in G-mail successfully sends a reply e-mail back to 
 Our ML model is deemed a failure if:
 
 The receiver of the e-mails in G-mail receives a second notice from the same sender requesting a response.
-The receiver of the e-mails in G-mail never responds to a e-mail that is marked as "important".
+The receiver of the e-mails in G-mail never responds to an e-mail that is marked as "important".
 The receiver of the e-mails in G-mail does not receive an e-mail that should be marked as "important".
-The receiver of the e-mails in G-mail receives a e-mail that should NOT be marked as "important".
+The receiver of the e-mails in G-mail receives an e-mail that should NOT be marked as "important".
 
 #######################################################################################################################
 
@@ -113,7 +113,7 @@ received important or urgent e-mails that require his or her attention.
 
 Exercise 6: Your Heuristics
 
-Write how you would solve the problem if you didn't use ML. For example, what heuristics you might use.
+Write about how you would solve the problem if you didn't use ML. For example, what heuristics you might use.
 
 ####################################################
 If we didn't use ML, we would:
@@ -150,7 +150,7 @@ Exercise 7b: Cast your Problem as a Simpler Problem
 When first starting out, simpler problem formulations are easier to reason about and implement.
 Take your given problem and state it as a binary classification or a unidimensional regression problem (or both).
 
-We will predict in real-time whether a email in G-mail is "important" or "not important". (binary classification)
+We will predict in real-time whether an email in G-mail is "important" or "not important". (binary classification)
 
 #######################################################################################################################
 
@@ -159,7 +159,7 @@ Exercise 8: Design your Data for the Model
 Write the data you want the ML model to use to make predictions.
 
 Input 1 (string): Sender e-mail address
-Input 2 (date): Timestamp of received e-mail
+Input 2 (date): Timestamp of the received e-mail
 Input 3 (string): Subject of the e-mail
 Input 3 (string): Other e-mail header information
 Input 4 (string): Contents of the e-mail
@@ -179,14 +179,14 @@ Input 2: From the header information attached to every e-mail sent/received.
 Input 3: From the header information attached to every e-mail sent/received.
 Input 4: From the body (text) of the e-mail.
 
-Output: Store in "important" tab of inbox.
+Output: Store in "important" tab of the inbox.
 Output: Leave as is if not marked "important".
 
 #######################################################################################################################
 
 Exercise 10: Easily Obtained Inputs
 
-Among the inputs you listed in Exercise 8, pick 1-3 inputs that are easy to obtain,
+Among the inputs, you listed in Exercise 8, pick 1-3 inputs that are easy to obtain,
 and that you believe would produce a reasonable, initial outcome.
 
 Input 1: Sender e-mail address
@@ -197,3 +197,4 @@ Output: "Important"
 Output: "NOT important"
 
 #######################################################################################################################
+
