@@ -9,6 +9,8 @@ Notes:
 
 Exercise 7.1 - Intro to Pandas
 
+-Included code just to see if I can run it from within PyCharm.
+
 """
 
 ###########################################################################################
@@ -73,6 +75,7 @@ print(cities)
 print("\n")
 
 ###########################################################################################
+
 """
 Exercise #1
 Modify the cities table by adding a new boolean column that is True if and only if both of the following are True:
@@ -119,6 +122,7 @@ print(city_name_shuffle)
 print("\n")
 
 ###########################################################################################
+
 """
 Exercise #2
 The reindex method allows index values that are not in the original DataFrame's index values. 
@@ -136,11 +140,12 @@ to be assigned the value of NaN.
 I guess it is permitted as a way of quickly creating new rows and assigning default column values.
 This allows new data to be inserted anywhere in the data frame in between existing entries.
 """
+
 ###########################################################################################
 ###########################################################################################
 
 """
-
+Exercise 7.1 Questions:
 ###########################################################################################
 Why would one use Pandas rather than the standard data manipulation features provided by NumPy?
 
@@ -165,5 +170,7 @@ If you want a random sample of selections from the entire data frame for statist
 feature with the random.permutation function.
 
 ###########################################################################################
+
+Submit your solutions to exercises 1–2.
 
 """
