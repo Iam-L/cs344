@@ -139,7 +139,7 @@ Min-conflict algorithm:
 Fails to find a solution for the easy version after a while.
 I will assume it will also fail to find a solution for the harder and hardest version.
 
-This algorithm relies on complete state formulation as per local search and the sudoku boards give aren't in a state of complete formulation.
+This algorithm relies on complete state formulation as per local search and the sudoku boards given aren't in a state of complete formulation.
 Hence, it is unsurprising it will fail unless we assign values to all the empty positions on the game board.
 
 D:\Dropbox\CS_344\venv\Scripts\python.exe D:/Dropbox/CS_344/cs344/Labs/Lab03/sudoku.py

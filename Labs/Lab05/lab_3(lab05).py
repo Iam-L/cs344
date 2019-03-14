@@ -89,7 +89,7 @@ print(rejection_sampling('Raise', dict(Happy=T, Sunny=F), happiness).show_approx
 print(likelihood_weighting('Raise', dict(Happy=T, Sunny=F), happiness).show_approx())
 
 '''
-The results are part a make sense to me.  There is a higher chance you received a raise if it is not only
+The results of part a make sense to me.  There is a higher chance you received a raise if it is not only
 sunny, but you are also happy to boot.
 '''
 
