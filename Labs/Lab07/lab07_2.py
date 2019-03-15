@@ -343,9 +343,9 @@ Numerical data:
 Data that is a number (integer or float) and that you want to treat as a number.
 
 ###########################################################################################
-
 Submit solutions to tasks 1–2. Include your best hyper-parameter values and the resulting RMSE, 
 but not the training output.
+#######################################################
 
 Task 1:
 
@@ -389,6 +389,7 @@ Well, it did go down a bit using the same settings. (I made it worse with other 
 
 ###########################################################################################
 What are the hyper-parameters learned in these exercises and is there a “standard” tuning algorithm for them?
+#######################################################
 
 The "knobs" that you tweak during successive runs of training a model.
 
@@ -408,3 +409,6 @@ So there are no hard-and-fast rules; you'll need to test on your data."
 ###########################################################################################
 
 """
+
+###########################################################################################
+###########################################################################################

@@ -18,6 +18,9 @@ https://www.tensorflow.org/guide/using_gpu
 Well, looks like my older laptap with Geforce 780M in SLI only has CUDA compute 3.0 so I can't use tensorflow with it.
 However, my newer laptop with a Geforce 1050Ti has CUDA computer 6.1 so I'm good using that =).
 
+URL: https://matplotlib.org/tutorials/introductory/usage.html
+URL: https://matplotlib.org/users/pyplot_tutorial.html
+
 """
 
 ###########################################################################################
@@ -116,6 +119,7 @@ def train_model(learning_rate, steps, batch_size, input_feature):
     steps_per_period = steps / periods
 
     my_feature = input_feature
+
     my_feature_data = california_housing_dataframe[[my_feature]].astype('float32')
     my_label = "median_house_value"
     targets = california_housing_dataframe[my_label].astype('float32')
@@ -198,6 +202,33 @@ def train_model(learning_rate, steps, batch_size, input_feature):
 
     print("Final RMSE (on training data): %0.2f" % root_mean_squared_error)
 
+    """
+    Code for Task 2.
+    ####################################################
+    """
+
+    # Scatter-plot graph of Predictions versus Targets.
+    plt.figure()
+    plt.subplot(1, 2, 1)
+    plt.ylabel('Target')
+    plt.xlabel('Predictions')
+    plt.title("Predictions versus Target Values")
+    plt.tight_layout()
+    plt.scatter(calibration_data["predictions"], calibration_data["targets"])
+
+    # Histogram graph of rooms_per_person
+    plt.subplot(1, 2, 2)
+    plt.ylabel('Population')
+    plt.xlabel('Rooms')
+    plt.title("Rooms per Person")
+    plt.tight_layout()
+    plt.hist(california_housing_dataframe["rooms_per_person"])
+    plt.show()
+
+    """
+    ####################################################
+    """
+
     return calibration_data
 
 
@@ -217,21 +248,147 @@ if __name__ == '__main__':
     # Runs the op.
     print(sess.run(c))
 
+    ###############################################
+
+    """
+    Task 1: Try a Synthetic Feature
+    
+    Both the total_rooms and population features count totals for a given city block.
+
+    But what if one city block were more densely populated than another? 
+    We can explore how block density relates to median house value by creating a synthetic feature 
+    that's a ratio of total_rooms and population.
+    
+    In the cell below, create a feature called rooms_per_person, and use that as the input_feature to train_model().
+
+    What's the best performance you can get with this single feature by tweaking the learning rate? 
+    (The better the performance, the better your regression line should fit the data, 
+    and the lower the final RMSE should be.)
+    
+    """
+
+    california_housing_dataframe["rooms_per_person"] = california_housing_dataframe['total_rooms'] / \
+                                                       california_housing_dataframe['population']
+
+    print(california_housing_dataframe[['rooms_per_person']])
+
+    """
+    Code for Task 3.
+    ####################################################
+    """
+
+    # Clip so that we have no values over 1000.
+    california_housing_dataframe["clipped_rooms_per_person"] = \
+        california_housing_dataframe["rooms_per_person"].apply(lambda clip: min(clip, 7))
+
+    """
+    ####################################################
+    """
+
+    calibration_data = train_model(
+        learning_rate=0.0000005,
+        steps=250,
+        batch_size=5,
+        input_feature="clipped_rooms_per_person"
+    )
+
+    ###############################################
+
+    """
+    Task 2: Identify Outliers
+    
+    We can visualize the performance of our model by creating a scatter plot of predictions vs. target values. 
+    Ideally, these would lie on a perfectly correlated diagonal line.
+
+    Use Pyplot's scatter() to create a scatter plot of predictions vs. targets, 
+    using the rooms-per-person model you trained in Task 1.
+    
+    Do you see any oddities? Trace these back to the source data by looking at the distribution of
+     values in rooms_per_person.
+     
+     Notes:
+     
+     Refer to code in the def train_model function in the section labeled "Code for Task 2". (or refer below)
+     Refer to .png files in Lab07 directory for the scatter-plot and histogram graphs.
+     
+    # Scatter-plot graph of Predictions versus Targets.
+    plt.figure()
+    plt.subplot(1, 2, 1)
+    plt.ylabel('Target')
+    plt.xlabel('Predictions')
+    plt.title("Predictions versus Target Values")
+    plt.tight_layout()
+    plt.scatter(calibration_data["predictions"], calibration_data["targets"])
+
+    # Histogram graph of rooms_per_person
+    plt.subplot(1, 2, 2)
+    plt.ylabel('Population')
+    plt.xlabel('Rooms')
+    plt.title("Rooms per Person")
+    plt.tight_layout()
+    plt.hist(california_housing_dataframe["rooms_per_person"])
+    plt.show()
+    
+    """
+
+    ###############################################
+
+    """
+    Task 3: Clip Outliers
+    
+    See if you can further improve the model fit by setting the outlier values of rooms_per_person 
+    to some reasonable minimum or maximum.
+    
+    For reference, here's a quick example of how to apply a function to a Pandas Series:
+    
+    clipped_feature = my_dataframe["my_feature_name"].apply(lambda x: max(x, 0))
+    The above clipped_feature will have no values less than 0.
+    
+    Notes:
+    
+     Refer to code in the def train_model function in the section labeled "Code for Task 3". (or refer below)
+     Refer to .png files in Lab07 directory for the scatter-plot and histogram graphs.
+     
+     # Clip so that we have no values over 1000.
+    california_housing_dataframe["clipped_rooms_per_person"] = \
+        california_housing_dataframe["rooms_per_person"].apply(lambda clip: min(clip, 7))
+
+    """
 ###########################################################################################
 ###########################################################################################
 
 """
 Exercise 7.3 Questions:
 ###########################################################################################
-
 What is the purpose of introducing synthetic features?
+#######################################################
+
+A feature not present among the input features, but created from one or more of them.
+
+The purpose is to improve upon the performance and predictive abilities of the machine learning model.
+
+URL: http://www.chioka.in/improving-classifier-performance-with-synthetic-features/
 
 ###########################################################################################
-
 What are outliers and what is typically done with them?
+#######################################################
+
+Values distant from most other values. In machine learning, any of the following are outliers:
+
+Weights with high absolute values.
+Predicted values relatively far away from the actual values.
+Input data whose values are more than roughly 3 standard deviations from the mean.
+
+#######################################################
+
+Outliers often cause problems in model training. Clipping is one way of managing outliers.
 
 ###########################################################################################
 
 Submit solutions to tasks 1–3.
 
 """
+
+###########################################################################################
+###########################################################################################
+
