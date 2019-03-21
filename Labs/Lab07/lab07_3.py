@@ -9,6 +9,8 @@ Notes:
 
 Exercise 7.3 - Synthetic Features and Outliers
 
+-Included code just to see if I can run it from within PyCharm.
+
 Resources:
 
 URL: https://databricks.com/tensorflow/using-a-gpu

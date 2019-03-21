@@ -9,6 +9,8 @@ Notes:
 
 Exercise 7.4 - Validation
 
+-Included code just to see if I can run it from within PyCharm.
+
 """
 
 ###########################################################################################
