@@ -9,7 +9,8 @@ Notes:
 
 Exercise 7.2 - First Steps with Tensor Flow
 
--Included code just to see if I can run it from within PyCharm.
+-Included code just to see if I can run it from within PyCharm and because it executes faster.
+- Refer to sections below for answers to Exercise questions and code added for Tasks.
 
 Resources:
 
@@ -401,7 +402,7 @@ batch size
 
 ###################################################
 
-There are no standard tuning algorithm as it depends on what your data consists of.
+There is no standard tuning algorithm as it depends on what your data consists of.
 
 "The short answer is that the effects of different hyperparameters are data dependent. 
 So there are no hard-and-fast rules; you'll need to test on your data."

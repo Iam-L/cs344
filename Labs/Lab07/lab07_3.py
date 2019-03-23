@@ -9,7 +9,8 @@ Notes:
 
 Exercise 7.3 - Synthetic Features and Outliers
 
--Included code just to see if I can run it from within PyCharm.
+-Included code just to see if I can run it from within PyCharm and because it executes faster.
+- Refer to sections below for answers to Exercise questions and code added for Tasks.
 
 Resources:
 
@@ -267,6 +268,32 @@ if __name__ == '__main__':
     (The better the performance, the better your regression line should fit the data, 
     and the lower the final RMSE should be.)
     
+        Training model...
+    RMSE (on training data):
+      period 00 : 237.54
+      period 01 : 237.54
+      period 02 : 237.54
+      period 03 : 237.54
+      period 04 : 237.54
+      period 05 : 237.54
+      period 06 : 237.54
+      period 07 : 237.54
+      period 08 : 237.54
+      period 09 : 237.54
+    Model training finished.
+           predictions  targets
+    count      17000.0  17000.0
+    mean           0.0    207.3
+    std            0.0    116.0
+    min            0.0     15.0
+    25%            0.0    119.4
+    50%            0.0    180.4
+    75%            0.0    265.0
+    max            0.0    500.0
+    Final RMSE (on training data): 237.54
+    
+    Process finished with exit code 0
+
     """
 
     california_housing_dataframe["rooms_per_person"] = california_housing_dataframe['total_rooms'] / \
@@ -281,14 +308,14 @@ if __name__ == '__main__':
 
     # Clip so that we have no values over 1000.
     california_housing_dataframe["clipped_rooms_per_person"] = \
-        california_housing_dataframe["rooms_per_person"].apply(lambda clip: min(clip, 7))
+        california_housing_dataframe["rooms_per_person"].apply(lambda clip: min(clip, 5))
 
     """
     ####################################################
     """
 
     calibration_data = train_model(
-        learning_rate=0.0000005,
+        learning_rate=0.0005,
         steps=250,
         batch_size=5,
         input_feature="clipped_rooms_per_person"
@@ -331,6 +358,7 @@ if __name__ == '__main__':
     plt.hist(california_housing_dataframe["rooms_per_person"])
     plt.show()
     
+    Oddities: outlier values in histogram of rooms per person.
     """
 
     ###############################################
@@ -355,6 +383,32 @@ if __name__ == '__main__':
     california_housing_dataframe["clipped_rooms_per_person"] = \
         california_housing_dataframe["rooms_per_person"].apply(lambda clip: min(clip, 7))
 
+    Training model...
+    RMSE (on training data):
+      period 00 : 237.41
+      period 01 : 237.29
+      period 02 : 237.16
+      period 03 : 237.04
+      period 04 : 236.91
+      period 05 : 236.79
+      period 06 : 236.66
+      period 07 : 236.54
+      period 08 : 236.41
+      period 09 : 236.28
+    Model training finished.
+           predictions  targets
+    count      17000.0  17000.0
+    mean           1.4    207.3
+    std            0.4    116.0
+    min            0.3     15.0
+    25%            1.1    119.4
+    50%            1.4    180.4
+    75%            1.6    265.0
+    max            3.1    500.0
+    Final RMSE (on training data): 236.28
+
+    Note: Well, it improved a tad.  Moving on for now.
+    
     """
 ###########################################################################################
 ###########################################################################################

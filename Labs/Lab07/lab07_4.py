@@ -9,7 +9,8 @@ Notes:
 
 Exercise 7.4 - Validation
 
--Included code just to see if I can run it from within PyCharm.
+-Included code just to see if I can run it from within PyCharm and because it executes faster.
+- Refer to sections below for answers to Exercise questions and code added for Tasks.
 
 """
 
@@ -541,12 +542,6 @@ validation_targets.describe()
 
 ##############################################
 
-I changed the batch size below:
-
-def my_input_fn(features, targets, batch_size=5, shuffle=True, num_epochs=None):
-
-##############################################
-
 I changed the shuffle value below:
 
     # Shuffle the data, if specified.
@@ -555,8 +550,48 @@ I changed the shuffle value below:
         
 ##############################################
 
-Refer to sections in the def train_model() function labeled "Code for Task 4".
+    linear_regressor = train_model(
+        # TWEAK THESE VALUES TO SEE HOW MUCH YOU CAN IMPROVE THE RMSE
+        learning_rate=0.00001,
+        steps=500,
+        batch_size=5,
+        training_examples=training_examples,
+        training_targets=training_targets,
+        validation_examples=validation_examples,
+        validation_targets=validation_targets)
+        
+##############################################
 
+Next, go ahead and complete the train_model() code below to set up the input functions and calculate predictions.
+
+NOTE: It's okay to reference the code from the previous exercises, but make sure to call predict() 
+on the appropriate data sets.
+
+Compare the losses on training data and validation data. With a single raw feature, our best root mean squared error 
+(RMSE) was of about 180.
+
+See how much better you can do now that we can use multiple features.
+
+##############################################
+
+Refer to sections in the def train_model() function labeled "Code for Task 4". (or refer below)
+
+
+ # 1. Create input functions.
+    training_input_fn = lambda: my_input_fn(training_examples, training_targets["median_house_value"],
+                                            batch_size=batch_size)
+    predict_training_input_fn = lambda: my_input_fn(training_examples, training_targets["median_house_value"],
+                                                    num_epochs=1, shuffle=False)
+    predict_validation_input_fn = lambda: my_input_fn(validation_examples, validation_targets["median_house_value"],
+                                                      num_epochs=1, shuffle=False)
+
+
+        # 2. Take a break and compute predictions.
+        training_predictions = linear_regressor.predict(input_fn=predict_training_input_fn)
+        training_predictions = np.array([item['predictions'][0] for item in training_predictions])
+        validation_predictions = linear_regressor.predict(input_fn=predict_validation_input_fn)
+        validation_predictions = np.array([item['predictions'][0] for item in validation_predictions])
+        
 """
 
 ###########################################################################################
@@ -573,7 +608,28 @@ Test data set is located here.
 
 ##############################################
 
-Refer to if __name__ == '__main__': and section titled "Code for Task 5".
+Refer to if __name__ == '__main__': and section titled "Code for Task 5". (or refer below)
+
+
+ california_housing_test_data = pd.read_csv(
+        "https://download.mlcc.google.com/mledu-datasets/california_housing_test.csv", sep=",")
+
+    test_examples = preprocess_features(california_housing_test_data)
+    test_targets = preprocess_targets(california_housing_test_data)
+
+    predict_test_input_fn = lambda: my_input_fn(
+        test_examples,
+        test_targets["median_house_value"],
+        num_epochs=1,
+        shuffle=False)
+
+    test_predictions = linear_regressor.predict(input_fn=predict_test_input_fn)
+    test_predictions = np.array([item['predictions'][0] for item in test_predictions])
+
+    root_mean_squared_error = math.sqrt(
+        metrics.mean_squared_error(test_predictions, test_targets))
+
+    print("Final RMSE (on test data): %0.2f" % root_mean_squared_error)
 
 ##############################################
 How does your test performance compare to the validation performance? 

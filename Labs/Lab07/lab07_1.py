@@ -9,8 +9,8 @@ Notes:
 
 Exercise 7.1 - Intro to Pandas
 
--Included code just to see if I can run it from within PyCharm.
-
+-Included code just to see if I can run it from within PyCharm and because it executes faster.
+- Refer to sections below for answers to Exercise questions and code added for Tasks.
 """
 
 ###########################################################################################
@@ -134,8 +134,8 @@ print(try_it)
 print("\n")
 
 """
-Using index values that don't originally exist in the dataframe causes all of the columns in each row
-to be assigned the value of NaN.
+Using index values that don't originally exist in the dataframe creates a new row and causes all of the values 
+in that row to be assigned the value of NaN.
 
 I guess it is permitted as a way of quickly creating new rows and assigning default column values.
 This allows new data to be inserted anywhere in the data frame in between existing entries.
@@ -168,6 +168,9 @@ Under what circumstances would it be useful to reorder/shuffle a Pandas DataFram
 
 If you want a random sample of selections from the entire data frame for statistical purposes you could use this
 feature with the random.permutation function.
+
+The entire dataframe constructed from the entire dataset could have been given in sorted order or organized in
+some other way.  So, randomization ensures the sample truly is random.
 
 ###########################################################################################
 
