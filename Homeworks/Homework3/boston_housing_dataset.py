@@ -9,8 +9,6 @@ Boston Housing Dataset - Load and Manipulate via Tensorflow
 
 Notes:
 
-TODO - get the training to work.
-
 ############################################
 
 Resources Used:
@@ -427,7 +425,7 @@ if __name__ == '__main__':
     print(test_examples.describe())
 
     test_targets = preprocess_targets(boston_housing_pandas_dataframe_testing_targets.head(52))
-    print("\nTraining set targets:\n")
+    print("\nTesting set targets:\n")
     print(test_targets.describe())
 
     """

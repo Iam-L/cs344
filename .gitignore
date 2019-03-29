@@ -102,3 +102,4 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+Labs/Lab09/cats_and_dogs_filtered/

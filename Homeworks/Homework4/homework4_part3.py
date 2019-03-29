@@ -15,7 +15,10 @@ Notes:
 
 Resources Used:
 
--TODO
+URL: https://www.tensorflow.org/tutorials/keras/basic_classification
+(Keras tutorial)
+
+URL: https://developers.google.com/machine-learning/practica/image-classification/
 
 ############################################
 
