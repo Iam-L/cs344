@@ -211,7 +211,7 @@ def preprocess_features(boston_housing_dataframe):
     
     full-value property-tax rate per $10,000 / per capita crime rate by town = property_tax_per_capita_crime
     
-    I believe this should be a useful synthetic feature as property tax rate and per capita crime rate have a high
+    I believe this should be a useful synthetic feature as property tax rate and per capita crime rate could have a high
     chance of influencing the median housing value in that area of boston.
     
     I feel that the median housing value in the area would decrease if there is a higher per capita crime rate.
