@@ -309,7 +309,7 @@ Seaborn library is built on top of the Matplotlib library.
 You can learn both the libraries as both them are easy to understand and implement. 
 If you are a beginner and want to learn visualisation fast then I would recommend you to learn seaborn first.
 
-Plotting with seaborn is very much easy and intituitive and you will learn it very fast. 
+Plotting with seaborn is very much easy and intuitive and you will learn it very fast. 
 Once you are comfortable with the seaborn then you can start with matplotlib.
 
 ##############################################
