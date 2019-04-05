@@ -1,0 +1,121 @@
+"""
+Course: CS 344 - Artificial Intelligence
+Instructor: Professor VanderLinden
+Name: Joseph Jinn
+Date: 3-27-19
+Assignment: Lab 09 - Classification
+
+Notes:
+
+Exercise 9.2 - Sparsity and L1 Regularization
+"""
+
+###########################################################################################
+
+    """
+    Task 1: Find a good regularization coefficient.
+
+    Find an L1 regularization strength parameter which satisfies both constraints —
+    model size is less than 600 and log-loss is less than 0.35 on validation set.
+
+    Baseline values:
+
+        Training model...
+    LogLoss (on validation data):
+      period 00 : 0.31
+      period 01 : 0.28
+      period 02 : 0.27
+      period 03 : 0.26
+      period 04 : 0.26
+      period 05 : 0.25
+      period 06 : 0.25
+    Model training finished.
+    Model size: 789
+
+    """
+
+    # Train the model.
+
+    start_time = time.time()
+
+    linear_classifier = train_linear_classifier_model(
+        learning_rate=0.1,
+        # TWEAK THE REGULARIZATION VALUE BELOW
+        regularization_strength=0.05,
+        steps=300,
+        batch_size=100,
+        feature_columns=construct_feature_columns(),
+        training_examples=training_examples,
+        training_targets=training_targets,
+        validation_examples=validation_examples,
+        validation_targets=validation_targets)
+    print("Model size:", model_size(linear_classifier))
+
+    end_time = time.time()
+
+    print("Time taken to train model: " + str(end_time - start_time))
+
+###########################################################################################
+
+"""
+Exercise 9.2 Questions:
+###########################################################################################
+
+Why are we regularizing with respect to sparsity?
+
+Sparse vector: A vector whose values are mostly zeroes.
+
+Sparse feature: A feature vector whose values are predominantly zero or empty.
+
+Sparse representation: A representation of a tensor that only stores nonzero element.
+
+To make training the model less computationally expensive and faster.
+
+Some feature vectors are high dimension and sparse, resulting in mostly "0" values and a few "1" values.  Using
+these feature vectors to create feature crosses or other synthetic features increases the model size drastically.
+If we can effectively remove them from consideration then we can reduce model size, which makes training the model
+less computationally expensive and faster.
+
+This will also help to avoid overfitting and generally make the model more efficient.
+
+########################################################
+
+How does L1 regularization increase sparsity?
+
+Unlike L2 regularization, L1 regularization forces weights to exactly 0.0.
+
+L1 regularization penalizes | weight |, or the absolute value of weight.
+
+L1 regularization thus has a derivative that is a constant, k, independent of weight.
+
+L1 regularization subtracts some constant value, k, from the weight iteratively.  When the subtraction results crosses
+ 0.0, it is zeroed out. (due to the abs function having a discontinuity at 0)
+
+If a high dimensional sparse feature vector can have its weight forced to exactly 0.0, it is essentially removed
+from consideration when training the model.  Hence, "zero'ing" out the feature set will save on RAM requirements
+and could reduce noise in the model.
+
+########################################################
+
+Task 1: Here, just report the best log loss value / model size you can get and what gamma value you used to get them.
+
+Training model...
+LogLoss (on validation data):
+  period 00 : 0.31
+  period 01 : 0.28
+  period 02 : 0.26
+  period 03 : 0.25
+  period 04 : 0.25
+  period 05 : 0.24
+  period 06 : 0.24
+Model training finished.
+Model size: 784
+Time taken to train model: 210.67125177383423
+
+Process finished with exit code 0
+
+Yea, I'm not going to do many attempts since it takes nearly 4 minutes per. (even longer using notebook online)
+
+########################################################
+Save your answers in lab09_2.txt.
+"""

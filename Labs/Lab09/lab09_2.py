@@ -382,7 +382,7 @@ Sparse vector: A vector whose values are mostly zeroes.
 
 Sparse feature: A feature vector whose values are predominantly zero or empty.
 
-Spare representation: A representation of a tensor that only stores nonzero element.
+Sparse representation: A representation of a tensor that only stores nonzero element.
 
 To make training the model less computationally expensive and faster.
 
@@ -390,6 +390,8 @@ Some feature vectors are high dimension and sparse, resulting in mostly "0" valu
 these feature vectors to create feature crosses or other synthetic features increases the model size drastically.
 If we can effectively remove them from consideration then we can reduce model size, which makes training the model 
 less computationally expensive and faster.
+
+This will also help to avoid overfitting and generally make the model more efficient.
 
 ########################################################
 

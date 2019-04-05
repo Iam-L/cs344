@@ -11,6 +11,10 @@ Exercise 9.3 - ML Practicum: Image Classification
 
 -Included code just to see if I can run it from within PyCharm and because it executes faster.
 - Refer to sections below for answers to Exercise questions and code added for Tasks.
+
+PyCharm gives import errors but everything still seems to work fine.
+
+FIXME - error in the visualize intermediate representation matplotlib code in trying to run locally.
 """
 
 ###########################################################################################
@@ -363,7 +367,7 @@ for layer_name, feature_map in zip(layer_names, successive_feature_maps):
             # Postprocess the feature to make it visually palatable
             x = feature_map[0, :, :, i]
             x -= x.mean()
-            x /= x.std()
+            x /= x.std() # Some kind of error here.
             x *= 64
             x += 128
             x = np.clip(x, 0, 255).astype('uint8')
@@ -426,10 +430,22 @@ NOTE: The 2,000 images used in this exercise are excerpted from the "Dogs vs. Ca
 which contains 25,000 images. Here, we use a subset of the full dataset to decrease training time for educational 
 purposes.
 
+So, 25,000 images in total for the entire dataset but we are using just 2,000, a subset, to expedite training time.
+
 ########################################################
 How does the first convnet compare with the one we did in class.
 
-TODO - answer once we do this in class.
+The one in Exercise 1 has 3 max_pooling2d layers while the one in class only has 2 max_pooling2d layers.
+
+The one in Exercise 1 has 9,494,561 total trainable parameters while the one in class only has 93,222 trainable
+parameters.
+
+The model summary for Exercise 1 shows a input_layer whereas the model summary for the one in class does not.
+
+The specific numerical differences in terms of nodes, dimensions, etc., can be seen below from the copy/pasted
+model summary of the one from Exercise 1 and the one from class.
+
+Convolutional Neural Network for Exercise 1 of ML Practicum:
 
 _________________________________________________________________
 Layer (type)                 Output Shape              Param #   
@@ -461,28 +477,65 @@ _________________________________________________________________
 
 Process finished with exit code 0
 
+##############################
+
+Convolutional Neural Network for In-Class Lecture:
+
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+conv2d_4 (Conv2D)            (None, 26, 26, 32)        320       
+_________________________________________________________________
+max_pooling2d_3 (MaxPooling2 (None, 13, 13, 32)        0         
+_________________________________________________________________
+conv2d_5 (Conv2D)            (None, 11, 11, 64)        18496     
+_________________________________________________________________
+max_pooling2d_4 (MaxPooling2 (None, 5, 5, 64)          0         
+_________________________________________________________________
+conv2d_6 (Conv2D)            (None, 3, 3, 64)          36928     
+_________________________________________________________________
+flatten_2 (Flatten)          (None, 576)               0         
+_________________________________________________________________
+dense_3 (Dense)              (None, 64)                36928     
+_________________________________________________________________
+dense_4 (Dense)              (None, 10)                650       
+=================================================================
+Total params: 93,322
+Trainable params: 93,322
+Non-trainable params: 0
+_________________________________________________________________
+
 ########################################################
 
 Can you see any interesting patterns in the intermediate representations?
 
-As you go deeper, the layers displays smaller images.
-Some of the images displayed seems like what you would see after applying Photoshop filters.
-Some of the images are visibly of cats/dogs while others are very abstract.
-The images seem predominantly a hue of green and yellow with some blue.
+As you go deeper, the layers displays smaller representations.
+Some of the representations displayed seems like what you would see after applying a Adobe Photoshop filters.
+Some of the representations are visibly of cats while others are very abstract.
+The representations seem predominantly a hue of green and yellow with some blue.
+There are some completely black/blank squares/representations.
+Some of the representations seem to be a dot-by-dot yellow outline of parts of the cat.
+
+These are repeating the same single image and manipulating that representation in different ways?
+
+It makes sense the max_pooling layer would decrease the size of the representation as we learned in class it takes the
+max value and discards the rest of the data, thereby reducing dimensions.
+
+This is hierarchical decomposition as we go deeper into the layers.
 
 ########################################################
 
 Exercise 2:
 What is data augmentation?
 
-Artificially boosting the diversity and # of training examples by performing random transformations to existing images
-to create a set of new variants. (scaling, skewing, rotating, translating, etc.)
+Artificially boosting the diversity and number of training examples by performing random transformations to 
+existing images to create a set of new variants. (scaling, skewing, rotating, translating, etc.)
 
 ########################################################
 
 Report your best results and the hyperparameters you used to get them.
 
-This took forever training on 30 epochs >_<.
+This took forever training on 30 epochs in the online notebook >_<.
 
 ###########################
 
@@ -534,11 +587,104 @@ print("Time taken to train: " + str(end_time - start_time))
 ###########################
 Results:
 
+(refer to exercise9.3_training_validation_acc.png in Lab09 directory for accuracy metric)
+(refer to exercise9.3_training_validation_loss.png in Lab09 directory for loss metric)
+
+
+ WARNING:tensorflow:From /usr/local/lib/python2.7/dist-packages/tensorflow/python/ops/math_ops.py:3066: to_int32 (from tensorflow.python.ops.math_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use tf.cast instead.
+Epoch 1/30
+50/50 [==============================] - 5s 92ms/step - loss: 0.7350 - acc: 0.5030
+ - 21s - loss: 0.8190 - acc: 0.4995 - val_loss: 0.7350 - val_acc: 0.5030
+Epoch 2/30
+50/50 [==============================] - 5s 91ms/step - loss: 0.6264 - acc: 0.6580
+ - 19s - loss: 0.6872 - acc: 0.5725 - val_loss: 0.6264 - val_acc: 0.6580
+Epoch 3/30
+50/50 [==============================] - 5s 91ms/step - loss: 0.6079 - acc: 0.6780
+ - 19s - loss: 0.6641 - acc: 0.6115 - val_loss: 0.6079 - val_acc: 0.6780
+Epoch 4/30
+50/50 [==============================] - 4s 90ms/step - loss: 0.6129 - acc: 0.6490
+ - 19s - loss: 0.6609 - acc: 0.6365 - val_loss: 0.6129 - val_acc: 0.6490
+Epoch 5/30
+50/50 [==============================] - 5s 91ms/step - loss: 0.5849 - acc: 0.6610
+ - 19s - loss: 0.6311 - acc: 0.6650 - val_loss: 0.5849 - val_acc: 0.6610
+Epoch 6/30
+50/50 [==============================] - 5s 91ms/step - loss: 0.5700 - acc: 0.7160
+ - 19s - loss: 0.6322 - acc: 0.6615 - val_loss: 0.5700 - val_acc: 0.7160
+Epoch 7/30
+50/50 [==============================] - 4s 90ms/step - loss: 0.6864 - acc: 0.6460
+ - 19s - loss: 0.6111 - acc: 0.6780 - val_loss: 0.6864 - val_acc: 0.6460
+Epoch 8/30
+50/50 [==============================] - 5s 90ms/step - loss: 0.5681 - acc: 0.7020
+ - 20s - loss: 0.6130 - acc: 0.6725 - val_loss: 0.5681 - val_acc: 0.7020
+Epoch 9/30
+50/50 [==============================] - 5s 90ms/step - loss: 0.5388 - acc: 0.7180
+ - 19s - loss: 0.5916 - acc: 0.6955 - val_loss: 0.5388 - val_acc: 0.7180
+Epoch 10/30
+50/50 [==============================] - 5s 92ms/step - loss: 0.6784 - acc: 0.6440
+ - 19s - loss: 0.5846 - acc: 0.7030 - val_loss: 0.6784 - val_acc: 0.6440
+Epoch 11/30
+50/50 [==============================] - 5s 91ms/step - loss: 0.5534 - acc: 0.7020
+ - 19s - loss: 0.5906 - acc: 0.6840 - val_loss: 0.5534 - val_acc: 0.7020
+Epoch 12/30
+50/50 [==============================] - 4s 88ms/step - loss: 0.5248 - acc: 0.7420
+ - 19s - loss: 0.5829 - acc: 0.7010 - val_loss: 0.5248 - val_acc: 0.7420
+Epoch 13/30
+50/50 [==============================] - 5s 92ms/step - loss: 0.5198 - acc: 0.7410
+ - 19s - loss: 0.5919 - acc: 0.6920 - val_loss: 0.5198 - val_acc: 0.7410
+Epoch 14/30
+50/50 [==============================] - 5s 91ms/step - loss: 0.5471 - acc: 0.7180
+ - 19s - loss: 0.5717 - acc: 0.7090 - val_loss: 0.5471 - val_acc: 0.7180
+Epoch 15/30
+50/50 [==============================] - 4s 89ms/step - loss: 0.5114 - acc: 0.7390
+ - 19s - loss: 0.5682 - acc: 0.7140 - val_loss: 0.5114 - val_acc: 0.7390
+Epoch 16/30
+50/50 [==============================] - 4s 90ms/step - loss: 0.5501 - acc: 0.7310
+ - 19s - loss: 0.5720 - acc: 0.7205 - val_loss: 0.5501 - val_acc: 0.7310
+Epoch 17/30
+50/50 [==============================] - 4s 90ms/step - loss: 0.5267 - acc: 0.7340
+ - 19s - loss: 0.5753 - acc: 0.7155 - val_loss: 0.5267 - val_acc: 0.7340
+Epoch 18/30
+50/50 [==============================] - 4s 88ms/step - loss: 0.5391 - acc: 0.7200
+ - 19s - loss: 0.5593 - acc: 0.7105 - val_loss: 0.5391 - val_acc: 0.7200
+Epoch 19/30
+50/50 [==============================] - 5s 91ms/step - loss: 0.5033 - acc: 0.7640
+ - 19s - loss: 0.5599 - acc: 0.7145 - val_loss: 0.5033 - val_acc: 0.7640
+Epoch 20/30
+50/50 [==============================] - 5s 91ms/step - loss: 0.5317 - acc: 0.7340
+ - 19s - loss: 0.5560 - acc: 0.7280 - val_loss: 0.5317 - val_acc: 0.7340
+Epoch 21/30
+50/50 [==============================] - 4s 88ms/step - loss: 0.4983 - acc: 0.7410
+ - 19s - loss: 0.5315 - acc: 0.7400 - val_loss: 0.4983 - val_acc: 0.7410
+Epoch 22/30
+50/50 [==============================] - 4s 90ms/step - loss: 0.4957 - acc: 0.7610
+ - 19s - loss: 0.5515 - acc: 0.7295 - val_loss: 0.4957 - val_acc: 0.7610
+Epoch 23/30
+50/50 [==============================] - 5s 91ms/step - loss: 0.5362 - acc: 0.7430
+ - 19s - loss: 0.5263 - acc: 0.7565 - val_loss: 0.5362 - val_acc: 0.7430
+Epoch 24/30
+50/50 [==============================] - 5s 94ms/step - loss: 0.4965 - acc: 0.7440
+ - 19s - loss: 0.5482 - acc: 0.7220 - val_loss: 0.4965 - val_acc: 0.7440
+Epoch 25/30
+50/50 [==============================] - 5s 93ms/step - loss: 0.4796 - acc: 0.7660
+ - 19s - loss: 0.5335 - acc: 0.7365 - val_loss: 0.4796 - val_acc: 0.7660
+Epoch 26/30
+50/50 [==============================] - 4s 90ms/step - loss: 0.5304 - acc: 0.7420
+ - 19s - loss: 0.5428 - acc: 0.7255 - val_loss: 0.5304 - val_acc: 0.7420
 Epoch 27/30
-50/50 [==============================] - 5s 95ms/step - loss: 0.4916 - acc: 0.7740
- - 20s - loss: 0.5398 - acc: 0.7430 - val_loss: 0.4916 - val_acc: 0.7740
- 
-Time taken to train: 1094.2785120010376
+50/50 [==============================] - 5s 92ms/step - loss: 0.5094 - acc: 0.7490
+ - 19s - loss: 0.5341 - acc: 0.7365 - val_loss: 0.5094 - val_acc: 0.7490
+Epoch 28/30
+50/50 [==============================] - 5s 90ms/step - loss: 0.4787 - acc: 0.7600
+ - 19s - loss: 0.5270 - acc: 0.7360 - val_loss: 0.4787 - val_acc: 0.7600
+Epoch 29/30
+50/50 [==============================] - 4s 90ms/step - loss: 0.4883 - acc: 0.7730
+ - 19s - loss: 0.5153 - acc: 0.7445 - val_loss: 0.4883 - val_acc: 0.7730
+Epoch 30/30
+50/50 [==============================] - 5s 91ms/step - loss: 0.4930 - acc: 0.7690
+ - 19s - loss: 0.5193 - acc: 0.7440 - val_loss: 0.4930 - val_acc: 0.7690
+
  
 ########################################################
 

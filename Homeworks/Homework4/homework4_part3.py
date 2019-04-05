@@ -58,26 +58,17 @@ from keras.layers.core import Flatten
 from keras.layers.core import Dropout
 from keras.layers.core import Dense
 from keras import backend as K
-from sklearn.metrics import classification_report
 from keras.optimizers import SGD
 from keras.utils import np_utils
-from imutils import build_montages
-import cv2
 
-# initialize the number of epochs to train for, base learning rate,
-# and batch size
-NUM_EPOCHS = 1
-INIT_LR = 1e-2
-BATCH_SIZE = 32
-
-# Helper libraries
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.metrics import classification_report
 
-# set the matplotlib backend so figures can be saved in the background
-# import matplotlib
-# matplotlib.use("Agg")
-
+# Initialize the number of epochs to train for, base learning rate, and batch size.
+NUM_EPOCHS = 25
+LEARNING_RATE = 1e-2
+BATCH_SIZE = 32
 
 print(tf.__version__)
 
@@ -95,10 +86,8 @@ Label	Class
 8	Bag
 9	Ankle boot
 """
-
 # Load the dataset.
 fashion_mnist = keras.datasets.fashion_mnist
-
 (train_images, train_labels), (test_images, test_labels) = fashion_mnist.load_data()
 
 # Column headers.
@@ -128,7 +117,7 @@ plt.show()
 Pre-process dataset.
 """
 
-# scale data to the range of [0, 1]
+# Scale data to the range of [0, 1].
 train_images = train_images.astype("float32") / 255.0
 test_images = test_images.astype("float32") / 255.0
 
@@ -143,15 +132,14 @@ for i in range(25):
     plt.xlabel(class_names[train_labels[i]])
 plt.show()
 
-# If we are using "channels first" ordering, then reshape the design
-# matrix such that the matrix is:
-# 	num_samples x depth x rows x columns
+# If we are using "channels first" ordering, then reshape the design matrix such that the matrix is:
+# num_samples x depth x rows x columns
 if K.image_data_format() == "channels_first":
     train_images_reshaped = train_images.reshape((train_images.shape[0], 1, 28, 28))
     test_images_reshaped = test_images.reshape((test_images.shape[0], 1, 28, 28))
 
-# Otherwise, we are using "channels last" ordering, so the design
-# matrix shape should be: num_samples x rows x columns x depth
+# Otherwise, we are using "channels last" ordering, so the design matrix shape should be:
+# num_samples x rows x columns x depth
 else:
     train_images_reshaped = train_images.reshape((train_images.shape[0], 28, 28, 1))
     test_images_reshaped = test_images.reshape((test_images.shape[0], 28, 28, 1))
@@ -178,7 +166,7 @@ tf.keras.layers.Flatten - Flattens the input. Does not affect the batch size. (2
 
 tf.keras.layers.Dense - densely-connected, or fully-connected, neural layers.
 
-10-node softmax layer—this returns an array of 10 probability scores that sum to 1
+10-node softmax layer—this returns an array of 10 probability scores that sum to 1.
 
 Pooling layers help to progressively reduce the spatial dimensions of the input volume.
 
@@ -196,60 +184,61 @@ The softmax classifier is used to obtain output classification probabilities.
 
 
 def build(width, height, depth, classes):
-    # initialize the model along with the input shape to be
-    # "channels last" and the channels dimension itself
-    model = Sequential()
-    inputShape = (height, width, depth)
-    chanDim = -1
+    """
+    Function builds the machine learning. my_model.
+    
+    :param width:  width of the image file in pixels.
+    :param height:  height of the image file in pixels.
+    :param depth:  the channels - r,g,b,a.
+    :param classes: all the possible labels for each image.
+    :return: the constructed machine learning my_model.
+    """
 
-    # if we are using "channels first", update the input shape
-    # and channels dimension
+    # Initialize the my_model along with the input shape to be "channels last" and the channels dimension itself.
+    my_model = Sequential()
+    input_shape = (height, width, depth)
+    channel_dimensions = -1
+
+    # If we are using "channels first", update the input shape and channels dimension.
     if K.image_data_format() == "channels_first":
-        inputShape = (depth, height, width)
-        chanDim = 1
+        input_shape = (depth, height, width)
+        channel_dimensions = 1
 
-    # first CONV => RELU => CONV => RELU => POOL layer set
-    model.add(Conv2D(32, (3, 3), padding="same",
-                     input_shape=inputShape))
-    model.add(Activation("relu"))
-    model.add(BatchNormalization(axis=chanDim))
-    model.add(Conv2D(32, (3, 3), padding="same"))
-    model.add(Activation("relu"))
-    model.add(BatchNormalization(axis=chanDim))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))
+    # First CONV => RELU => CONV => RELU => POOL layer set.
+    my_model.add(Conv2D(32, (3, 3), padding="same",
+                        input_shape=input_shape))
+    my_model.add(Activation("relu"))
+    my_model.add(BatchNormalization(axis=channel_dimensions))
+    my_model.add(Conv2D(32, (3, 3), padding="same"))
+    my_model.add(Activation("relu"))
+    my_model.add(BatchNormalization(axis=channel_dimensions))
+    my_model.add(MaxPooling2D(pool_size=(2, 2)))
+    my_model.add(Dropout(0.25))
 
-    # second CONV => RELU => CONV => RELU => POOL layer set
-    model.add(Conv2D(64, (3, 3), padding="same"))
-    model.add(Activation("relu"))
-    model.add(BatchNormalization(axis=chanDim))
-    model.add(Conv2D(64, (3, 3), padding="same"))
-    model.add(Activation("relu"))
-    model.add(BatchNormalization(axis=chanDim))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))
+    # Second CONV => RELU => CONV => RELU => POOL layer set.
+    my_model.add(Conv2D(64, (3, 3), padding="same"))
+    my_model.add(Activation("relu"))
+    my_model.add(BatchNormalization(axis=channel_dimensions))
+    my_model.add(Conv2D(64, (3, 3), padding="same"))
+    my_model.add(Activation("relu"))
+    my_model.add(BatchNormalization(axis=channel_dimensions))
+    my_model.add(MaxPooling2D(pool_size=(2, 2)))
+    my_model.add(Dropout(0.25))
 
-    # first (and only) set of FC => RELU layers
-    model.add(Flatten())
-    model.add(Dense(512))
-    model.add(Activation("relu"))
-    model.add(BatchNormalization())
-    model.add(Dropout(0.5))
+    # First (and only) set of FC => RELU layers
+    my_model.add(Flatten())
+    my_model.add(Dense(512))
+    my_model.add(Activation("relu"))
+    my_model.add(BatchNormalization())
+    my_model.add(Dropout(0.5))
 
-    # softmax classifier
-    model.add(Dense(classes))
-    model.add(Activation("softmax"))
+    # Softmax classifier.
+    my_model.add(Dense(classes))
+    my_model.add(Activation("softmax"))
 
-    # return the constructed network architecture
-    return model
+    # Return the constructed network architecture.
+    return my_model
 
-
-# # Setup the layers.
-# model = keras.Sequential([
-#     keras.layers.Flatten(input_shape=(28, 28)),
-#     keras.layers.Dense(128, activation=tf.nn.relu),
-#     keras.layers.Dense(10, activation=tf.nn.softmax)
-# ])
 
 """
 Loss function —This measures how accurate the model is during training. 
@@ -261,14 +250,8 @@ Metrics —Used to monitor the training and testing steps. The following example
 the fraction of the images that are correctly classified
 """
 
-# # Compile the model.
-# model.compile(optimizer='adam',
-#               loss='sparse_categorical_crossentropy',
-#               metrics=['accuracy'])
-
-# initialize the optimizer and model
-print("[INFO] compiling model...")
-opt = SGD(lr=INIT_LR, momentum=0.9, decay=INIT_LR / NUM_EPOCHS)
+# Initialize the optimizer and the model.
+opt = SGD(lr=LEARNING_RATE, momentum=0.9, decay=LEARNING_RATE / NUM_EPOCHS)
 model = build(width=28, height=28, depth=1, classes=10)
 model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"])
 
@@ -293,26 +276,16 @@ Evaluate accuracy.
 
 test_loss, test_acc = model.evaluate(test_images_reshaped, test_labels_one_hot)
 
+print()
 print('Test dataset accuracy:', test_acc)
 print('Test dataset loss:', test_loss)
+print()
 
 ############################################################################################
 """
 Make predictions.
 """
 predictions = model.predict(test_images_reshaped)
-
-# Prediction sample
-print("Prediction sample:")
-print(predictions[0])
-
-# Get highest confidence value from prediction array.
-print("Highest class confidence value:")
-print(np.argmax(predictions[0]))
-
-# Confirm against associated test label.
-print("Associated test label value:")
-print(test_labels[0])
 
 
 ############################################################################################
@@ -321,11 +294,11 @@ def plot_image(i, predictions_array, true_label, img):
     """
     Function outputs a graph of the image.
 
-    :param i:
-    :param predictions_array:
-    :param true_label:
-    :param img:
-    :return:
+    :param i: counter variable.
+    :param predictions_array: array of all predictions made.
+    :param true_label: actual identity of apparel in image.
+    :param img: fashion apparel image.
+    :return: nothing.
     """
 
     predictions_array, true_label, img = predictions_array[i], true_label[i], img[i]
@@ -343,47 +316,48 @@ def plot_image(i, predictions_array, true_label, img):
 
     plt.xlabel("{} {:2.0f}% ({})".format(class_names[predicted_label],
                                          100 * np.max(predictions_array),
-                                         class_names[true_label]),
-               color=color)
+                                         class_names[true_label]), color=color)
 
 
 ############################################################################################
 
 def plot_value_array(i, predictions_array, true_label):
     """
-    Function outputs the prediction array with set of confidence values associated with classes.
+    Function outputs the prediction array with set of confidence values associated with each class.
 
-    :param i:
-    :param predictions_array:
-    :param true_label:
-    :return:
+    :param i: counter variable.
+    :param predictions_array: array of all predictions made.
+    :param true_label: actualy identity of apparel in image.
+    :return: nothing.
     """
     predictions_array, true_label = predictions_array[i], true_label[i]
     plt.grid(False)
     plt.xticks([])
     plt.yticks([])
-    thisplot = plt.bar(range(10), predictions_array, color="#777777")
+
+    this_plot = plt.bar(range(10), predictions_array, color="#777777")
     plt.ylim([0, 1])
     predicted_label = np.argmax(predictions_array)
 
-    thisplot[predicted_label].set_color('red')
-    thisplot[true_label].set_color('blue')
+    this_plot[predicted_label].set_color('red')
+    this_plot[true_label].set_color('blue')
 
 
 ############################################################################################
 
-def visualize_results(predictions):
+def visualize_training_results(predictions_array):
     """
-    Function visualizes the results of training the model.
+    Function visualizes the results of training the model as a summary of statistics and a plot
+    of training loss and accuracy on the dataset.
 
     :return: Nothing.
     """
-    # show a nicely formatted classification report
+    # Show a nicely formatted classification report.
     print("[INFO] evaluating network...")
-    print(classification_report(test_labels_one_hot.argmax(axis=1), predictions.argmax(axis=1),
+    print(classification_report(test_labels_one_hot.argmax(axis=1), predictions_array.argmax(axis=1),
                                 target_names=class_names))
 
-    # plot the training loss and accuracy
+    # Plot the training loss and accuracy (for each epoch).
     plt.style.use("ggplot")
     plt.figure()
     plt.plot(np.arange(0, NUM_EPOCHS), train_model.history["loss"], label="train_loss")
@@ -396,85 +370,10 @@ def visualize_results(predictions):
     plt.legend(loc="lower left")
     plt.savefig("training_loss_accuracy_plot.png")
 
-    # # initialize our list of output images
-    # images = []
-    #
-    # # randomly select a few testing fashion items
-    # for i in np.random.choice(np.arange(0, len(test_labels_one_hot)), size=(16,)):
-    #     # classify the clothing
-    #     probs = model.predict(test_images_reshaped[np.newaxis, i])
-    #     prediction = probs.argmax(axis=1)
-    #     label = class_names[prediction[0]]
-    #
-    #     # extract the image from the testData if using "channels_first"
-    #     # ordering
-    #     if K.image_data_format() == "channels_first":
-    #         image = (test_images_reshaped[i][0] * 255).astype("uint8")
-    #
-    #     # otherwise we are using "channels_last" ordering
-    #     else:
-    #         image = (test_labels_one_hot[i] * 255).astype("uint8")
-    #
-    #     # initialize the text label color as green (correct)
-    #     color = (0, 255, 0)
-    #
-    #     # otherwise, the class label prediction is incorrect
-    #     if prediction[0] != np.argmax(test_labels[i]):
-    #         color = (0, 0, 255)
-    #
-    #     # merge the channels into one image and resize the image from
-    #     # 28x28 to 96x96 so we can better see it and then draw the
-    #     # predicted label on the image
-    #     image = cv2.merge([image] * 3)
-    #     image = cv2.resize(image, (96, 96), interpolation=cv2.INTER_LINEAR)
-    #     cv2.putText(image, label, (5, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.75,
-    #                 color, 2)
-    #
-    #     # add the image to our list of output images
-    #     images.append(image)
-    #
-    # # construct the montage for the images
-    # montage = build_montages(images, (96, 96), (4, 4))[0]
-    #
-    # # show the output montage
-    # cv2.imshow("Fashion MNIST", montage)
-    # cv2.waitKey(0)
-
-
-############################################################################################
-
-"""
-Main function.  Execute the program.
-"""
-if __name__ == '__main__':
-    print()
-
-    # Visualize 0th image, predictions, and prediction array.
-    i = 0
-    plt.figure(figsize=(6, 3))
-    plt.subplot(1, 2, 1)
-    plot_image(i, predictions, test_labels, test_images)
-    plt.subplot(1, 2, 2)
-    plot_value_array(i, predictions, test_labels)
-    plt.show()
-
-    # Visualize the 12th image, predictions, and prediction array.
-    i = 12
-    plt.figure(figsize=(6, 3))
-    plt.subplot(1, 2, 1)
-    plot_image(i, predictions, test_labels, test_images)
-    plt.subplot(1, 2, 2)
-    plot_value_array(i, predictions, test_labels)
-    plt.show()
-
-    # import random
-    #
-    # my_range = random.randint(1, 50000)
-
-    # Plot the first X test images, their predicted label, and the true label
-    # Color correct predictions in blue, incorrect predictions in red
-    num_rows = 20
-    num_cols = 10
+    # Plot the first X test images, their predicted label, and the true label.
+    # Color correct predictions in blue, incorrect predictions in red.
+    num_rows = 10
+    num_cols = 5
     num_images = num_rows * num_cols
     plt.figure(figsize=(2 * 2 * num_cols, 2 * num_rows))
     for i in range(num_images):
@@ -484,30 +383,49 @@ if __name__ == '__main__':
         plot_value_array(i, predictions, test_labels)
     plt.show()
 
-    ##############################################
+
+############################################################################################
+
+def single_image_prediction_results():
+    """
+    Predict probabilities for a single image.
+
+    :return: Nothing.
+    """
+
+    import random
+    random_image = random.randint(1, 10000)
+
+    # Prediction sample.
+    print()
+    print("Prediction for the randomly chosen image:")
+    print(predictions[random_image])
+    print()
+
+    # Get the highest confidence value from the prediction array.
+    print("Highest class confidence value for the image:")
+    print(np.argmax(predictions[random_image]))
+
+    # Confirm against associated test label.
+    print("Associated test label value for the image:")
+    print(test_labels[random_image])
+    print()
 
     # Grab an image from the test dataset.
-    img = test_images_reshaped[0]
-
-    print("Image shape: ")
-    print(img.shape)
+    image = test_images_reshaped[random_image]
+    print("Randomly chosen image's shape: ")
+    print(image.shape)
     print()
-
     # Add the image to a batch where it's the only member.
-    img = (np.expand_dims(img, 0))
-
-    print("Image batch shape: ")
-    print(img.shape)
+    image = (np.expand_dims(image, 0))
+    print("Randomly chosen image's shape in batch it was added to: ")
+    print(image.shape)
     print()
-
     # Predict the images in the batch.
-    predictions_single = model.predict(img)
-
-    print("Image batch prediction results: ")
+    predictions_single = model.predict(image)
+    print("Randomly chosen image's batch prediction results: ")
     print(predictions_single)
     print()
-
-    ##############################################
 
     # Visualize the results of the batch image predictions.
     plot_value_array(0, predictions_single, test_labels)
@@ -515,9 +433,52 @@ if __name__ == '__main__':
     plt.show()
 
     # Get the max confidence value result signifying which class it belongs to in the labels.
-    np.argmax(predictions_single[0])
+    print("Highest class confidence value for the image in the batch:")
+    print(np.argmax(predictions_single[0]))
 
-    # Visualize results.
-    visualize_results(predictions)
+    # Confirm against associated test label.
+    print("Associated test label value for the image in the batch:")
+    print(test_labels[random_image])
+    print()
+
+
+############################################################################################
+"""
+Main function.  Execute the program.
+"""
+# Debug variable.
+debug = 0
+
+if __name__ == '__main__':
+    print()
+
+    if debug:
+        # Visualize 0th image, predictions, and prediction array.
+        i = 0
+        plt.figure(figsize=(6, 3))
+        plt.subplot(1, 2, 1)
+        plot_image(i, predictions, test_labels, test_images)
+        plt.subplot(1, 2, 2)
+        plot_value_array(i, predictions, test_labels)
+        plt.show()
+
+        # Visualize the 12th image, predictions, and prediction array.
+        i = 12
+        plt.figure(figsize=(6, 3))
+        plt.subplot(1, 2, 1)
+        plot_image(i, predictions, test_labels, test_images)
+        plt.subplot(1, 2, 2)
+        plot_value_array(i, predictions, test_labels)
+        plt.show()
+
+    ##############################################
+
+    # Predict for a single image.
+    single_image_prediction_results()
+
+    ##############################################
+
+    # Visualize the training and prediction results.
+    visualize_training_results(predictions)
 
 ############################################################################################

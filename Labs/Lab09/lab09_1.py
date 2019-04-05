@@ -360,115 +360,115 @@ if __name__ == '__main__':
     print("Validation targets summary:")
     display.display(validation_targets.describe())
 
-    # # Train linear regression model.
-    # linear_regressor = train_linear_regressor_model(
-    #     learning_rate=0.000001,
-    #     steps=200,
-    #     batch_size=20,
-    #     training_examples=training_examples,
-    #     training_targets=training_targets,
-    #     validation_examples=validation_examples,
-    #     validation_targets=validation_targets)
-
-    """
-    Task 1: Can We Calculate LogLoss for These Predictions?
-    
-    Given the predictions and the targets, can we calculate LogLoss?
-    
-    No, because the histogram shows show that we would be trying to take the log of negative values which is
-    outside the domain of the logarithmic function.
-    
-    i.e. log(1 - 3000) = log(-2999) = error
-    
-    So, we would have to normalize the results first.
-    
-    """
-
-    # # Assignment for clarity.
-    # test_examples = validation_examples
-    # test_targets = validation_targets
-    #
-    # # Obtain predictions.
-    # predict_test_input_fn = lambda: my_input_fn(
-    #     test_examples,
-    #     test_targets["median_house_value_is_high"],
-    #     num_epochs=1,
-    #     shuffle=False)
-    #
-    # test_predictions = linear_regressor.predict(input_fn=predict_test_input_fn)
-    # test_predictions = np.array([item['predictions'][0] for item in test_predictions])
-    #
-    # root_mean_squared_error = math.sqrt(
-    #     metrics.mean_squared_error(test_predictions, test_targets))
-    #
-    # print("Final RMSE (on test data): %0.2f" % root_mean_squared_error)
-    #
-    # _ = plt.hist(test_predictions)
-    # plt.show()
-
-    """
-    Task 2: Train a Logistic Regression Model and Calculate LogLoss on the Validation Set
-    
-    Code Added to "def train_linear_classifier_model(" function:
-    
-    # YOUR CODE HERE: Construct the linear classifier.
-    # URL: https://www.tensorflow.org/api_docs/python/tf/estimator/LinearClassifier
-    linear_classifier = tf.estimator.LinearClassifier(
-        feature_columns=construct_feature_columns(training_examples),
-        optimizer=my_optimizer
-    )
-    """
-
-    # Train logistic regression model.
-    linear_classifier = train_linear_classifier_model(
-        learning_rate=0.000005,
-        steps=1000,
-        batch_size=40,
+    # Train linear regression model.
+    linear_regressor = train_linear_regressor_model(
+        learning_rate=0.000001,
+        steps=200,
+        batch_size=20,
         training_examples=training_examples,
         training_targets=training_targets,
         validation_examples=validation_examples,
         validation_targets=validation_targets)
 
-    """
-    Task 3: Calculate Accuracy and plot a ROC Curve for the Validation Set
-    
-    Verify if all metrics improve at the same time.
-    
-    Yep, I managed to improve both at the same time.
-    
-    Google Baseline:
-    
-    AUC on the validation set: 0.70
-    Accuracy on the validation set: 0.75
-    """
-
-    # Create input functions.
-    predict_training_input_fn = lambda: my_input_fn(training_examples,
-                                                    training_targets["median_house_value_is_high"],
-                                                    num_epochs=1,
-                                                    shuffle=False)
-    predict_validation_input_fn = lambda: my_input_fn(validation_examples,
-                                                      validation_targets["median_house_value_is_high"],
-                                                      num_epochs=1,
-                                                      shuffle=False)
-
-    # Calculate AUC and Accuracy metrics.
-    evaluation_metrics = linear_classifier.evaluate(input_fn=predict_validation_input_fn)
-
-    print("AUC on the validation set: %0.2f" % evaluation_metrics['auc'])
-    print("Accuracy on the validation set: %0.2f" % evaluation_metrics['accuracy'])
-
-    # Plot a ROC curve.
-    validation_probabilities = linear_classifier.predict(input_fn=predict_validation_input_fn)
-    # Get just the probabilities for the positive class.
-    validation_probabilities = np.array([item['probabilities'][1] for item in validation_probabilities])
-
-    false_positive_rate, true_positive_rate, thresholds = metrics.roc_curve(
-        validation_targets, validation_probabilities)
-    plt.plot(false_positive_rate, true_positive_rate, label="our model")
-    plt.plot([0, 1], [0, 1], label="random classifier")
-    _ = plt.legend(loc=2)
-    plt.show()
+    # """
+    # Task 1: Can We Calculate LogLoss for These Predictions?
+    #
+    # Given the predictions and the targets, can we calculate LogLoss?
+    #
+    # No, because the histogram shows show that we would be trying to take the log of negative values which is
+    # outside the domain of the logarithmic function.
+    #
+    # i.e. log(1 - 3000) = log(-2999) = error
+    #
+    # So, we would have to normalize the results first.
+    #
+    # """
+    #
+    # # # Assignment for clarity.
+    # # test_examples = validation_examples
+    # # test_targets = validation_targets
+    # #
+    # # # Obtain predictions.
+    # # predict_test_input_fn = lambda: my_input_fn(
+    # #     test_examples,
+    # #     test_targets["median_house_value_is_high"],
+    # #     num_epochs=1,
+    # #     shuffle=False)
+    # #
+    # # test_predictions = linear_regressor.predict(input_fn=predict_test_input_fn)
+    # # test_predictions = np.array([item['predictions'][0] for item in test_predictions])
+    # #
+    # # root_mean_squared_error = math.sqrt(
+    # #     metrics.mean_squared_error(test_predictions, test_targets))
+    # #
+    # # print("Final RMSE (on test data): %0.2f" % root_mean_squared_error)
+    # #
+    # # _ = plt.hist(test_predictions)
+    # # plt.show()
+    #
+    # """
+    # Task 2: Train a Logistic Regression Model and Calculate LogLoss on the Validation Set
+    #
+    # Code Added to "def train_linear_classifier_model(" function:
+    #
+    # # YOUR CODE HERE: Construct the linear classifier.
+    # # URL: https://www.tensorflow.org/api_docs/python/tf/estimator/LinearClassifier
+    # linear_classifier = tf.estimator.LinearClassifier(
+    #     feature_columns=construct_feature_columns(training_examples),
+    #     optimizer=my_optimizer
+    # )
+    # """
+    #
+    # # Train logistic regression model.
+    # linear_classifier = train_linear_classifier_model(
+    #     learning_rate=0.000005,
+    #     steps=1000,
+    #     batch_size=40,
+    #     training_examples=training_examples,
+    #     training_targets=training_targets,
+    #     validation_examples=validation_examples,
+    #     validation_targets=validation_targets)
+    #
+    # """
+    # Task 3: Calculate Accuracy and plot a ROC Curve for the Validation Set
+    #
+    # Verify if all metrics improve at the same time.
+    #
+    # Yep, I managed to improve both at the same time.
+    #
+    # Google Baseline:
+    #
+    # AUC on the validation set: 0.70
+    # Accuracy on the validation set: 0.75
+    # """
+    #
+    # # Create input functions.
+    # predict_training_input_fn = lambda: my_input_fn(training_examples,
+    #                                                 training_targets["median_house_value_is_high"],
+    #                                                 num_epochs=1,
+    #                                                 shuffle=False)
+    # predict_validation_input_fn = lambda: my_input_fn(validation_examples,
+    #                                                   validation_targets["median_house_value_is_high"],
+    #                                                   num_epochs=1,
+    #                                                   shuffle=False)
+    #
+    # # Calculate AUC and Accuracy metrics.
+    # evaluation_metrics = linear_classifier.evaluate(input_fn=predict_validation_input_fn)
+    #
+    # print("AUC on the validation set: %0.2f" % evaluation_metrics['auc'])
+    # print("Accuracy on the validation set: %0.2f" % evaluation_metrics['accuracy'])
+    #
+    # # Plot a ROC curve.
+    # validation_probabilities = linear_classifier.predict(input_fn=predict_validation_input_fn)
+    # # Get just the probabilities for the positive class.
+    # validation_probabilities = np.array([item['probabilities'][1] for item in validation_probabilities])
+    #
+    # false_positive_rate, true_positive_rate, thresholds = metrics.roc_curve(
+    #     validation_targets, validation_probabilities)
+    # plt.plot(false_positive_rate, true_positive_rate, label="our model")
+    # plt.plot([0, 1], [0, 1], label="random classifier")
+    # _ = plt.legend(loc=2)
+    # plt.show()
 
 ###########################################################################################
 
@@ -495,13 +495,17 @@ Final RMSE (on test data): 0.44
 
 Process finished with exit code 0
 
-Doesn't exactly fit well between the training and validation sets.
-Validation set has higher RMSE than training set by far.
-(refer to screen captures in Lab09 directory)
+There seems to be spikes in RMSE values for some periods from lower to higher then back to lower values for both the
+training and validation set.
+
+It isn't a great fit and may be overfitting because validation RMSE is higher than the training RMSE by a decent
+margin.
+
+(refer to exercise9.1_task1_linear_regression_rmse.png screen capture in Lab09 directory)
 
 ########################################################
 
-Task 1: Compare and contrast L2 Loss vs LogLoss. (TODO - revise answers)
+Task 1: Compare and contrast L2 Loss vs LogLoss.
 
 L2 Loss:
 
@@ -518,6 +522,10 @@ LogLoss:
 
 Measures the performance of a model where the output are probability values between 0 and 1. (via sigmoid function)
 (necessary in order to prevent taking log of negative values)
+
+Probability values at exactly 0 or 1 are undefined.
+
+Uses natural logarithm - base "e".
 
 Penalizes false classification a lot better than L2 Loss.
 
@@ -543,8 +551,10 @@ Model training finished.
 
 Process finished with exit code 0
 
-Higher RMSE values but it more closely fits between the training and validation sets.
-(refer to screen captures in Lab09 directory)
+Higher RMSE values but it more closely fits between the training and validation sets.  So, a pretty good fit since
+validation error is only slightly higher than training error.
+
+(refer to exercise9.1_task2_linear_classifier_results.png screen capture in Lab09 directory)
 
 ########################################################
 
