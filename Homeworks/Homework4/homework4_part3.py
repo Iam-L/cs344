@@ -24,7 +24,7 @@ URL: https://developers.google.com/machine-learning/practica/image-classificatio
 (Google Crash Course)
 
 URL: https://www.markdownguide.org/basic-syntax/
-(Markdown syntac for Juypter Notebook)
+(Markdown syntax for Jupyter Notebook)
 
 URL: https://www.pyimagesearch.com/2019/02/11/fashion-mnist-with-keras-and-deep-learning/
 (Keras Fashion MNIST Tutorial)
