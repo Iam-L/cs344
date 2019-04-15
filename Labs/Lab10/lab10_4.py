@@ -365,9 +365,14 @@ Task 1: Is a linear model ever preferable to a deep NN model?
 
 TODO: review answer to this question.
 
-Yes, they generally train faster due to having less parameters to update and layers to backpropagate through.
+If you have a linear problem, you could just use a linear model instead of a deep neural network model.
+However, if you have a non-linear problem then you shouldn't use a linear model and should consider a deep neural
+network instead.
+
+A linear model also generally trains faster due to having fewer parameters to update and layers to back-propagate 
+through for the same set of input variables.
+
 So, if fast prototyping or speed is of the essence a linear model would be better.
-It also depends on your target values for metrics in terms of acceptable results.
 
 ##################################################
 

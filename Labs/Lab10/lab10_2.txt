@@ -1,0 +1,173 @@
+"""
+Course: CS 344 - Artificial Intelligence
+Instructor: Professor VanderLinden
+Name: Joseph Jinn
+Date: 3-31-19
+Assignment: Lab 10 - Neural Networks
+
+Notes:
+
+Exercise 10.2 - Improving Neural Net Performance
+
+-Included code just to see if I can run it from within PyCharm and because it executes faster.
+- Refer to sections below for answers to Exercise questions and code added for Tasks.
+"""
+
+###########################################################################################
+
+"""
+Exercise 10.2 Questions:
+###########################################################################################
+
+What does AdaGrad do to boost performance?
+
+According to "improving_neural_net_performance.ipynb":
+
+"The key insight of Adagrad is that it modifies the learning rate adaptively for each coefficient in a model,
+monotonically lowering the effective learning rate. This works great for convex problems, but isn't always ideal
+for the non-convex problem Neural Net training."
+
+##################################################
+
+Tasks 1–4: Report your best hyperparameter settings and their resulting performance.
+
+Note: There is no task 4.
+
+##########################
+Task 1:
+
+# Train the model on normalized data.
+_ = train_nn_regression_model(
+    my_optimizer=tf.train.GradientDescentOptimizer(learning_rate=0.0007),
+    steps=5000,
+    batch_size=70,
+    hidden_units=[10, 10],
+    training_examples=normalized_training_examples,
+    training_targets=training_targets,
+    validation_examples=normalized_validation_examples,
+    validation_targets=validation_targets)
+
+Training model...
+RMSE (on training data):
+  period 00 : 236.19
+  period 01 : 224.60
+  period 02 : 192.59
+  period 03 : 140.61
+  period 04 : 120.12
+  period 05 : 116.35
+  period 06 : 112.43
+  period 07 : 107.92
+  period 08 : 102.44
+  period 09 : 96.05
+Model training finished.
+Final RMSE (on training data):   96.05
+Final RMSE (on validation data): 96.44
+
+Process finished with exit code 0
+
+##########################
+Task 2:
+
+# Train the model on normalized data and using the AdagradOptimizer.
+_ = train_nn_regression_model(
+    my_optimizer=tf.train.AdagradOptimizer(learning_rate=0.007),
+    steps=5000,
+    batch_size=70,
+    hidden_units=[10, 10],
+    training_examples=normalized_training_examples,
+    training_targets=training_targets,
+    validation_examples=normalized_validation_examples,
+    validation_targets=validation_targets)
+
+Training model...
+RMSE (on training data):
+  period 00 : 219.65
+  period 01 : 199.51
+  period 02 : 179.21
+  period 03 : 159.55
+  period 04 : 141.83
+  period 05 : 127.84
+  period 06 : 119.79
+  period 07 : 117.20
+  period 08 : 115.92
+  period 09 : 114.91
+Model training finished.
+Final RMSE (on training data):   114.91
+Final RMSE (on validation data): 114.71
+
+Process finished with exit code 0
+
+# Train the model on normalized data and using the AdamOptimizer.
+_ = train_nn_regression_model(
+    my_optimizer=tf.train.AdamOptimizer(learning_rate=0.0007),
+    steps=5000,
+    batch_size=70,
+    hidden_units=[10, 10],
+    training_examples=normalized_training_examples,
+    training_targets=training_targets,
+    validation_examples=normalized_validation_examples,
+    validation_targets=validation_targets)
+
+Training model...
+RMSE (on training data):
+  period 00 : 214.34
+  period 01 : 133.66
+  period 02 : 114.16
+  period 03 : 107.53
+  period 04 : 97.91
+  period 05 : 85.99
+  period 06 : 76.38
+  period 07 : 72.80
+  period 08 : 71.57
+  period 09 : 70.88
+Model training finished.
+Final RMSE (on training data):   70.88
+Final RMSE (on validation data): 71.04
+
+Process finished with exit code 0
+
+##########################
+Task 3:
+
+# Normalize feature values.
+normalized_dataframe = normalize(preprocess_features(california_housing_dataframe))
+normalized_training_examples = normalized_dataframe.head(12000)
+normalized_validation_examples = normalized_dataframe.tail(5000)
+
+# Train the model.
+_ = train_nn_regression_model(
+    my_optimizer=tf.train.GradientDescentOptimizer(learning_rate=0.0007),
+    steps=5000,
+    batch_size=70,
+    hidden_units=[10, 10],
+    training_examples=normalized_training_examples,
+    training_targets=training_targets,
+    validation_examples=normalized_validation_examples,
+    validation_targets=validation_targets)
+
+Training model...
+RMSE (on training data):
+  period 00 : 175.61
+  period 01 : 134.03
+  period 02 : 129.38
+  period 03 : 123.92
+  period 04 : 117.95
+  period 05 : 114.07
+  period 06 : 112.59
+  period 07 : 111.45
+  period 08 : 110.52
+  period 09 : 109.64
+Model training finished.
+Final RMSE (on training data):   109.64
+Final RMSE (on validation data): 107.84
+
+Process finished with exit code 0
+
+##################################################
+
+Optional Challenge: You can skip this exercise.
+
+^_^
+
+##################################################
+"""

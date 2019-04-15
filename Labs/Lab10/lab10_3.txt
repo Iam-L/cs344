@@ -1,0 +1,189 @@
+"""
+Course: CS 344 - Artificial Intelligence
+Instructor: Professor VanderLinden
+Name: Joseph Jinn
+Date: 3-31-19
+Assignment: Lab 10 - Neural Networks
+
+Notes:
+
+Exercise 10.3 - Classifying Handwritten Digits with Neural Networks
+
+-Included code just to see if I can run it from within PyCharm and because it executes faster.
+- Refer to sections below for answers to Exercise questions and code added for Tasks.
+"""
+
+
+"""
+Exercise 10.3 Questions:
+###########################################################################################
+
+Task 1: What does the confusion matrix show for this example?
+
+The confusion matrix shows the number of images that were incorrectly identified as a specific digit 0-9.
+
+##################################################
+
+Task 2: How does the TensorFlow network architecture differ from the Keras example given in class?
+Report any improvements you can make over the baseline testset accuracy for this task.
+
+TODO: review answer to this question.
+
+The TensorFlow network architecture is defined by the DNNClassifier object.
+There is a Softmax layer at the top that selects the winning class.
+We only modify the regularization method, # of hidden layers and # of nodes in each, along with a few other parameters.
+All the lower level details are pretty much hidden.
+
+    # Create a DNNClassifier object.
+    my_optimizer = tf.train.AdagradOptimizer(learning_rate=learning_rate)
+    my_optimizer = tf.contrib.estimator.clip_gradients_by_norm(my_optimizer, 5.0)
+    classifier = tf.estimator.DNNClassifier(
+        feature_columns=feature_columns,
+        n_classes=10,
+        hidden_units=hidden_units,
+        optimizer=my_optimizer,
+        config=tf.contrib.learn.RunConfig(keep_checkpoint_max=1)
+
+The Keras network architecture is modular so we can add individual layers one-by-one.  Thus, it is far easier to see
+every layer that is in the model.  There is an embedding layer as evidenced by:
+
+model.add(Embedding(max_features, 32)) <-- recurrent neural network in-class example.
+model.add(Embedding(max_words, embedding_dim, input_length=maxlen)) <-- word embeddings in-class example.
+
+There doesn't appear to be an embedding layer in the Tensorflow network from what I can see.
+
+print(classifier.get_variable_names()) <-- prints the hidden layers.
+
+['dnn/hiddenlayer_0/bias', 'dnn/hiddenlayer_0/bias/t_0/Adagrad', 'dnn/hiddenlayer_0/kernel',
+'dnn/hiddenlayer_0/kernel/t_0/Adagrad', 'dnn/hiddenlayer_1/bias', 'dnn/hiddenlayer_1/bias/t_0/Adagrad',
+'dnn/hiddenlayer_1/kernel', 'dnn/hiddenlayer_1/kernel/t_0/Adagrad', 'dnn/logits/bias', 'dnn/logits/bias/t_0/Adagrad',
+'dnn/logits/kernel', 'dnn/logits/kernel/t_0/Adagrad', 'global_step'
+
+
+Note: I have not made any improvements over the base-line test-set accuracy.
+
+##################################################
+
+Task 3: What differences can you see between the visualizations for 10 steps and 1000 steps?
+
+As the # of steps goes down, the images become a lot noisier and abstract with fewer definable shapes, patterns, etc.
+
+##################################################
+
+Task 1:
+
+# Train on a linear classification model.
+classifier = train_linear_classification_model(
+    learning_rate=0.2,
+    steps=1000,
+    batch_size=10,
+    training_examples=training_examples,
+    training_targets=training_targets,
+    validation_examples=validation_examples,
+    validation_targets=validation_targets)
+
+Training model...
+LogLoss error (on validation data):
+  period 00 : 6.94
+  period 01 : 4.81
+  period 02 : 4.35
+  period 03 : 3.97
+  period 04 : 4.26
+  period 05 : 3.79
+  period 06 : 3.90
+  period 07 : 3.45
+  period 08 : 3.67
+  period 09 : 3.45
+Model training finished.
+Final accuracy (on validation data): 0.90
+
+Process finished with exit code 0
+
+###########################
+Task 2 (using provided solution):
+
+classifier = train_nn_classification_model(
+    learning_rate=0.05,
+    steps=1000,
+    batch_size=30,
+    hidden_units=[100, 100],
+    training_examples=training_examples,
+    training_targets=training_targets,
+    validation_examples=validation_examples,
+    validation_targets=validation_targets)
+
+Training model...
+LogLoss error (on validation data):
+  period 00 : 6.31
+  period 01 : 3.80
+  period 02 : 2.98
+  period 03 : 3.12
+  period 04 : 2.94
+  period 05 : 2.64
+  period 06 : 2.46
+  period 07 : 2.51
+  period 08 : 1.89
+  period 09 : 1.88
+Model training finished.
+Final accuracy (on validation data): 0.95
+
+Accuracy on test data: 0.95
+
+###########################
+Task 3:
+
+classifier = train_nn_classification_model(
+    learning_rate=0.05,
+    steps=100,
+    batch_size=30,
+    hidden_units=[100, 100],
+    training_examples=training_examples,
+    training_targets=training_targets,
+    validation_examples=validation_examples,
+    validation_targets=validation_targets)
+
+Training model...
+LogLoss error (on validation data):
+  period 00 : 14.82
+  period 01 : 10.79
+  period 02 : 7.42
+  period 03 : 5.97
+  period 04 : 8.95
+  period 05 : 5.73
+  period 06 : 7.11
+  period 07 : 5.75
+  period 08 : 4.57
+  period 09 : 4.52
+Model training finished.
+Final accuracy (on validation data): 0.87
+
+Accuracy on test data: 0.88
+
+classifier = train_nn_classification_model(
+    learning_rate=0.05,
+    steps=10,
+    batch_size=30,
+    hidden_units=[100, 100],
+    training_examples=training_examples,
+    training_targets=training_targets,
+    validation_examples=validation_examples,
+    validation_targets=validation_targets)
+
+Training model...
+LogLoss error (on validation data):
+  period 00 : 22.88
+  period 01 : 21.87
+  period 02 : 22.53
+  period 03 : 19.00
+  period 04 : 21.04
+  period 05 : 16.87
+  period 06 : 16.56
+  period 07 : 19.74
+  period 08 : 12.09
+  period 09 : 18.65
+Model training finished.
+Final accuracy (on validation data): 0.46
+
+Accuracy on test data: 0.46
+
+"""

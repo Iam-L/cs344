@@ -519,11 +519,10 @@ The confusion matrix shows the number of images that were incorrectly identified
 Task 2: How does the TensorFlow network architecture differ from the Keras example given in class? 
 Report any improvements you can make over the baseline testset accuracy for this task.
 
-TODO - answer this question.
-
 The TensorFlow network architecture is defined by the DNNClassifier object.
 There is a Softmax layer at the top that selects the winning class.
 We only modify the regularization method, # of hidden layers and # of nodes in each, along with a few other parameters.
+All the lower level details are pretty much hidden.
 
     # Create a DNNClassifier object.
     my_optimizer = tf.train.AdagradOptimizer(learning_rate=learning_rate)
@@ -535,9 +534,23 @@ We only modify the regularization method, # of hidden layers and # of nodes in e
         optimizer=my_optimizer,
         config=tf.contrib.learn.RunConfig(keep_checkpoint_max=1)
 
-The Keras network architecture...
+The Keras network architecture is modular so we can add individual layers one-by-one.  Thus, it is far easier to see
+every layer that is in the model.  There is an embedding layer as evidenced by: 
 
-I have not made any improvements over the base-line test-set accuracy.
+model.add(Embedding(max_features, 32)) <-- recurrent neural network in-class example.
+model.add(Embedding(max_words, embedding_dim, input_length=maxlen)) <-- word embeddings in-class example.
+
+There doesn't appear to be an embedding layer in the Tensorflow network from what I can see.
+
+print(classifier.get_variable_names()) <-- prints the hidden layers.
+
+['dnn/hiddenlayer_0/bias', 'dnn/hiddenlayer_0/bias/t_0/Adagrad', 'dnn/hiddenlayer_0/kernel', 
+'dnn/hiddenlayer_0/kernel/t_0/Adagrad', 'dnn/hiddenlayer_1/bias', 'dnn/hiddenlayer_1/bias/t_0/Adagrad', 
+'dnn/hiddenlayer_1/kernel', 'dnn/hiddenlayer_1/kernel/t_0/Adagrad', 'dnn/logits/bias', 'dnn/logits/bias/t_0/Adagrad', 
+'dnn/logits/kernel', 'dnn/logits/kernel/t_0/Adagrad', 'global_step'
+
+
+Note: I have not made any improvements over the base-line test-set accuracy.
 
 ##################################################
 

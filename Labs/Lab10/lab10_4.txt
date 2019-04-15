@@ -1,0 +1,257 @@
+"""
+Course: CS 344 - Artificial Intelligence
+Instructor: Professor VanderLinden
+Name: Joseph Jinn
+Date: 3-31-19
+Assignment: Lab 10 - Neural Networks
+
+Notes:
+
+Exercise 10.4 - Intro to Sparse Data and Embeddings
+
+-Included code just to see if I can run it from within PyCharm and because it executes faster.
+- Refer to sections below for answers to Exercise questions and code added for Tasks.
+"""
+
+###########################################################################################
+
+"""
+Exercise 10.4 Questions:
+###########################################################################################
+
+Task 1: Is a linear model ever preferable to a deep NN model?
+
+TODO: review answer to this question.
+
+If you have a linear problem, you could just use a linear model instead of a deep neural network model.
+However, if you have a non-linear problem then you shouldn't use a linear model and should consider a deep neural
+network instead.
+
+A linear model also generally trains faster due to having fewer parameters to update and layers to back-propagate
+through for the same set of input variables.
+
+So, if fast prototyping or speed is of the essence a linear model would be better.
+
+##################################################
+
+Task 2: Does the NN model do better than the linear model?
+
+Yes, it does based on the accuracy values.  Refer below for Task 1 and Task 2 output.
+
+##################################################
+
+Task 3: Do embeddings do much good for sentiment analysis tasks?
+
+Maybe not, the accuracy metric actually decreased with the addition of a embedding layer.
+
+##################################################
+
+Tasks 4–5: Name two words that have similar embeddings and explain why that makes sense.
+
+"worst" and "terrible" are both adjectives with extreme negative connotations so it makes sense that they would end
+up relatively close to each other.
+
+##################################################
+
+Task 6: Report your best hyper-parameters and their resulting performance.
+
+# Use the entire vocabulary.
+terms_feature_column = tf.feature_column.categorical_column_with_vocabulary_file("terms", terms_path)
+
+classifier = tf.estimator.DNNClassifier(
+    feature_columns=feature_columns,
+    hidden_units=[10, 10],
+    optimizer=my_optimizer
+)
+
+classifier.train(
+    input_fn=lambda: _input_fn([train_path]),
+    steps=1000)
+
+Training set metrics:
+accuracy 0.95344
+accuracy_baseline 0.5
+auc 0.98855644
+auc_precision_recall 0.98885506
+average_loss 0.13983108
+label/mean 0.5
+loss 3.495777
+precision 0.9466509
+prediction/mean 0.50575733
+recall 0.96104
+global_step 1000
+---
+Test set metrics:
+accuracy 0.87796
+accuracy_baseline 0.5
+auc 0.9453647
+auc_precision_recall 0.94306207
+average_loss 0.32169428
+label/mean 0.5
+loss 8.0423565
+precision 0.87714535
+prediction/mean 0.4949487
+recall 0.87904
+global_step 1000
+---
+
+Process finished with exit code 0
+
+##################################################
+
+Optional Discussion: You can skip this section.
+
+^_^
+
+##################################################
+
+Task 1 Output:
+
+Training set metrics:
+accuracy 0.78944
+accuracy_baseline 0.5
+auc 0.87196994
+auc_precision_recall 0.86309046
+average_loss 0.45069042
+label/mean 0.5
+loss 11.267261
+precision 0.76198405
+prediction/mean 0.505841
+recall 0.84184
+global_step 1000
+---
+Test set metrics:
+accuracy 0.78504
+accuracy_baseline 0.5
+auc 0.8699588
+auc_precision_recall 0.8610152
+average_loss 0.45197105
+label/mean 0.5
+loss 11.299276
+precision 0.7581884
+prediction/mean 0.504314
+recall 0.83704
+global_step 1000
+---
+
+Process finished with exit code 0
+
+##########################
+
+Task 2 Output:
+
+Training set metrics:
+accuracy 0.8
+accuracy_baseline 0.64
+auc 0.86805546
+auc_precision_recall 0.8319037
+average_loss 0.45062447
+label/mean 0.36
+loss 11.265612
+precision 0.6666667
+prediction/mean 0.45283017
+recall 0.8888889
+global_step 1000
+---
+Test set metrics:
+accuracy 0.8
+accuracy_baseline 0.68
+auc 0.9044117
+auc_precision_recall 0.8889296
+average_loss 0.39988434
+label/mean 0.32
+loss 9.997108
+precision 0.6666667
+prediction/mean 0.40875465
+recall 0.75
+global_step 1000
+---
+
+Process finished with exit code 0
+
+##########################
+
+Task 3 Output:
+
+Training set metrics:
+accuracy 0.78596
+accuracy_baseline 0.5
+auc 0.8666936
+auc_precision_recall 0.8550984
+average_loss 0.4560195
+label/mean 0.5
+loss 11.400487
+precision 0.7728834
+prediction/mean 0.4929062
+recall 0.80992
+global_step 1000
+---
+Test set metrics:
+accuracy 0.78228
+accuracy_baseline 0.5
+auc 0.86569464
+auc_precision_recall 0.854914
+average_loss 0.4573059
+label/mean 0.5
+loss 11.432648
+precision 0.77186227
+prediction/mean 0.49176133
+recall 0.80144
+global_step 1000
+---
+
+Process finished with exit code 0
+
+##########################
+
+Task 4 Output:
+
+['dnn/hiddenlayer_0/bias', 'dnn/hiddenlayer_0/bias/t_0/Adagrad', 'dnn/hiddenlayer_0/kernel',
+'dnn/hiddenlayer_0/kernel/t_0/Adagrad', 'dnn/hiddenlayer_1/bias', 'dnn/hiddenlayer_1/bias/t_0/Adagrad',
+'dnn/hiddenlayer_1/kernel', 'dnn/hiddenlayer_1/kernel/t_0/Adagrad',
+'dnn/input_from_feature_columns/input_layer/terms_embedding/embedding_weights',
+'dnn/input_from_feature_columns/input_layer/terms_embedding/embedding_weights/t_0/Adagrad', 'dnn/logits/bias',
+'dnn/logits/bias/t_0/Adagrad', 'dnn/logits/kernel', 'dnn/logits/kernel/t_0/Adagrad', 'global_step']
+
+(50, 2)
+
+##########################
+
+Task 5 Output:
+
+Refer to the screen captures in Lab10 directory folder.
+
+##########################
+
+Task 6 Output:
+
+Training set metrics:
+accuracy 0.95344
+accuracy_baseline 0.5
+auc 0.98855644
+auc_precision_recall 0.98885506
+average_loss 0.13983108
+label/mean 0.5
+loss 3.495777
+precision 0.9466509
+prediction/mean 0.50575733
+recall 0.96104
+global_step 1000
+---
+Test set metrics:
+accuracy 0.87796
+accuracy_baseline 0.5
+auc 0.9453647
+auc_precision_recall 0.94306207
+average_loss 0.32169428
+label/mean 0.5
+loss 8.0423565
+precision 0.87714535
+prediction/mean 0.4949487
+recall 0.87904
+global_step 1000
+---
+
+Process finished with exit code 0
+
+"""
