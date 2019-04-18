@@ -1,0 +1,196 @@
+"""
+Course: CS 344 - Artificial Intelligence
+Instructor: Professor VanderLinden
+Name: Joseph Jinn
+Date: 4-18-19
+Assignment: Lab 12 - Logic
+
+Notes:
+
+Exercise 12.2 - Read LPN! Chapter 2 and do the following exercises:
+"""
+
+###########################################################################################
+Exercise 2.1, questions 1, 2, 8, 9, 14 - Give the necessary instantiations.
+##################################################
+My Guesses:
+
+bread  =  bread --> unifies
+’Bread’  =  bread --> will not unify
+’bread’  =  bread --> unifies
+Bread  =  bread --> will not unify
+bread  =  sausage --> will not unify
+food(bread)  =  bread --> will not unify
+food(bread)  =  X --> will unify
+food(X)  =  food(bread) --> will unify
+food(bread,X)  =  food(Y,sausage) --> will unify
+food(bread,X,beer)  =  food(Y,sausage,X) --> will not unify
+food(bread,X,beer)  =  food(Y,kahuna_burger) --> will not unify
+food(X)  =  X --> will unify
+meal(food(bread),drink(beer))  =  meal(X,Y) --> will unify
+meal(food(bread),X)  =  meal(X,drink(beer)) --> will not unify
+
+##################################################
+Prolog Results:
+
+?- bread = bread.
+true.
+
+?- 'Bread' = bread.
+false.
+
+?- 'bread' = bread.
+true.
+
+?- Bread = bread.
+Bread = bread.
+
+?- bread = sausage.
+false.
+
+?- food(bread) = bread.
+false.
+
+?- food(bread) = X.
+X = food(bread).
+
+?- food(X) = food(bread).
+X = bread.
+
+?- food(bread,X) = food(Y,sausage).
+X = sausage,
+Y = bread.
+
+?- food(bread,X,beer) = food(Y,sausage,X).
+false.
+
+?- food(bread,X,beer) = food(Y,kahuna_burger).
+false.
+
+?- food(X) = X.
+X = food(X).
+
+?- meal(food(bread),drink(beer)) = meal(X,Y).
+X = food(bread),
+Y = drink(beer).
+
+?- meal(food(bread),X) = meal(X,drink(beer)).
+false.
+
+?-
+
+##################################################
+bread  =  bread --> N/A
+’Bread’  =  bread --> N/A
+food(X)  =  food(bread) --> X = bread
+food(bread,X)  =  food(Y,sausage) --> Y = bread, X = sausage.
+meal(food(bread),X)  =  meal(X,drink(beer)) --> X = food(bread), X = drink(beer)
+
+###########################################################################################
+Exercise 2.2 - Explain how Prolog does its unification and reasoning. If you have issues getting the results
+you’d expect, are there things you can do to game the system?
+##################################################
+ house_elf(dobby).
+   witch(hermione).
+   witch(’McGonagall’).
+   witch(rita_skeeter).
+   magic(X):-  house_elf(X).
+   magic(X):-  wizard(X).
+   magic(X):-  witch(X).
+
+Which of the following queries are satisfied? Where relevant, give all the variable instantiations that lead to success.
+
+?-  magic(house_elf).
+?-  wizard(harry).
+?-  magic(wizard).
+?-  magic(’McGonagall’).
+?-  magic(Hermione).
+
+##################################################
+My Guesses:
+
+?-  magic(house_elf). --> FALSE
+?-  wizard(harry). --> FALSE (undefined)
+?-  magic(wizard). --> FALSE
+?-  magic(’McGonagall’). -->  TRUE
+?-  magic(Hermione). --> TRUE
+
+##################################################
+Prolog results:
+
+?- magic(house_elf).
+ERROR: Undefined procedure: wizard/1
+ERROR: In:
+ERROR:    [9] wizard(house_elf)
+ERROR:    [8] magic(house_elf) at d:/dropbox/cs344-ai/cs344/labs/lab12/lab_2.pl:6
+ERROR:    [7] <user>
+   Exception: (9) wizard(house_elf) ? creep
+   Exception: (8) magic(house_elf) ? creep
+
+?- wizard(harry).
+ERROR: Undefined procedure: wizard/1 (DWIM could not correct goal)
+
+?- magic(wizard).
+ERROR: Undefined procedure: wizard/1
+ERROR: In:
+ERROR:    [9] wizard(wizard)
+ERROR:    [8] magic(wizard) at d:/dropbox/cs344-ai/cs344/labs/lab12/lab_2.pl:6
+ERROR:    [7] <user>
+   Exception: (9) wizard(wizard) ? creep
+   Exception: (8) magic(wizard) ? creep
+
+?- magic('McGonagall').
+ERROR: Undefined procedure: wizard/1
+ERROR: In:
+ERROR:    [9] wizard('McGonagall')
+ERROR:    [8] magic('McGonagall') at d:/dropbox/cs344-ai/cs344/labs/lab12/lab_2.pl:6
+ERROR:    [7] <user>
+   Exception: (9) wizard('McGonagall') ? creep
+   Exception: (8) magic('McGonagall') ? creep
+
+?- magic(Hermione).
+Hermione = dobby
+
+FIXME - there's something weird happening with Prolog.
+
+##################################################
+
+magic(Hermione). - the only successful query.
+
+Hermione = dobby
+
+##################################################
+Draw the search tree for the query magic(Hermione) .
+
+?- trace.
+true.
+
+[trace]  ?- magic(Hermione).
+   Call: (8) magic(_10118) ? creep
+   Call: (9) house_elf(_10118) ? creep
+   Exit: (9) house_elf(dobby) ? creep
+   Exit: (8) magic(dobby) ? creep
+Hermione = dobby .
+
+TODO - do this later.
+
+###########################################################################################
+Does inference in propositional logic use unification? Why or why not?
+
+Yes, it is used by Prolog in proof searching.
+
+Prolog searches the knowledge base and attempt to unify the query with either a fact or the head of a rule.
+It unifies at the first valid statement while searching from top to bottom.
+Then, it generates a new variable to represent the original query and its variable's value.
+Prolog backtracks and re-unifies with the next valid statement while searching from top to bottom if it hits a
+dead end and fails on the first search until all possibilities are exhausted.
+
+###########################################################################################
+Does Prolog inferencing use resolution? Why or why not?
+
+Yes, it is used by Prolog in proof searching.
+
+TODO - answer this later.
+
+###########################################################################################
+Save your program in lab_2.pl.

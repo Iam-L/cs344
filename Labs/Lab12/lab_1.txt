@@ -1,0 +1,167 @@
+"""
+Course: CS 344 - Artificial Intelligence
+Instructor: Professor VanderLinden
+Name: Joseph Jinn
+Date: 4-18-19
+Assignment: Lab 12 - Logic
+
+Notes:
+
+Exercise 12.1 - Read LPN! Chapter 1 and do the following exercises:
+"""
+
+###########################################################################################
+Exercise 1.4 - Explain why you built the representations as you did.
+
+Exercise  1.4 Represent the following in Prolog:
+
+Butch is a killer.
+Mia and Marsellus are married.
+Zed is dead.
+Marsellus kills everyone who gives Mia a footmassage.
+Mia loves everyone who is a good dancer.
+Jules eats anything that is nutritious or tasty.
+
+##################################################
+
+killer(butch).
+
+married(mia, marsellus).
+
+dead(zed).
+
+killsPerson(marsellus, _Person):- footMassage(_Person, mia).
+
+lovesPerson(mia, _Person):- goodDancer(_Person).
+
+eatsItem(jules, _Item):- nutritiousItem(_Item), tastyItem(_Item).
+
+##################################################
+
+1 - this is simply a fact. (knowledge base 1)
+
+2. this is a relation with two names as arguments (knowledge base 4)
+
+3. marsellus kills the variable _Person if the variable _Person gives mia a foot massage. (knowledge base 5)
+
+4. mia loves the variable _Person if the variable _Person is a good dancer. (knowledge base 5)
+
+5. jules eats the variable _Item if the variable _Item is nutritious AND the variable _Item is tasty. (knowledge base 5)
+
+In general, I'm just following the format of Section 1.1 in the Learn Prolog Now! online text.
+
+###########################################################################################
+Exercise 1.5 - Explain how Prolog comes up with its answers.
+
+Exercise  1.5 Suppose we are working with the following knowledge base:
+
+   wizard(ron).
+   hasWand(harry).
+   quidditchPlayer(harry).
+   wizard(X):-  hasBroom(X),  hasWand(X).
+   hasBroom(X):-  quidditchPlayer(X).
+
+How does Prolog respond to the following queries?
+
+wizard(ron).
+witch(ron).
+wizard(hermione).
+witch(hermione).
+wizard(harry).
+wizard(Y).
+witch(Y).
+
+##################################################
+My guesses:
+
+wizard(ron). --> TRUE
+witch(ron). --> FALSE (error)
+wizard(hermione). --> FALSE
+witch(hermione). --> FALSE (error)
+wizard(harry). --> TRUE
+wizard(Y). -->  FALSE
+witch(Y). --> FALSE (error)
+
+##################################################
+Swi-Prolog results:
+
+?- wizard(ron).
+true .
+
+?- witch(ron).
+ERROR: Undefined procedure: witch/1 (DWIM could not correct goal)
+
+?- wizard(hermione).
+false.
+
+?- witch(hermione).
+ERROR: Undefined procedure: witch/1 (DWIM could not correct goal)
+
+?- wizard(harry).
+true.
+
+฀?- wizard(Y).
+Y = ron ;
+Y = harry.
+
+?- witch(Y).
+ERROR: Undefined procedure: witch/1 (DWIM could not correct goal)
+
+?-
+##################################################
+
+Prolog assigns the variable X to the value specified in the query.
+
+Then, it works sequentially from top to bottom attempting to unify (match) the expression wizard(X) or witch(X)
+with each information statement in the knowledge base.
+
+As witch is not defined in the knowledge base, we get an error message.
+
+###########################################################################################
+Consider the well-known modus ponens . Does Prolog implement a version of modus ponens in propositional logic form?
+If so, demonstrate how it’s done; if not, explain why not. If it doesn’t, can you implement one? Why or why not?
+
+Prolog does implement a version of modus ponens in propositional logic form.
+
+From Section 1.1, it uses the fundamental deduction step of the form:
+
+If a knowledge base contains a rule head  :-  body, and Prolog knows that body follows from the information in the
+knowledge base, then Prolog can infer head.
+
+Prolog can also chain modus ponens together.
+
+##################################################
+A simple example:
+
+happy(yolanda).
+   listens2Music(mia).
+   listens2Music(yolanda):-  happy(yolanda).
+   playsAirGuitar(mia):-  listens2Music(mia).
+   playsAirGuitar(yolanda):-  listens2Music(yolanda).
+
+Query: ?- playsAirGuitar(mia). --> TRUE
+
+No explicit fact stating that Mia plays the guitar but Prolog can infer that Mia plays the guitar from the fact that
+Mia listens to music and the rule that: playsAirGuitar(mia):-  listens2Music(mia).
+
+###########################################################################################
+Prolog supports representations in the form of Horn clauses . Compare and contrast the representational power they
+provide with that of propositional logic.
+
+Horn Clauses - a clause (disjunction of literals) with at most one positive literal.
+
+definite clause - Horn clause with exactly one positive literal.
+goal clause - Horn clause with no positive literals.
+
+Example of definite clause: (p∧q∧⋯∧t)→u
+
+TODO - finish answering this.
+
+###########################################################################################
+Logical implementations generally distinguish the basic operations of TELL and ASK .
+Does Prolog support this distinction? If so, how; if not, why not?
+
+TODO - finish answering this.
+
+###########################################################################################
+Save your program in lab_1.pl.

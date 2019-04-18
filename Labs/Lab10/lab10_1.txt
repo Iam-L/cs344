@@ -68,7 +68,7 @@ Exercise 10.1 Questions:
 
 Would you rather use TensorFlow or Keras to build your models?
 
-I would like to user Tensorflow Keras for fast prototyping and then straight Tensorflow for the final implementation.
+I would like to use Tensorflow Keras for fast prototyping and then straight Tensorflow for the final implementation.
 
 ##################################################
 
