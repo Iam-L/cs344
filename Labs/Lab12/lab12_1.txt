@@ -150,6 +150,7 @@ provide with that of propositional logic.
 
 Horn Clauses - a clause (disjunction of literals) with at most one positive literal.
 
+fact - a definite clause with no negative literals.
 definite clause - Horn clause with exactly one positive literal.
 goal clause - Horn clause with no positive literals.
 

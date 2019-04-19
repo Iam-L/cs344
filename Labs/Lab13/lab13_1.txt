@@ -1,0 +1,31 @@
+"""
+Course: CS 344 - Artificial Intelligence
+Instructor: Professor VanderLinden
+Name: Joseph Jinn
+Date: 4-18-19
+Assignment: Lab 13 - Planning
+
+Notes:
+
+Exercise 13.1 - Do the following exercises.
+"""
+
+###########################################################################################
+
+Do these exercises from LPN!.
+Exercise 3.2
+Exercise 4.5
+Exercise 5.3
+
+###########################################################################################
+Does Prolog implement a version of generalized modus ponens? If so, demonstrate how it’s done; if not, explain why not.
+If it doesn’t, can you implement one? Why or why not?
+
+###########################################################################################
+Have you ever seen anything similar to the “successor” rule discussed in LPN!’s Chapter 3.1, Example 3? Where?
+What was it used for?
+
+###########################################################################################
+Be sure that you can explain how you built your system and how Prolog does recursion.
+
+###########################################################################################

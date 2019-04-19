@@ -151,7 +151,7 @@ ERROR:    [7] <user>
 ?- magic(Hermione).
 Hermione = dobby
 
-FIXME - there's something weird happening with Prolog.
+Note: There are the exact results I obtained by running SWI-Prolog on the example's knowledge base with the queries.
 
 ##################################################
 
