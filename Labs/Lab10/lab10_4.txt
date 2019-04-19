@@ -39,6 +39,9 @@ Task 3: Do embeddings do much good for sentiment analysis tasks?
 
 Maybe not, the accuracy metric actually decreased with the addition of a embedding layer.
 
+From my class notes on 4-8-19, word embeddings by themselves do not take into account metaphorical distinctions,
+mathematical operations, polarities (yes/no), etc.  They should take these into account for sentiment analysis tasks.
+
 ##################################################
 
 Tasks 4–5: Name two words that have similar embeddings and explain why that makes sense.
