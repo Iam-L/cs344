@@ -363,8 +363,6 @@ Exercise 10.4 Questions:
 
 Task 1: Is a linear model ever preferable to a deep NN model?
 
-TODO: review answer to this question.
-
 If you have a linear problem, you could just use a linear model instead of a deep neural network model.
 However, if you have a non-linear problem then you shouldn't use a linear model and should consider a deep neural
 network instead.

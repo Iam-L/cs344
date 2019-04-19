@@ -8,9 +8,6 @@ Assignment: Lab 10 - Neural Networks
 Notes:
 
 Exercise 10.2 - Improving Neural Net Performance
-
--Included code just to see if I can run it from within PyCharm and because it executes faster.
-- Refer to sections below for answers to Exercise questions and code added for Tasks.
 """
 
 ###########################################################################################

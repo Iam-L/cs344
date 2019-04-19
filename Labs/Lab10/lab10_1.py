@@ -313,6 +313,9 @@ Would you rather use TensorFlow or Keras to build your models?
 
 I would like to user Tensorflow Keras for fast prototyping and then straight Tensorflow for the final implementation.
 
+Edit:  Given time constraints with 3 final projects and being a grader for CS-232, Keras is probably the more
+practical and realistic option.
+
 ##################################################
 
 Tasks 1 & 2: Report your best hyper-parameter settings and their resulting performance on the testing dataset.

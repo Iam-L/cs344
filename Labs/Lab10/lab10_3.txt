@@ -8,11 +8,9 @@ Assignment: Lab 10 - Neural Networks
 Notes:
 
 Exercise 10.3 - Classifying Handwritten Digits with Neural Networks
-
--Included code just to see if I can run it from within PyCharm and because it executes faster.
-- Refer to sections below for answers to Exercise questions and code added for Tasks.
 """
 
+###########################################################################################
 
 """
 Exercise 10.3 Questions:
@@ -26,8 +24,6 @@ The confusion matrix shows the number of images that were incorrectly identified
 
 Task 2: How does the TensorFlow network architecture differ from the Keras example given in class?
 Report any improvements you can make over the baseline testset accuracy for this task.
-
-TODO: review answer to this question.
 
 The TensorFlow network architecture is defined by the DNNClassifier object.
 There is a Softmax layer at the top that selects the winning class.

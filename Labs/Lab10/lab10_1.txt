@@ -8,9 +8,6 @@ Assignment: Lab 10 - Neural Networks
 Notes:
 
 Exercise 10.1 - Intro to Neural Networks
-
--Included code just to see if I can run it from within PyCharm and because it executes faster.
-- Refer to sections below for answers to Exercise questions and code added for Tasks.
 """
 
 ###########################################################################################
@@ -68,7 +65,10 @@ Exercise 10.1 Questions:
 
 Would you rather use TensorFlow or Keras to build your models?
 
-I would like to use Tensorflow Keras for fast prototyping and then straight Tensorflow for the final implementation.
+I would like to user Tensorflow Keras for fast prototyping and then straight Tensorflow for the final implementation.
+
+Edit:  Given time constraints with 3 final projects and being a grader for CS-232, Keras is probably the more
+practical and realistic option.
 
 ##################################################
 
