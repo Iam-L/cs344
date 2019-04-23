@@ -1,0 +1,78 @@
+"""
+Course: CS 344 - Artificial Intelligence
+Instructor: Professor VanderLinden
+Name: Joseph Jinn
+Date: 4-23-19
+
+Homework 6 - First-Order Logic
+
+Notes:
+
+Recursion - ever useful, ever painful.
+"""
+
+################################################################################################################
+
+Exercise  2.4 Here are six Italian words:
+
+astante , astoria , baratto , cobalto , pistola , statale .
+
+They are to be arranged, crossword puzzle fashion, in the following grid:
+
+*Pic not found*
+
+The following knowledge base represents a lexicon containing these words:
+
+   word(astante,  a,s,t,a,n,t,e).
+   word(astoria,  a,s,t,o,r,i,a).
+   word(baratto,  b,a,r,a,t,t,o).
+   word(cobalto,  c,o,b,a,l,t,o).
+   word(pistola,  p,i,s,t,o,l,a).
+   word(statale,  s,t,a,t,a,l,e).
+
+Write a predicate crossword/6 that tells us how to fill in the grid. The first three arguments should be the vertical
+words from left to right, and the last three arguments the horizontal words from top to bottom.
+
+################################################################################################################
+
+Consider the following situation in the blocks world:
+
+block A on block B
+		on table
+Given the (separate) facts that:
+
+A is on B
+B is on C
+The table supports C
+For any two entities, if the first entity supports the second, then the second is on the first.
+For any two entities, if the first entity is on the second, then the first is “above” the second.
+For any three entities, if the first entity is above the second which is above the third, then the first is above the third.
+Write these facts in FOL and use resolution/unification to prove that A is above the table.
+
+################################################################################################################
+
+Write a recursive implementation of Euclid’s algorithm for computing the greatest common divisor (GCD) of two integers.
+This algorithm can be defined recursively as follows:
+
+euclids algorithm of gcd
+
+Note that Prolog functions don't return values, so you'll need to write the gcd function with 3 parameters, the
+2 values and the result to be returned. The function should work as follows:
+
+?- gcd(2,2,X).
+X = 2 ;
+false.
+
+?- gcd(10,5,X).
+X = 5 ;
+false.
+
+?- gcd(21,28,X).
+X = 7 ;
+false.
+
+?- gcd(7,13,X).
+X = 1 ;
+false.
+
+################################################################################################################

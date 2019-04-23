@@ -17,6 +17,7 @@ descend(X,Y)  :- child(X,Z),
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Exercise 3.2 - Russian Dolls (modified to support containment hierarchy)
+%% TODO - finish implementation.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Direct relationships.
@@ -28,8 +29,10 @@ directlyIn(natasha, irina).
 in(First, Second, Trace) :- directlyIn(First, Second, Trace).
 
 %% Recursive case.
-in(First, Second, Trace) :- directlyIn(First, Third, Trace),
-                        in(Third, Second, Trace).
+in(First, Second, Trace) :-
+
+        directlyIn(First, Third, Trace),
+        in(Third, Second, Trace).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

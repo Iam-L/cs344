@@ -2,7 +2,7 @@
 %% Section 3.1 Example. (for my own reference)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Direct relationships.
+%% Knowledge Base.
 child(anne,bridget).
 child(bridget,caroline).
 child(caroline,donna).
@@ -19,7 +19,7 @@ descend(X,Y)  :- child(X,Z),
 %% Exercise 3.2 - Russian Dolls
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Direct relationships.
+%% Knowledge Base.
 directlyIn(katarina, olga).
 directlyIn(olga, natasha).
 directlyIn(natasha, irina).
@@ -28,11 +28,13 @@ directlyIn(natasha, irina).
 in(First, Second) :- directlyIn(First, Second).
 
 %% Recursive case.
-in(First, Second) :- directlyIn(First, Third),
-                        in(Third, Second).
+in(First, Second) :-
+
+        directlyIn(First, Third),
+        in(Third, Second).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Exercise 4.5 - Translation from German to English (TODO - finish)
+%% Exercise 4.5 - Translation from German to English
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Knowledge Base.
@@ -47,18 +49,25 @@ tran(acht,eight).
 tran(neun,nine).
 
 %% Base Case.
-listtran(G, E) :- tran([], []).
+listtran([], []).
 
 %% Recursive Case.
-listtran([G | TG], [E | TE]) :- tran(G, E),
-                                listtran(TG, TE).
+listtran([German | TailGerman], [English | TailEnglish]) :-
+
+        tran(German, English),
+        listtran(TailGerman, TailEnglish).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Exercise 5.3 - Add 1 to each integer in the list (TODO - finish)
+%% Exercise 5.3 - Add 1 to each integer in the list.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Base Case.
-addone([], Result).
+addone([], []).
 
 %% Recursive Case.
-addone([H | T], Result) :- Result is [H + 1, T], addone(T, Result).
+addone([Head | Tail], [ResultHead | ResultTail]) :-
+
+        ResultHead is Head + 1,
+        addone(Tail, ResultTail).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

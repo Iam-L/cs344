@@ -3,14 +3,18 @@
 
 %% If the person is a witch, she is combustible.
 witch(Person) :- combustible(Person).
+
 %% If she is combustible, she must be made of wood.
 combustible(Person) :- madeOfWood(Person).
+
 %% If she is made of wood, she must float.
 madeOfWood(Person) :- objectFloats(Person).
+
 %% If she floats, then she must weigh the same as a duck.
 objectFloats(Person) :- sameWeight(Person, duck).
 
-%% She has the same weight as a duck.
+%% She has the same weight as a duck (known "fact").
 sameWeight(girl, duck).
 
 %% Therefore, she is a witch!
+%% And we burn her at the stake or kill her in some other terrible agonizing horrendeous way.

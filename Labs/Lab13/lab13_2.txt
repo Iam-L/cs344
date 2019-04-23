@@ -8,11 +8,15 @@ Assignment: Lab 13 - Planning
 Notes:
 
 Exercise 13.2 - Extend the LPN! exercises above as follows.
+
+TODO - work on and finish, time permitting (looking unlikely with 3 final projects and grading job).
+
 """
 
 ###########################################################################################
 
 Exercise 3.2 - Modify your code to print the containment hierarchy as shown here:
+
 ?- in(katarina, olga, L).
 L = contains(katarina, olga)
 

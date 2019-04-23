@@ -8,6 +8,8 @@ Assignment: Lab 13 - Planning
 Notes:
 
 Exercise 13.1 - Do the following exercises.
+
+Note: Prolog makes me cry.  Apparently, my brain isn't wired well for recursive logic.
 """
 
 ###########################################################################################
@@ -21,11 +23,25 @@ Exercise 5.3
 Does Prolog implement a version of generalized modus ponens? If so, demonstrate how it’s done; if not, explain why not.
 If it doesn’t, can you implement one? Why or why not?
 
+TODO - answer this later.
+
 ###########################################################################################
 Have you ever seen anything similar to the “successor” rule discussed in LPN!’s Chapter 3.1, Example 3? Where?
 What was it used for?
 
+I vaguely remember in CS-212 Data Structures and Algorithms we had a Project involving Graph Algorithms where we had
+to find the successor nodes in a Dutch family tree hierarchy.  It was a breadth-first search algorithm if I remember
+correctly.  That project was one that was challenging to me and I never quite got backtracking to record the path of
+node traversal to work with breadth-first search.
+
 ###########################################################################################
 Be sure that you can explain how you built your system and how Prolog does recursion.
+
+Prolog utilizes recursion with a base case that is a fact and a recursive case that is a rule that calls on itself.
+
+It follows the normal rules of reasoning by attempting to unify with the first possible fact or rule found.  If no
+facts or non-recursive part of the body of a rule match, then it calls upon the recursive part of the body of a rule
+to perform another top-bottom left-right search.  Rinse and repeat until it satisfies all the goals and the query
+succeeds.  Otherwise, fail.
 
 ###########################################################################################

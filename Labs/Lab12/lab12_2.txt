@@ -80,6 +80,8 @@ false.
 ?-
 
 ##################################################
+Variable instantiations:
+
 bread  =  bread --> N/A
 ’Bread’  =  bread --> N/A
 food(X)  =  food(bread) --> X = bread
@@ -89,14 +91,58 @@ meal(food(bread),X)  =  meal(X,drink(beer)) --> X = food(bread), X = drink(beer)
 ###########################################################################################
 Exercise 2.2 - Explain how Prolog does its unification and reasoning. If you have issues getting the results
 you’d expect, are there things you can do to game the system?
+
 ##################################################
- house_elf(dobby).
-   witch(hermione).
-   witch(’McGonagall’).
-   witch(rita_skeeter).
-   magic(X):-  house_elf(X).
-   magic(X):-  wizard(X).
-   magic(X):-  witch(X).
+Yes, I can game the system by inserting one extra line of code: wizard(gandalf).
+##################################################
+Prolog does its unification following these combination of rules:
+
+If term1 and term2 are constants, then term1 and term2 unify if and only if they are the same atom, or the same number.
+
+If term1 is a variable and term2 is any type of term, then term1 and term2 unify, and term1 is instantiated to term2 .
+Similarly, if term2 is a variable and term1 is any type of term, then term1 and term2 unify, and term2 is instantiated
+to term1 . (So if they are both variables, they’re both instantiated to each other, and we say that they share values.)
+
+If term1 and term2 are complex terms, then they unify if and only if:
+
+    They have the same functor and arity, and
+
+    all their corresponding arguments unify, and
+
+    the variable instantiations are compatible. (For example, it is not possible to instantiate variable X to mia when
+    unifying one pair of arguments, and to instantiate X to vincent when unifying another pair of arguments .)
+
+Two terms unify if and only if it follows from the previous three clauses that they unify.
+
+##################################################
+Prolog does its reasoning by following these steps:
+
+Searches the knowledge base starting from the top and ending at the bottom.
+
+Reads the knowledge base and attempts to unify the query with the first possible fact or head of a rule.
+
+Creates new variables after unifying the variables in a query to a fact or rule to represent the shared variables.
+
+Unification generates a list of goals, which Prolog attempts to satisfy from working through them left to right.
+
+Rinse and repeat.
+
+If cannot unify with all goals, Prolog backtracks and attempts to find alternative unification via choice points.
+
+Prolog stores and uses these choice points to backtrack whenever necessary, after hitting a dead end that does not
+satisfy all goals.
+
+Once Prolog reaches a empty goal list, the query succeeded.  Otherwise, fail.
+
+##################################################
+
+house_elf(dobby).
+witch(hermione).
+witch(’McGonagall’).
+witch(rita_skeeter).
+magic(X):-  house_elf(X).
+magic(X):-  wizard(X).
+magic(X):-  witch(X).
 
 Which of the following queries are satisfied? Where relevant, give all the variable instantiations that lead to success.
 
@@ -154,10 +200,49 @@ Hermione = dobby
 Note: There are the exact results I obtained by running SWI-Prolog on the example's knowledge base with the queries.
 
 ##################################################
-
 magic(Hermione). - the only successful query.
 
+Variable instantiation leading to success:
+
 Hermione = dobby
+
+##################################################
+Prolog Results (after inserting wizard(gandalf):
+
+?- magic(house_elf).
+false.
+
+?- wizard(harry).
+false.
+
+?- magic(wizard).
+false.
+
+?- magic('McGonagall').
+true.
+
+?- magic(Hermione).
+Hermione = dobby ;
+Hermione = gandalf ;
+Hermione = hermione ;
+Hermione = 'McGonagall' ;
+Hermione = rita_skeeter.
+
+?-
+
+##################################################
+Successful queries:
+
+magic('McGonagall').
+magic(Hermione).
+
+Variable instantiation leading to success:
+
+Hermione = dobby ;
+Hermione = gandalf ;
+Hermione = hermione ;
+Hermione = 'McGonagall' ;
+Hermione = rita_skeeter.
 
 ##################################################
 Draw the search tree for the query magic(Hermione) .
@@ -172,23 +257,19 @@ true.
    Exit: (8) magic(dobby) ? creep
 Hermione = dobby .
 
-TODO - do this later.
+Note: It seems this was removed from lab 12 after I started, so I will forgo doing this and just use a trace.
 
 ###########################################################################################
 Does inference in propositional logic use unification? Why or why not?
 
-Yes, it is used by Prolog in proof searching.
-
-Prolog searches the knowledge base and attempt to unify the query with either a fact or the head of a rule.
-It unifies at the first valid statement while searching from top to bottom.
-Then, it generates a new variable to represent the original query and its variable's value.
-Prolog backtracks and re-unifies with the next valid statement while searching from top to bottom if it hits a
-dead end and fails on the first search until all possibilities are exhausted.
+Propositional logic uses inference rules, including modus ponens.  Prolog uses modus ponens and unification in order
+to perform its reasoning.  So, it can be concluded that inference in propositional logic uses unification.
 
 ###########################################################################################
 Does Prolog inferencing use resolution? Why or why not?
 
-Yes, it is used by Prolog in proof searching.
+Yes, Prolog inferencing uses resolution.
+
 
 TODO - answer this later.
 

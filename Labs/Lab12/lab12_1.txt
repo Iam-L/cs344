@@ -118,7 +118,7 @@ with each information statement in the knowledge base.
 As witch is not defined in the knowledge base, we get an error message.
 
 ###########################################################################################
-Consider the well-known modus ponens . Does Prolog implement a version of modus ponens in propositional logic form?
+Consider the well-known modus ponens. Does Prolog implement a version of modus ponens in propositional logic form?
 If so, demonstrate how it’s done; if not, explain why not. If it doesn’t, can you implement one? Why or why not?
 
 Prolog does implement a version of modus ponens in propositional logic form.
@@ -156,7 +156,20 @@ goal clause - Horn clause with no positive literals.
 
 Example of definite clause: (p∧q∧⋯∧t)→u
 
-TODO - finish answering this.
+##################################################
+Modus ponens work only for knowledge bases with implications of positive literals.
+
+Implications of positive literals are often called Horn clauses.
+
+Disjunction. and negations cannot be represented via Horn clauses.
+
+So, Modus ponens fails with disjunctions and negations.
+
+Resources:
+
+URL: https://www.cs.uni.edu/~wallingf/teaching/161/sessions/session12.pdf
+
+FIXME - check answer.
 
 ###########################################################################################
 Logical implementations generally distinguish the basic operations of TELL and ASK .
