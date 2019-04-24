@@ -1,6 +1,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Part 1 - Do LPN! exercise 2.4 (i.e., the crossword problem).
 
+%% Disable singleton warnings.
+:- style_check(-singleton).
+
 %% Knowledge base (lexicon).
 word(astante,  a,s,t,a,n,t,e).
 word(astoria,  a,s,t,o,r,i,a).
@@ -17,13 +20,14 @@ crossword(V1, V2, V3, H1, H2, H3) :-
                                         word(H2, H21, V14, H23, V24, H25, V34, H27),
                                         word(H3, H31, V16, H33, V26, H35, V36, H37).
 
-% Note: Why exactly can we access individual characters like this?
+% Note: Account for all shared positions to ensure the letters match in those positions.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Part 2 - Consider the following situation in the blocks world:
  %% FIXME - not working doing it this way.
 
 %% Knowledge Base.
+:- discontiguous isOn/2. %% Disable warning.
 
 %% A is on B.
 isOn('A', 'B').
@@ -34,28 +38,20 @@ isOn('B', 'C').
 %% The table supports C.
 supports('Table', 'C').
 
-%% Define "above".
-above('P1', 'P2').
-
 %% For any two entities, if the first entity supports the second, then the second is on the first.
-entities(E1, E2) :-
+isOn(E2, E1) :- supports(E1, E2).
 
-                    supports(E1, E2),
-                    isOn(E2, E1).
 
 %% For any two entities, if the first entity is on the second, then the first is “above” the second.
-entities(E1, E2) :-
+above(E1, E2) :- isOn(E1, E2).
 
-                    isOn(E1, E2),
-                    above(E1, E2).
 
 %% For any three entities, if the first entity is above the second which is above the third,
 %% then the first is above the third.
-entities(E1, E2, E3) :-
-
+above(E1, E3) :-
                     above(E1, E2),
-                    above(E2, E3),
-                    above(E1, E3).
+                    above(E2, E3).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
