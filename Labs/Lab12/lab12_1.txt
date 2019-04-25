@@ -40,7 +40,7 @@ eatsItem(jules, _Item):- nutritiousItem(_Item), tastyItem(_Item).
 
 1 - this is simply a fact. (knowledge base 1)
 
-2. this is a relation with two names as arguments (knowledge base 4)
+2. this is a relation with two names as arguments. (knowledge base 4)
 
 3. marsellus kills the variable _Person if the variable _Person gives mia a foot massage. (knowledge base 5)
 
@@ -118,6 +118,7 @@ with each information statement in the knowledge base.
 As witch is not defined in the knowledge base, we get an error message.
 
 ###########################################################################################
+
 Consider the well-known modus ponens. Does Prolog implement a version of modus ponens in propositional logic form?
 If so, demonstrate how it’s done; if not, explain why not. If it doesn’t, can you implement one? Why or why not?
 
@@ -125,12 +126,13 @@ Prolog does implement a version of modus ponens in propositional logic form.
 
 From Section 1.1, it uses the fundamental deduction step of the form:
 
-If a knowledge base contains a rule head  :-  body, and Prolog knows that body follows from the information in the
+If a knowledge base contains a rule, head  :-  body, and Prolog knows that body follows from the information in the
 knowledge base, then Prolog can infer head.
 
 Prolog can also chain modus ponens together.
 
 ##################################################
+
 A simple example:
 
 happy(yolanda).
@@ -145,33 +147,22 @@ No explicit fact stating that Mia plays the guitar but Prolog can infer that Mia
 Mia listens to music and the rule that: playsAirGuitar(mia):-  listens2Music(mia).
 
 ###########################################################################################
+
 Prolog supports representations in the form of Horn clauses . Compare and contrast the representational power they
 provide with that of propositional logic.
 
-Horn Clauses - a clause (disjunction of literals) with at most one positive literal.
+Horn Clauses - a clause (disjunction of literals) with at most one positive, un-negated, literal.
 
-fact - a definite clause with no negative literals.
 definite clause - Horn clause with exactly one positive literal.
+unit clause - a definite clause with no negative literals.
+fact - a unit clause without variables.
 goal clause - Horn clause with no positive literals.
 
-Example of definite clause: (p∧q∧⋯∧t)→u
-
-##################################################
-Modus ponens work only for knowledge bases with implications of positive literals.
-
-Implications of positive literals are often called Horn clauses.
-
-Disjunction. and negations cannot be represented via Horn clauses.
-
-So, Modus ponens fails with disjunctions and negations.
-
-Resources:
-
-URL: https://www.cs.uni.edu/~wallingf/teaching/161/sessions/session12.pdf
-
-FIXME - check answer.
+Horn clauses in propositional logic can have a disjunction form and implication form.
+Prolog is built on top of Horn clauses.
 
 ###########################################################################################
+
 Logical implementations generally distinguish the basic operations of TELL and ASK .
 Does Prolog support this distinction? If so, how; if not, why not?
 

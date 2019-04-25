@@ -2,7 +2,7 @@
 %% Section 3.1 Example. (for my own reference)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Direct relationships.
+%% Knowledge Base.
 child(anne,bridget).
 child(bridget,caroline).
 child(caroline,donna).
@@ -20,7 +20,7 @@ descend(X,Y)  :- child(X,Z),
 %% TODO - finish implementation.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% Direct relationships.
+%% Knowledge Base.
 directlyIn(katarina, olga).
 directlyIn(olga, natasha).
 directlyIn(natasha, irina).

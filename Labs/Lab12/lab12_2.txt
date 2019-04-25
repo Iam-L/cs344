@@ -94,6 +94,7 @@ you’d expect, are there things you can do to game the system?
 
 ##################################################
 Yes, I can game the system by inserting one extra line of code: wizard(gandalf).
+
 ##################################################
 Prolog does its unification following these combination of rules:
 
@@ -117,9 +118,8 @@ Two terms unify if and only if it follows from the previous three clauses that t
 ##################################################
 Prolog does its reasoning by following these steps:
 
-Searches the knowledge base starting from the top and ending at the bottom.
-
-Reads the knowledge base and attempts to unify the query with the first possible fact or head of a rule.
+Reads the knowledge base and attempts to unify the query with the first possible fact or head of a rule by searching
+from the top to the bottom.
 
 Creates new variables after unifying the variables in a query to a fact or rule to represent the shared variables.
 
@@ -262,16 +262,29 @@ Note: It seems this was removed from lab 12 after I started, so I will forgo doi
 ###########################################################################################
 Does inference in propositional logic use unification? Why or why not?
 
-Propositional logic uses inference rules, including modus ponens.  Prolog uses modus ponens and unification in order
-to perform its reasoning.  So, it can be concluded that inference in propositional logic uses unification.
+Modus Ponens is a rule of inference in propositional logic. (P --> Q)
+
+Prolog uses Modus Ponens to represent propositional sentences. (head :- body)
+
+Prolog uses unification in order to infer, so it's logical to conclude that inference in propositional logic uses
+unification.
 
 ###########################################################################################
 Does Prolog inferencing use resolution? Why or why not?
 
-Yes, Prolog inferencing uses resolution.
+Resolution - inference mechanism where resolving two clauses creates a new one.
+
+Yes, Prolog uses resolution for inference.
+
+Example:
+
+m :-b.
+t :- p, m, z.
+
+inference --> t :- p, b, z.
 
 
-TODO - answer this later.
+Resources Used: URL: https://athena.ecs.csus.edu/~logicp/unification-resolution.html
 
 ###########################################################################################
 Save your program in lab_2.pl.

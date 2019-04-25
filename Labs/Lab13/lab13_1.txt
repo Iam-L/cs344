@@ -37,11 +37,12 @@ node traversal to work with breadth-first search.
 ###########################################################################################
 Be sure that you can explain how you built your system and how Prolog does recursion.
 
-Prolog utilizes recursion with a base case that is a fact and a recursive case that is a rule that calls on itself.
+For lists, Prolog peels off the head of the list with each recursive call and passes the tail of the list to the next
+recursive call.  This occurs until the query succeeds or the tail is just the empty list.
 
-It follows the normal rules of reasoning by attempting to unify with the first possible fact or rule found.  If no
-facts or non-recursive part of the body of a rule match, then it calls upon the recursive part of the body of a rule
-to perform another top-bottom left-right search.  Rinse and repeat until it satisfies all the goals and the query
-succeeds.  Otherwise, fail.
+Prolog uses its standard inference mechanisms when dealing with recursive rules - rules where one or more statements
+in the body of that rule calls upon itself.
+
+There is a base case that is a fact or non-recursive rule which ends the recursion and prevents infinite recursion.
 
 ###########################################################################################

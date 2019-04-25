@@ -14,7 +14,6 @@ TODO - work on and finish, time permitting (looking unlikely with 3 final projec
 """
 
 ###########################################################################################
-
 Exercise 3.2 - Modify your code to print the containment hierarchy as shown here:
 
 ?- in(katarina, olga, L).
@@ -28,6 +27,7 @@ The first example is a base case, the second a recursive case.
 
 ###########################################################################################
 Exercise 4.5 - Modify your code to translate into either English or Chinese.
+
 The Chinese numbers are yi, er, san, si, wu, liu, qi, ba, jiu. Your output should look something like this:
 
 ?- listtran3([eins,zwei],2,X).

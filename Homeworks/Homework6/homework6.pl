@@ -62,24 +62,31 @@ above(E1, E3) :-
 %% URL: https://www.khanacademy.org/computing/computer-science/cryptography/modarithmetic/a/the-euclidean-algorithm
 
 %% Knowledge Base.
+gcd(0, 0, Result) :- Result = 0.
 gcd(0, Y, Result) :- Result = Y.
 gcd(X, 0, Result) :- Result = X.
 gcd(X, X, Result) :- Result = X.
 gcd(Y, Y, Result) :- Result = Y.
 
 %% Base Case.
-gcd(0, 0, Result) :- Result = 0.
+gcd(X, Y, Result) :-
+
+                    X =:= Y,
+                    Result is X.
 
 %% Recursive Case.
 gcd(X, Y, Result) :-
 
                     X > Y,
-                    Result is X - Y,
-                    gcd(Result, Y, Result).
+                    Math is X - Y,
+                    gcd(Math, Y, Result).
+
 gcd(X, Y, Result) :-
 
                     X < Y,
-                    Result is Y - X,
-                    gcd(X, Result, Result).
+                    Math is Y - X,
+                    gcd(X, Math, Result).
+
+%% Note to self: Use different "intermediate" variable for arithmetic; separate from 3rd parameter variable.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
