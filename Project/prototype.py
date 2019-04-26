@@ -69,6 +69,13 @@ print("SLO classification tag 3 (if any):")
 print(processed_features['SLO3'])
 print()
 
+# Data pre-processing
+# TODO - use pre-processing methods indicated in SLO article
+# TODO - can I get the code that does the pre-processing and appropriate it for my own use here?
+
+# TODO - https://github.com/Calvin-CS/slo-classifiers/tree/feature/keras-nn/stance/data
+# TODO - https://github.com/Calvin-CS/slo-classifiers/blob/feature/keras-nn/stance/data/tweet_preprocessor.py
+
 ############################################################################################
 
 """

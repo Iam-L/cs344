@@ -273,6 +273,7 @@ unification.
 Does Prolog inferencing use resolution? Why or why not?
 
 Resolution - inference mechanism where resolving two clauses creates a new one.
+Refutation (resolution as refutation) - proof by contradiction using resolution.
 
 Yes, Prolog uses resolution for inference.
 

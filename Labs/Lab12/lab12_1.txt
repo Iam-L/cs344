@@ -122,12 +122,12 @@ As witch is not defined in the knowledge base, we get an error message.
 Consider the well-known modus ponens. Does Prolog implement a version of modus ponens in propositional logic form?
 If so, demonstrate how it’s done; if not, explain why not. If it doesn’t, can you implement one? Why or why not?
 
-Prolog does implement a version of modus ponens in propositional logic form.
+Prolog does implement a version of modus ponens in propositional logic form (implication elimination)
 
 From Section 1.1, it uses the fundamental deduction step of the form:
 
 If a knowledge base contains a rule, head  :-  body, and Prolog knows that body follows from the information in the
-knowledge base, then Prolog can infer head.
+knowledge base, then Prolog can infer head. (Q <-- P)
 
 Prolog can also chain modus ponens together.
 
@@ -160,13 +160,18 @@ goal clause - Horn clause with no positive literals.
 
 Horn clauses in propositional logic can have a disjunction form and implication form.
 Prolog is built on top of Horn clauses.
+Horn clauses in Prolog are restricted to the implication form and implicitly universally quantified.
 
 ###########################################################################################
 
 Logical implementations generally distinguish the basic operations of TELL and ASK .
 Does Prolog support this distinction? If so, how; if not, why not?
 
-TODO - finish answering this.
+TELL - Prolog knowledge base - the facts and rules that comprise the knowledge base.
+ASK - Prolog queries - infer from the knowledge base.
+
+Yes, Prolog supports this distinction as noted above.  Prolog takes user queries and infers whether they are
+true or false from the knowledge base given.
 
 ###########################################################################################
 Save your program in lab_1.pl.
