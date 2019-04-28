@@ -105,6 +105,9 @@ https://pypi.org/project/tweet-preprocessor/
 https://towardsdatascience.com/extracting-twitter-data-pre-processing-and-sentiment-analysis-using-python-3-0-7192bd8b47cf
 (Twitter tweet retrieval)
 
+https://machinelearningmastery.com/gentle-introduction-bag-words-model/
+(bag of words)
+
 """
 
 ################################################################################################################
@@ -586,8 +589,9 @@ if debug:
 tweet_generalize_new_data_predictions = clf_multinomialNB.predict(tweet_predict_encoded_tfidf)
 
 # View the results.
-for doc, category in zip(processed_features_cmu, tweet_generalize_new_data_predictions):
-    print('%r => %s' % (doc, category))
+# Note: There are 500k+ Tweets in this dataset, don't print out unless you want a very long output list.
+# for doc, category in zip(processed_features_cmu, tweet_generalize_new_data_predictions):
+#     print('%r => %s' % (doc, category))
 
 ################################################################################################################
 
@@ -595,8 +599,8 @@ for doc, category in zip(processed_features_cmu, tweet_generalize_new_data_predi
 tweet_test_predictions = clf_multinomialNB.predict(tweet_test_encoded_tfidf)
 
 # View the results.
-for doc, category in zip(tweet_test, tweet_test_predictions):
-    print('%r => %s' % (doc, category))
+# for doc, category in zip(tweet_test, tweet_test_predictions):
+#     print('%r => %s' % (doc, category))
 
 # Measure accuracy.
 print()
