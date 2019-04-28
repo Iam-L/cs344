@@ -102,6 +102,10 @@ https://stackoverflow.com/questions/45804133/dimension-mismatch-error-in-countve
 """
 
 ################################################################################################################
+import string
+import warnings
+
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 # TensorFlow and tf.keras
 import tensorflow as tf
@@ -113,6 +117,9 @@ import pandas as pd
 import nltk as nltk
 from nltk.tokenize import TweetTokenizer
 import re
+
+from sklearn.pipeline import Pipeline
+from sklearn import metrics
 
 tf.logging.set_verbosity(tf.logging.ERROR)
 pd.options.display.max_rows = 10
@@ -351,7 +358,7 @@ def preprocess_tweets(tweet_text):
     preprocessed_tweet_text = re.sub("#\S+", "slo_hashtag", preprocessed_tweet_text)
 
     # Remove all punctuation.
-    # preprocessed_tweet_text = preprocessed_tweet_text.translate(str.maketrans('', '', string.punctuation))
+    preprocessed_tweet_text = preprocessed_tweet_text.translate(str.maketrans('', '', string.punctuation))
 
     return preprocessed_tweet_text
 
@@ -592,15 +599,81 @@ print(str(np.mean(tweet_test_predictions == target_test_encoded)))
 
 ################################################################################################################
 """
-Build pipeline for the future.
+multinomialNB Pipeline.
 """
-from sklearn.pipeline import Pipeline
-
-text_clf = Pipeline([
+multinomialNB_clf = Pipeline([
     ('vect', CountVectorizer()),
     ('tfidf', TfidfTransformer()),
     ('multinomialNB', MultinomialNB()),
 ])
+
+multinomialNB_clf.fit(tweet_train, target_train)
+multinomialNB_predictions = multinomialNB_clf.predict(tweet_test)
+
+# Measure accuracy.
+print()
+print("Accuracy for test set predictions using multinomialNB:")
+print(str(np.mean(multinomialNB_predictions == target_test)))
+print()
+
+print("multinomialNB Metrics")
+print(metrics.classification_report(target_test, multinomialNB_predictions,
+                                    target_names=['economic', 'environmental', 'social']))
+
+print("multinomialNB confusion matrix:")
+print(metrics.confusion_matrix(target_test, multinomialNB_predictions))
+################################################################################################################
+"""
+SGD Classifier Pipeline.
+"""
+from sklearn.linear_model import SGDClassifier
+
+SGDClassifier_clf = Pipeline([
+    ('vect', CountVectorizer()),
+    ('tfidf', TfidfTransformer()),
+    ('clf', SGDClassifier(loss='hinge', penalty='l2',
+                          alpha=1e-3, random_state=42,
+                          max_iter=5, tol=None)),
+])
+
+SGDClassifier_clf.fit(tweet_train, target_train)
+SGDClassifier_predictions = SGDClassifier_clf.predict(tweet_test)
+
+# Measure accuracy.
+print()
+print("Accuracy for test set predictions using SGDClassifier:")
+print(str(np.mean(SGDClassifier_predictions == target_test)))
+print()
+
+print("SGD Classifier Metrics")
+print(metrics.classification_report(target_test, SGDClassifier_predictions,
+                                    target_names=['economic', 'environmental', 'social']))
+
+print("SGD Classifier confusion matrix:")
+print(metrics.confusion_matrix(target_test, SGDClassifier_predictions))
+
+################################################################################################################
+
+
+################################################################################################################
+
+"""
+Parameter tuning using Grid Search.
+"""
+# from sklearn.model_selection import GridSearchCV
+#
+# # What parameters do we search for?
+# parameters = {
+#     'vect__ngram_range': [(1, 1), (1, 2)],
+#     'tfidf__use_idf': (True, False),
+#     'clf__alpha': (1e-2, 1e-3),
+# }
+#
+# # Perform the grid search using all cores.
+# gs_clf = GridSearchCV(SGDClassifier_clf, parameters, cv=5, iid=False, n_jobs=-1)
+#
+# gs_clf_fit = gs_clf.fit(tweet_train, target_train)
+# gs_clf_predict = gs_clf_fit.predict(tweet_test)
 
 ############################################################################################
 
