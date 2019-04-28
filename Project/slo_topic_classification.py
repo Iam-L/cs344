@@ -99,6 +99,12 @@ https://scikit-learn.org/stable/tutorial/text_analytics/working_with_text_data.h
 https://stackoverflow.com/questions/45804133/dimension-mismatch-error-in-countvectorizer-multinomialnb
 (only call fit_transform() once to fit to the dataset; afterwards, use transform() only otherwise issues)
 
+https://pypi.org/project/tweet-preprocessor/
+(a simple Tweet pre-processor)
+
+https://towardsdatascience.com/extracting-twitter-data-pre-processing-and-sentiment-analysis-using-python-3-0-7192bd8b47cf
+(Twitter tweet retrieval)
+
 """
 
 ################################################################################################################
@@ -580,8 +586,8 @@ if debug:
 tweet_generalize_new_data_predictions = clf_multinomialNB.predict(tweet_predict_encoded_tfidf)
 
 # View the results.
-# for doc, category in zip(processed_features_cmu, tweet_generalize_new_data_predictions):
-#     print('%r => %s' % (doc, category))
+for doc, category in zip(processed_features_cmu, tweet_generalize_new_data_predictions):
+    print('%r => %s' % (doc, category))
 
 ################################################################################################################
 
@@ -604,7 +610,7 @@ multinomialNB Pipeline.
 multinomialNB_clf = Pipeline([
     ('vect', CountVectorizer()),
     ('tfidf', TfidfTransformer()),
-    ('multinomialNB', MultinomialNB()),
+    ('multinomialNB', MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)),
 ])
 
 multinomialNB_clf.fit(tweet_train, target_train)
@@ -622,6 +628,7 @@ print(metrics.classification_report(target_test, multinomialNB_predictions,
 
 print("multinomialNB confusion matrix:")
 print(metrics.confusion_matrix(target_test, multinomialNB_predictions))
+
 ################################################################################################################
 """
 SGD Classifier Pipeline.
@@ -631,9 +638,12 @@ from sklearn.linear_model import SGDClassifier
 SGDClassifier_clf = Pipeline([
     ('vect', CountVectorizer()),
     ('tfidf', TfidfTransformer()),
-    ('clf', SGDClassifier(loss='hinge', penalty='l2',
-                          alpha=1e-3, random_state=42,
-                          max_iter=5, tol=None)),
+    ('clf', SGDClassifier(alpha=0.0001, average=False, class_weight=None,
+                          early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,
+                          l1_ratio=0.15, learning_rate='optimal', loss='hinge', max_iter=5,
+                          n_iter=None, n_iter_no_change=5, n_jobs=None, penalty='l2',
+                          power_t=0.5, random_state=None, shuffle=True, tol=None,
+                          validation_fraction=0.1, verbose=0, warm_start=False)),
 ])
 
 SGDClassifier_clf.fit(tweet_train, target_train)
@@ -653,10 +663,200 @@ print("SGD Classifier confusion matrix:")
 print(metrics.confusion_matrix(target_test, SGDClassifier_predictions))
 
 ################################################################################################################
+"""
+SVM SVC Classifiers Pipeline.
+"""
+from sklearn import svm
 
+SVC_classifier_clf = Pipeline([
+    ('vect', CountVectorizer()),
+    ('tfidf', TfidfTransformer()),
+    ('clf', svm.SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,
+                    decision_function_shape='ovr', degree=3, gamma='scale', kernel='rbf',
+                    max_iter=-1, probability=False, random_state=None, shrinking=True,
+                    tol=0.001, verbose=False)),
+])
+
+SVC_classifier_clf.fit(tweet_train, target_train)
+SVC_classifier_predictions = SVC_classifier_clf.predict(tweet_test)
+
+# Measure accuracy.
+print()
+print("Accuracy for test set predictions using SVC_classifier:")
+print(str(np.mean(SVC_classifier_predictions == target_test)))
+print()
+
+print("SVC_classifier Metrics")
+print(metrics.classification_report(target_test, SVC_classifier_predictions,
+                                    target_names=['economic', 'environmental', 'social']))
+
+print("SVC_classifier confusion matrix:")
+print(metrics.confusion_matrix(target_test, SVC_classifier_predictions))
 
 ################################################################################################################
+"""
+SVM LinearSVC Pipeline.
+"""
 
+LinearSVC_classifier_clf = Pipeline([
+    ('vect', CountVectorizer()),
+    ('tfidf', TfidfTransformer()),
+    ('clf', svm.LinearSVC(C=1.0, class_weight=None, dual=True, fit_intercept=True,
+                          intercept_scaling=1, loss='squared_hinge', max_iter=1000,
+                          multi_class='ovr', penalty='l2', random_state=None, tol=0.0001,
+                          verbose=0)),
+])
+
+LinearSVC_classifier_clf.fit(tweet_train, target_train)
+LinearSVC_classifier_predictions = LinearSVC_classifier_clf.predict(tweet_test)
+
+# Measure accuracy.
+print()
+print("Accuracy for test set predictions using LinearSVC_classifier:")
+print(str(np.mean(LinearSVC_classifier_predictions == target_test)))
+print()
+
+print("LinearSVC_classifier Metrics")
+print(metrics.classification_report(target_test, LinearSVC_classifier_predictions,
+                                    target_names=['economic', 'environmental', 'social']))
+
+print("LinearSVC_classifier confusion matrix:")
+print(metrics.confusion_matrix(target_test, LinearSVC_classifier_predictions))
+
+################################################################################################################
+"""
+K Neighbors Classifier Pipeline.
+"""
+from sklearn.neighbors import KNeighborsClassifier
+
+KNeighbor_classifier_clf = Pipeline([
+    ('vect', CountVectorizer()),
+    ('tfidf', TfidfTransformer()),
+    ('clf', KNeighborsClassifier(n_neighbors=3)),
+])
+
+KNeighbor_classifier_clf.fit(tweet_train, target_train)
+KNeighbor_classifier_predictions = KNeighbor_classifier_clf.predict(tweet_test)
+
+# Measure accuracy.
+print()
+print("Accuracy for test set predictions using RadiusNeighbor_classifier:")
+print(str(np.mean(KNeighbor_classifier_predictions == target_test)))
+print()
+
+print("RadiusNeighbor_classifier Metrics")
+print(metrics.classification_report(target_test, KNeighbor_classifier_predictions,
+                                    target_names=['economic', 'environmental', 'social']))
+
+print("RadiusNeighbor_classifier confusion matrix:")
+print(metrics.confusion_matrix(target_test, KNeighbor_classifier_predictions))
+
+################################################################################################################
+"""
+Decision Tree Classifier.
+"""
+from sklearn import tree
+
+DecisionTree_classifier_clf = Pipeline([
+    ('vect', CountVectorizer()),
+    ('tfidf', TfidfTransformer()),
+    ('clf', tree.DecisionTreeClassifier(random_state=0)),
+])
+
+DecisionTree_classifier_clf.fit(tweet_train, target_train)
+DecisionTree_classifier_predictions = DecisionTree_classifier_clf.predict(tweet_test)
+
+# Measure accuracy.
+print()
+print("Accuracy for test set predictions using DecisionTree_classifier:")
+print(str(np.mean(DecisionTree_classifier_predictions == target_test)))
+print()
+
+print("DecisionTree_classifier Metrics")
+print(metrics.classification_report(target_test, DecisionTree_classifier_predictions,
+                                    target_names=['economic', 'environmental', 'social']))
+
+print("DecisionTree_classifier confusion matrix:")
+print(metrics.confusion_matrix(target_test, DecisionTree_classifier_predictions))
+
+################################################################################################################
+"""
+Multi-layer Perceptron Classifier Pipeline.
+"""
+from sklearn.neural_network import MLPClassifier
+
+MLP_classifier_clf = Pipeline([
+    ('vect', CountVectorizer()),
+    ('tfidf', TfidfTransformer()),
+    ('clf', MLPClassifier(activation='relu', alpha=1e-5, batch_size='auto',
+                          beta_1=0.9, beta_2=0.999, early_stopping=True,
+                          epsilon=1e-08, hidden_layer_sizes=(15,),
+                          learning_rate='constant', learning_rate_init=0.001,
+                          max_iter=1000, momentum=0.9, n_iter_no_change=10,
+                          nesterovs_momentum=True, power_t=0.5, random_state=1,
+                          shuffle=True, solver='lbfgs', tol=0.0001,
+                          validation_fraction=0.1, verbose=False, warm_start=False)),
+])
+
+# from sklearn.preprocessing import StandardScaler
+# scaler = StandardScaler(copy=True, with_mean=True, with_std=True)
+# scaler.fit(tweet_train)
+# tweet_train_scaled = scaler.transform(tweet_train)
+# tweet_test_scaled = scaler.transform(tweet_test)
+
+MLP_classifier_clf.fit(tweet_train, target_train)
+MLP_classifier_predictions = MLP_classifier_clf.predict(tweet_test)
+
+# Measure accuracy.
+print()
+print("Accuracy for test set predictions using MLP_classifier:")
+print(str(np.mean(MLP_classifier_predictions == target_test)))
+print()
+
+print("MLP_classifier Metrics")
+print(metrics.classification_report(target_test, MLP_classifier_predictions,
+                                    target_names=['economic', 'environmental', 'social']))
+
+print("MLP_classifier confusion matrix:")
+print(metrics.confusion_matrix(target_test, MLP_classifier_predictions))
+
+################################################################################################################
+"""
+Logistic Regression Classifier Pipeline.
+"""
+from sklearn.linear_model import LogisticRegression
+
+LogisticRegressionCV_classifier_clf = Pipeline([
+    ('vect', CountVectorizer()),
+    ('tfidf', TfidfTransformer()),
+    ('clf', LogisticRegression(random_state=0, solver='lbfgs',
+                               multi_class='multinomial')),
+])
+
+LogisticRegressionCV_classifier_clf.fit(tweet_train, target_train)
+LogisticRegressionCV_classifier_predictions = LogisticRegressionCV_classifier_clf.predict(tweet_test)
+
+# Measure accuracy.
+print()
+print("Accuracy for test set predictions using LogisticRegressionCV_classifier:")
+print(str(np.mean(LogisticRegressionCV_classifier_predictions == target_test)))
+print()
+
+print("LogisticRegressionCV_classifier Metrics")
+print(metrics.classification_report(target_test, LogisticRegressionCV_classifier_predictions,
+                                    target_names=['economic', 'environmental', 'social']))
+
+print("LogisticRegressionCV_classifier confusion matrix:")
+print(metrics.confusion_matrix(target_test, LogisticRegressionCV_classifier_predictions))
+
+################################################################################################################
+"""
+Keras Neural Network.
+"""
+from keras.models import Sequential
+from keras import layers
+
+################################################################################################################
 """
 Parameter tuning using Grid Search.
 """
