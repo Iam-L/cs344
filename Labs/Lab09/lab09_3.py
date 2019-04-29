@@ -421,7 +421,7 @@ Exercise 9.3 Questions:
 ###########################################################################################
 
 Exercise 1:
-What’s size of the cats/dogs datasets?
+What’s size of the cats/dogs tbl-datasets?
 
 Let's start by downloading our example data, a .zip of 2,000 JPG pictures of cats and dogs, 
 and extracting it locally in /tmp.
@@ -591,7 +591,7 @@ Results:
 (refer to exercise9.3_training_validation_loss.png in Lab09 directory for loss metric)
 
 
- WARNING:tensorflow:From /usr/local/lib/python2.7/dist-packages/tensorflow/python/ops/math_ops.py:3066: to_int32 (from tensorflow.python.ops.math_ops) is deprecated and will be removed in a future version.
+ WARNING:tensorflow:From /usr/local/lib/python2.7/dist-packages/tensorflow/python/ops/math_ops.py:3066: to_int32 (from tensorflow.python.ops.math_ops) is deprecated-materials and will be removed in a future version.
 Instructions for updating:
 Use tf.cast instead.
 Epoch 1/30

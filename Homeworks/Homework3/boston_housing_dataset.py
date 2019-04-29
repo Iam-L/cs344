@@ -59,7 +59,7 @@ Use Python/NumPy/Pandas/Keras to load and manipulate the Boston Housing Dataset 
 Compute the dimensions of the data structures. Include code to print these values.
 
 Construct a suitable testing set, training set, and validation set for this data.
-Include code to create these datasets but do not include the datasets themselves.
+Include code to create these tbl-datasets but do not include the tbl-datasets themselves.
 
 Create one new synthetic feature that could be useful for machine learning in this domain.
 Explain what it is and why it might be useful.

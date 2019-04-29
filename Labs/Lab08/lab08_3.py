@@ -338,7 +338,7 @@ correlation. (refer to exercise8.3_prediction_results.png)
 
 ########################################################
 
-In their conclusion, they claim that smaller datasets “prefer” smaller networks. Do you agree? Explain your answer.
+In their conclusion, they claim that smaller tbl-datasets “prefer” smaller networks. Do you agree? Explain your answer.
 
 Yes, larger networks may lead to worse overfitting to the training dataset.
 

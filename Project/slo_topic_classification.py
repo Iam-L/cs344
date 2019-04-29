@@ -108,6 +108,9 @@ https://towardsdatascience.com/extracting-twitter-data-pre-processing-and-sentim
 https://machinelearningmastery.com/gentle-introduction-bag-words-model/
 (bag of words)
 
+https://scikit-learn.org/stable/auto_examples/text/plot_document_classification_20newsgroups.html#sphx-glr-auto-examples-text-plot-document-classification-20newsgroups-py
+(visualizing the data)
+
 """
 
 ################################################################################################################
@@ -139,7 +142,7 @@ debug = True
 
 # Import the dataset.
 slo_dataset = \
-    pd.read_csv("datasets/tbl_training_set.csv", sep=",")
+    pd.read_csv("tbl-datasets/tbl_training_set.csv", sep=",")
 
 # Shuffle the data randomly.
 slo_dataset = slo_dataset.reindex(
@@ -527,7 +530,7 @@ clf_multinomialNB = MultinomialNB().fit(tweet_train_encoded_tfidf, target_train_
 Make predictions using pre-processed and tokenized Tweets from CMU Tweet Tagger.
 Note: This required .csv import and vectorization.
 
-Probably won't be the best generalization to new data as the vocabulary between these two different datasets could
+Probably won't be the best generalization to new data as the vocabulary between these two different tbl-datasets could
 be drastically different.
 
 """
