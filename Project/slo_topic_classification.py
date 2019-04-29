@@ -536,7 +536,7 @@ be drastically different.
 """
 # Import the dataset.
 slo_dataset_cmu = \
-    pd.read_csv("borg-SLO classifiers/dataset_20100101-20180510_tok.csv", sep=",")
+    pd.read_csv("borg-SLO-classifiers/dataset_20100101-20180510_tok.csv", sep=",")
 
 # Shuffle the data randomly.
 slo_dataset_cmu = slo_dataset_cmu.reindex(
