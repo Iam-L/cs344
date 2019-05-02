@@ -16,15 +16,11 @@ TODO - resolve SettingWithCopyWarning:
 
 TODO - train for N iterations and take mean of accuracy metric.
 
-TODO - preprocess borg prediction dataset to remove hashtags, etc.
-
-TODO - add kvlinden.csv dataset to training/test set.
-
 TODO - implement Keras NN"s - CNN.
 
 TODO - implement data visualizations via matplotlib and Seaborn.
 
-TODO - attempt to acquire additional labelet Tweets for topic classification.
+TODO - attempt to acquire additional labeled Tweets for topic classification.
 
 TODO - revise report.ipynb and paper as updates are made to progress.
 
@@ -62,20 +58,59 @@ from SLO_TBL_Tweet_Preprocessor_Specialized import tweet_dataset_preprocessor_1,
 
 #############################################################
 
+# Note: Need to set level AND turn on debug variables in order to see all debug output.
 log.basicConfig(level=log.DEBUG)
 tf.logging.set_verbosity(tf.logging.ERROR)
+
+# Miscellaneous parameter adjustments for pandas and python.
 pd.options.display.max_rows = 10
 pd.options.display.float_format = '{:.1f}'.format
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
+
+# Turn on and off to debug various sub-sections.
 debug = True
+debug_train_test_set_creation = False
+debug_classifier_iterations = False
 
 ################################################################################################################
 ################################################################################################################
 
-# Call Tweet pre-processing modules.
-tweet_dataframe_processed1 = tweet_dataset_preprocessor_1()
-tweet_dataframe_processed2 = tweet_dataset_preprocessor_2()
+# Import the datasets.
+tweet_dataset_processed1 = \
+    pd.read_csv("preprocessed-datasets/tbl_kvlinden_PROCESSED.csv", sep=",")
+
+tweet_dataset_processed2 = \
+    pd.read_csv("preprocessed-datasets/tbl_training_set_PROCESSED.csv", sep=",")
+
+# Reindex and shuffle the data randomly.
+tweet_dataset_processed1 = tweet_dataset_processed1.reindex(
+    pd.np.random.permutation(tweet_dataset_processed1.index))
+
+tweet_dataset_processed2 = tweet_dataset_processed2.reindex(
+    pd.np.random.permutation(tweet_dataset_processed2.index))
+
+# Generate a Pandas dataframe.
+tweet_dataframe_processed1 = pd.DataFrame(tweet_dataset_processed1)
+tweet_dataframe_processed2 = pd.DataFrame(tweet_dataset_processed2)
+
+if debug:
+    # Print shape and column names.
+    log.debug("\n")
+    log.debug("The shape of our SLO dataframe 1:")
+    log.debug(tweet_dataframe_processed1.shape)
+    log.debug("\n")
+    log.debug("The columns of our SLO dataframe 1:")
+    log.debug(tweet_dataframe_processed1.head)
+    log.debug("\n")
+    # Print shape and column names.
+    log.debug("\n")
+    log.debug("The shape of our SLO dataframe 2:")
+    log.debug(tweet_dataframe_processed2.shape)
+    log.debug("\n")
+    log.debug("The columns of our SLO dataframe 2:")
+    log.debug(tweet_dataframe_processed2.head)
+    log.debug("\n")
 
 # Concatenate the individual datasets together.
 frames = [tweet_dataframe_processed1, tweet_dataframe_processed2]
@@ -106,58 +141,84 @@ if debug:
 slo_feature_set = processed_features['Tweet']
 slo_target_set = processed_features['SLO']
 
-#######################################################
-
-from sklearn.model_selection import train_test_split
-
-# Split feature and target set into training and test sets for each set.
-tweet_train, tweet_test, target_train, target_test = train_test_split(slo_feature_set, slo_target_set, test_size=0.33,
-                                                                      random_state=42)
-if debug:
-    log.debug("Shape of tweet training set:")
-    log.debug(tweet_train.data.shape)
-    log.debug("Shape of tweet test set:")
-    log.debug(tweet_test.data.shape)
-    log.debug("Shape of target training set:")
-    log.debug(target_train.data.shape)
-    log.debug("Shape of target test set:")
-    log.debug(target_test.data.shape)
-    log.debug("\n")
 
 #######################################################
 
-# Use Sci-kit learn to encode labels into integer values - one assigned integer value per class.
-from sklearn import preprocessing
+def create_training_and_test_set():
+    """
+    This functions splits the feature and target set into training and test sets for each set.
 
-target_label_encoder = preprocessing.LabelEncoder()
+    Note: We use this to generate a randomized training and target set in order to average our results over
+    n iterations.
 
-target_train_encoded = target_label_encoder.fit_transform(target_train)
-target_test_encoded = target_label_encoder.fit_transform(target_test)
-target_train_DEcoded = target_label_encoder.inverse_transform(target_train_encoded)
-target_test_DEcoded = target_label_encoder.inverse_transform(target_test_encoded)
+    random_state = rng (where rng = random number seed generator)
 
-if debug:
-    log.debug("Encoded target training labels:")
-    log.debug(target_train_encoded)
-    log.debug("Decoded target training labels:")
-    log.debug(target_train_DEcoded)
-    log.debug("\n")
-    log.debug("Encoded target test labels:")
-    log.debug(target_test_encoded)
-    log.debug("Decoded target test labels:")
-    log.debug(target_test_DEcoded)
-    log.debug("\n")
+    :return: Nothing.  Global variables are established.
+    """
+    global tweet_train, tweet_test, target_train, target_test, target_train_encoded, target_test_encoded
+
+    from sklearn.model_selection import train_test_split
+
+    import random
+    rng = random.randint(1, 1000000)
+    # Split feature and target set into training and test sets for each set.
+    tweet_train, tweet_test, target_train, target_test = train_test_split(slo_feature_set, slo_target_set,
+                                                                          test_size=0.33,
+                                                                          random_state=rng)
+
+    if debug_train_test_set_creation:
+        log.debug("Shape of tweet training set:")
+        log.debug(tweet_train.data.shape)
+        log.debug("Shape of tweet test set:")
+        log.debug(tweet_test.data.shape)
+        log.debug("Shape of target training set:")
+        log.debug(target_train.data.shape)
+        log.debug("Shape of target test set:")
+        log.debug(target_test.data.shape)
+        log.debug("\n")
+
+    #######################################################
+
+    # Use Sci-kit learn to encode labels into integer values - one assigned integer value per class.
+    from sklearn import preprocessing
+
+    target_label_encoder = preprocessing.LabelEncoder()
+    target_train_encoded = target_label_encoder.fit_transform(target_train)
+    target_test_encoded = target_label_encoder.fit_transform(target_test)
+
+    target_train_decoded = target_label_encoder.inverse_transform(target_train_encoded)
+    target_test_decoded = target_label_encoder.inverse_transform(target_test_encoded)
+
+    if debug_train_test_set_creation:
+        log.debug("Encoded target training labels:")
+        log.debug(target_train_encoded)
+        log.debug("Decoded target training labels:")
+        log.debug(target_train_decoded)
+        log.debug("\n")
+        log.debug("Encoded target test labels:")
+        log.debug(target_test_encoded)
+        log.debug("Decoded target test labels:")
+        log.debug(target_test_decoded)
+        log.debug("\n")
+
+    # return [tweet_train, tweet_test, target_train, target_test, target_train_encoded, target_test_encoded]
 
 
 #######################################################
+
 def scikit_learn_multinomialnb_classifier_non_pipeline():
     """
     Function trains a Multinomial Naive Bayes Classifier without using a Pipeline.
 
-    Note: Implemented for educational purposes - so I can see the manual workflow.
+    Note: Implemented for educational purposes - so I can see the manual workflow, otherwise the Pipeline Class hides
+    these details and we only have to tune parameters.
 
     :return: none.
     """
+
+    # Create the training and test sets from the feature and target sets.
+    create_training_and_test_set()
+
     # Use Sci-kit learn to tokenize each Tweet and convert into a bag-of-words sparse feature vector.
     vectorizer = CountVectorizer(min_df=0, lowercase=False)
     tweet_train_encoded = vectorizer.fit_transform(tweet_train)
@@ -198,20 +259,22 @@ def scikit_learn_multinomialnb_classifier_non_pipeline():
     from sklearn.naive_bayes import MultinomialNB
 
     # Train the Multinomial Naive Bayes Classifier.
-    clf_multinomial_nb = MultinomialNB().fit(tweet_train_encoded_tfidf, target_train_encoded)
+    clf_multinomial_nb = MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)
+    clf_multinomial_nb.fit(tweet_train_encoded_tfidf, target_train_encoded)
+
     # Predict using the Multinomial Naive Bayes Classifier.
     clf_multinomial_nb_predict = clf_multinomial_nb.predict(tweet_test_encoded_tfidf)
 
     from sklearn.metrics import accuracy_score
 
-    print("MultinomialNB Classifier accuracy using accuracy_score() function : ",
-          accuracy_score(target_test_encoded, clf_multinomial_nb_predict, normalize=True))
-    print()
+    log.debug("MultinomialNB Classifier accuracy using accuracy_score() function : ",
+              accuracy_score(target_test_encoded, clf_multinomial_nb_predict, normalize=True))
+    log.debug("\n")
 
     # Another method of obtaining accuracy metric.
-    print("Accuracy for test set predictions using multinomialNB:")
-    print(str(np.mean(clf_multinomial_nb_predict == target_test_encoded)))
-    print()
+    log.debug("Accuracy for test set predictions using multinomialNB:")
+    log.debug(str(np.mean(clf_multinomial_nb_predict == target_test_encoded)))
+    log.debug("\n")
 
     # View the results as Tweet => predicted topic classification label.
     for doc, category in zip(tweet_test, clf_multinomial_nb_predict):
@@ -226,8 +289,47 @@ def scikit_learn_multinomialnb_classifier_non_pipeline():
     
     """
 
-    # Call Tweet pre-processing module.
-    processed_features_cmu = tweet_dataset_preprocessor_3()
+    # Import the dataset.
+    slo_dataset_cmu = \
+        pd.read_csv("preprocessed-datasets/dataset_20100101-20180510_tok_PROCESSED.csv", sep=",")
+
+    # Shuffle the data randomly.
+    slo_dataset_cmu = slo_dataset_cmu.reindex(
+        pd.np.random.permutation(slo_dataset_cmu.index))
+
+    # Generate a Pandas dataframe.
+    slo_dataframe_cmu = pd.DataFrame(slo_dataset_cmu)
+
+    if debug:
+        # Print shape and column names.
+        log.debug("\n")
+        log.debug("The shape of our SLO dataframe 1:")
+        log.debug(slo_dataframe_cmu.shape)
+        log.debug("\n")
+        log.debug("The columns of our SLO dataframe 1:")
+        log.debug(slo_dataframe_cmu.head)
+        log.debug("\n")
+
+    # Reindex everything.
+    slo_dataframe_cmu.index = pd.RangeIndex(len(slo_dataframe_cmu.index))
+    # slo_dataframe_cmu.index = range(len(slo_dataframe_cmu.index))
+
+    # Assign column names.
+    slo_dataframe_cmu_column_names = ['Tweet', 'SLO']
+
+    # Create input features.
+    selected_features_cmu = slo_dataframe_cmu[slo_dataframe_cmu_column_names]
+    processed_features_cmu = selected_features_cmu.copy()
+
+    if debug:
+        # Check what we are using as inputs.
+        log.debug("\n")
+        log.debug("The Tweets in our input feature:")
+        log.debug(processed_features_cmu['Tweet'])
+        log.debug("\n")
+        log.debug("SLO TBL topic classification label for each Tweet:")
+        log.debug(processed_features_cmu['SLO'])
+        log.debug("\n")
 
     #######################################################
 
@@ -257,45 +359,17 @@ def scikit_learn_multinomialnb_classifier_non_pipeline():
     tweet_generalize_new_data_predictions = clf_multinomial_nb.predict(tweet_predict_encoded_tfidf)
 
     prediction_df = pd.DataFrame(tweet_generalize_new_data_predictions)
-    print("The shape of our prediction dataframe:")
-    print(prediction_df.shape)
-    print("The columns of our prediction dataframe:")
-    print(prediction_df.head())
-    print("Samples from our prediction dataframe:")
-    print(prediction_df.tail())
+    log.debug("The shape of our prediction dataframe:")
+    log.debug(prediction_df.shape)
+    log.debug("The columns of our prediction dataframe:")
+    log.debug(prediction_df.head())
+    log.debug("Samples from our prediction dataframe:")
+    log.debug(prediction_df.tail())
 
     # View the results as Tweet => predicted topic classification label.
     # Note: There are 500k+ Tweets in this dataset, don't log.debug out unless you want a very long output list.
     # for doc, category in zip(processed_features_cmu, tweet_generalize_new_data_predictions):
     #     log.debug('%r => %s' % (doc, category))
-
-    ################################################################################################################
-
-    #######################################################
-
-    def grid_search():
-        """
-        Helper function defines a grid search for optimal hyper parameters.
-        TODO - implement grid search.
-        :return: optimzal hyper parameters.
-        """
-
-        from sklearn.model_selection import GridSearchCV
-
-        # What parameters do we search for?
-        parameters = {
-            'vect__ngram_range': [(1, 1), (1, 2)],
-            'tfidf__use_idf': (True, False),
-            'clf__alpha': (1e-2, 1e-3),
-        }
-
-        # Perform the grid search using all cores.
-        gs_clf = GridSearchCV(clf_multinomial_nb, parameters, cv=5, iid=False, n_jobs=-1)
-
-        gs_clf_fit = gs_clf.fit(tweet_train, target_train)
-        gs_clf_predict = gs_clf_fit.predict(tweet_test)
-
-        pass
 
 
 ################################################################################################################
@@ -307,27 +381,46 @@ def multinomial_naive_bayes_classifier():
     """
     from sklearn.naive_bayes import MultinomialNB
 
-    multinomial_nb_clf = Pipeline([
-        ('vect', CountVectorizer()),
-        ('tfidf', TfidfTransformer()),
-        ('multinomialNB', MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)),
-    ])
+    # Predict n iterations and calculate mean accuracy.
+    mean_accuracy = 0.0
+    iterations = 1000
+    for index in range(0, iterations):
 
-    multinomial_nb_clf.fit(tweet_train, target_train)
-    multinomial_nb_predictions = multinomial_nb_clf.predict(tweet_test)
+        # Create randomized training and test set using our dataset.
+        create_training_and_test_set()
 
-    # Measure accuracy.
-    print()
-    print("Accuracy for test set predictions using Multinomial Naive Bayes Classifier:")
-    print(str(np.mean(multinomial_nb_predictions == target_test)))
-    print()
+        multinomial_nb_clf = Pipeline([
+            ('vect', CountVectorizer()),
+            ('tfidf', TfidfTransformer()),
+            ('multinomialNB', MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)),
+        ])
 
-    print("Multinomial Naive Bayes Classifier Metrics")
-    print(metrics.classification_report(target_test, multinomial_nb_predictions,
-                                        target_names=['economic', 'environmental', 'social']))
+        multinomial_nb_clf.fit(tweet_train, target_train)
+        multinomial_nb_predictions = multinomial_nb_clf.predict(tweet_test)
 
-    print("Multinomial Naive Bayes Classifier confusion matrix:")
-    print(metrics.confusion_matrix(target_test, multinomial_nb_predictions))
+        # Calculate the accuracy of our predictions.
+        accuracy = np.mean(multinomial_nb_predictions == target_test)
+
+        if debug_classifier_iterations:
+            # Measure accuracy.
+            log.debug("\n")
+            log.debug("Accuracy for test set predictions using Multinomial Naive Bayes Classifier:")
+            log.debug(str(accuracy))
+            log.debug("\n")
+
+            log.debug("Multinomial Naive Bayes Classifier Metrics")
+            log.debug(metrics.classification_report(target_test, multinomial_nb_predictions,
+                                                    target_names=['economic', 'environmental', 'social']))
+
+            log.debug("Multinomial Naive Bayes Classifier confusion matrix:")
+            log.debug(metrics.confusion_matrix(target_test, multinomial_nb_predictions))
+
+        mean_accuracy += accuracy
+
+    mean_accuracy = mean_accuracy / iterations
+    log.debug("Multinomial Naive Bayes Classifier:")
+    log.debug("Mean accuracy over " + str(iterations) + " iterations is: " + str(mean_accuracy))
+    log.debug("\n")
 
 
 ################################################################################################################
@@ -339,32 +432,51 @@ def sgd_classifier():
     """
     from sklearn.linear_model import SGDClassifier
 
-    sgd_classifier_clf = Pipeline([
-        ('vect', CountVectorizer()),
-        ('tfidf', TfidfTransformer()),
-        ('clf', SGDClassifier(alpha=0.0001, average=False, class_weight=None,
-                              early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,
-                              l1_ratio=0.15, learning_rate='optimal', loss='hinge', max_iter=5,
-                              n_iter=None, n_iter_no_change=5, n_jobs=None, penalty='l2',
-                              power_t=0.5, random_state=None, shuffle=True, tol=None,
-                              validation_fraction=0.1, verbose=0, warm_start=False)),
-    ])
+    # Predict n iterations and calculate mean accuracy.
+    mean_accuracy = 0.0
+    iterations = 1000
+    for index in range(0, iterations):
 
-    sgd_classifier_clf.fit(tweet_train, target_train)
-    sgd_classifier_predictions = sgd_classifier_clf.predict(tweet_test)
+        # Create randomized training and test set using our dataset.
+        create_training_and_test_set()
 
-    # Measure accuracy.
-    print()
-    print("Accuracy for test set predictions using SGD_classifier:")
-    print(str(np.mean(sgd_classifier_predictions == target_test)))
-    print()
+        sgd_classifier_clf = Pipeline([
+            ('vect', CountVectorizer()),
+            ('tfidf', TfidfTransformer()),
+            ('clf', SGDClassifier(alpha=0.0001, average=False, class_weight=None,
+                                  early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,
+                                  l1_ratio=0.15, learning_rate='optimal', loss='hinge', max_iter=5,
+                                  n_iter=None, n_iter_no_change=5, n_jobs=None, penalty='l2',
+                                  power_t=0.5, random_state=None, shuffle=True, tol=None,
+                                  validation_fraction=0.1, verbose=0, warm_start=False)),
+        ])
 
-    print("SGD_classifier Classifier Metrics")
-    print(metrics.classification_report(target_test, sgd_classifier_predictions,
-                                        target_names=['economic', 'environmental', 'social']))
+        sgd_classifier_clf.fit(tweet_train, target_train)
+        sgd_classifier_predictions = sgd_classifier_clf.predict(tweet_test)
 
-    print("SGD_classifier confusion matrix:")
-    print(metrics.confusion_matrix(target_test, sgd_classifier_predictions))
+        # Calculate the accuracy of our predictions.
+        accuracy = np.mean(sgd_classifier_predictions == target_test)
+
+        if debug_classifier_iterations:
+            # Measure accuracy.
+            log.debug("\n")
+            log.debug("Accuracy for test set predictions using Stochastic Gradient Descent Classifier:")
+            log.debug(str(accuracy))
+            log.debug("\n")
+
+            log.debug("SGD_classifier Classifier Metrics")
+            log.debug(metrics.classification_report(target_test, sgd_classifier_predictions,
+                                                    target_names=['economic', 'environmental', 'social']))
+
+            log.debug("SGD_classifier confusion matrix:")
+            log.debug(metrics.confusion_matrix(target_test, sgd_classifier_predictions))
+
+        mean_accuracy += accuracy
+
+    mean_accuracy = mean_accuracy / iterations
+    log.debug("Stochastic Gradient Descent Classifier:")
+    log.debug("Mean accuracy over " + str(iterations) + " iterations is: " + str(mean_accuracy))
+    log.debug("\n")
 
 
 ################################################################################################################
@@ -376,30 +488,48 @@ def svm_support_vector_classification():
     """
     from sklearn import svm
 
-    svc_classifier_clf = Pipeline([
-        ('vect', CountVectorizer()),
-        ('tfidf', TfidfTransformer()),
-        ('clf', svm.SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,
-                        decision_function_shape='ovr', degree=3, gamma='scale', kernel='rbf',
-                        max_iter=-1, probability=False, random_state=None, shrinking=True,
-                        tol=0.001, verbose=False)),
-    ])
+    # Predict n iterations and calculate mean accuracy.
+    mean_accuracy = 0.0
+    iterations = 1000
+    for index in range(0, iterations):
+        # Create randomized training and test set using our dataset.
+        create_training_and_test_set()
 
-    svc_classifier_clf.fit(tweet_train, target_train)
-    svc_classifier_predictions = svc_classifier_clf.predict(tweet_test)
+        svc_classifier_clf = Pipeline([
+            ('vect', CountVectorizer()),
+            ('tfidf', TfidfTransformer()),
+            ('clf', svm.SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,
+                            decision_function_shape='ovr', degree=3, gamma='scale', kernel='rbf',
+                            max_iter=-1, probability=False, random_state=None, shrinking=True,
+                            tol=0.001, verbose=False)),
+        ])
 
-    # Measure accuracy.
-    print()
-    print("Accuracy for test set predictions using SVC_classifier:")
-    print(str(np.mean(svc_classifier_predictions == target_test)))
-    print()
+        svc_classifier_clf.fit(tweet_train, target_train)
+        svc_classifier_predictions = svc_classifier_clf.predict(tweet_test)
 
-    print("SVC_classifier Metrics")
-    print(metrics.classification_report(target_test, svc_classifier_predictions,
-                                        target_names=['economic', 'environmental', 'social']))
+        # Calculate the accuracy of our predictions.
+        accuracy = np.mean(svc_classifier_predictions == target_test)
 
-    print("SVC_classifier confusion matrix:")
-    print(metrics.confusion_matrix(target_test, svc_classifier_predictions))
+        if debug_classifier_iterations:
+            # Measure accuracy.
+            log.debug("\n")
+            log.debug("Accuracy for test set predictions using Support Vector Classification Classifier:")
+            log.debug(str(accuracy))
+            log.debug("\n")
+
+            log.debug("SVC_classifier Metrics")
+            log.debug(metrics.classification_report(target_test, svc_classifier_predictions,
+                                                    target_names=['economic', 'environmental', 'social']))
+
+            log.debug("SVC_classifier confusion matrix:")
+            log.debug(metrics.confusion_matrix(target_test, svc_classifier_predictions))
+
+        mean_accuracy += accuracy
+
+    mean_accuracy = mean_accuracy / iterations
+    log.debug("Support Vector Classification Classifier:")
+    log.debug("Mean accuracy over " + str(iterations) + " iterations is: " + str(mean_accuracy))
+    log.debug("\n")
 
 
 ################################################################################################################
@@ -411,30 +541,48 @@ def svm_linear_support_vector_classification():
     """
     from sklearn import svm
 
-    linear_svc_classifier_clf = Pipeline([
-        ('vect', CountVectorizer()),
-        ('tfidf', TfidfTransformer()),
-        ('clf', svm.LinearSVC(C=1.0, class_weight=None, dual=True, fit_intercept=True,
-                              intercept_scaling=1, loss='squared_hinge', max_iter=1000,
-                              multi_class='ovr', penalty='l2', random_state=None, tol=0.0001,
-                              verbose=0)),
-    ])
+    # Predict n iterations and calculate mean accuracy.
+    mean_accuracy = 0.0
+    iterations = 1000
+    for index in range(0, iterations):
+        # Create randomized training and test set using our dataset.
+        create_training_and_test_set()
 
-    linear_svc_classifier_clf.fit(tweet_train, target_train)
-    linear_svc_classifier_predictions = linear_svc_classifier_clf.predict(tweet_test)
+        linear_svc_classifier_clf = Pipeline([
+            ('vect', CountVectorizer()),
+            ('tfidf', TfidfTransformer()),
+            ('clf', svm.LinearSVC(C=1.0, class_weight=None, dual=True, fit_intercept=True,
+                                  intercept_scaling=1, loss='squared_hinge', max_iter=1000,
+                                  multi_class='ovr', penalty='l2', random_state=None, tol=0.0001,
+                                  verbose=0)),
+        ])
 
-    # Measure accuracy.
-    print()
-    print("Accuracy for test set predictions using LinearSVC_classifier:")
-    print(str(np.mean(linear_svc_classifier_predictions == target_test)))
-    print()
+        linear_svc_classifier_clf.fit(tweet_train, target_train)
+        linear_svc_classifier_predictions = linear_svc_classifier_clf.predict(tweet_test)
 
-    print("LinearSVC_classifier Metrics")
-    print(metrics.classification_report(target_test, linear_svc_classifier_predictions,
-                                        target_names=['economic', 'environmental', 'social']))
+        # Calculate the accuracy of our predictions.
+        accuracy = np.mean(linear_svc_classifier_predictions == target_test)
 
-    print("LinearSVC_classifier confusion matrix:")
-    print(metrics.confusion_matrix(target_test, linear_svc_classifier_predictions))
+        if debug_classifier_iterations:
+            # Measure accuracy.
+            log.debug("\n")
+            log.debug("Accuracy for test set predictions using Linear Support Vector Classification Classifier:")
+            log.debug(str(accuracy))
+            log.debug("\n")
+
+            log.debug("LinearSVC_classifier Metrics")
+            log.debug(metrics.classification_report(target_test, linear_svc_classifier_predictions,
+                                                    target_names=['economic', 'environmental', 'social']))
+
+            log.debug("LinearSVC_classifier confusion matrix:")
+            log.debug(metrics.confusion_matrix(target_test, linear_svc_classifier_predictions))
+
+        mean_accuracy += accuracy
+
+    mean_accuracy = mean_accuracy / iterations
+    log.debug("Linear Support Vector Classification Classifier:")
+    log.debug("Mean accuracy over " + str(iterations) + " iterations is: " + str(mean_accuracy))
+    log.debug("\n")
 
 
 ################################################################################################################
@@ -446,27 +594,45 @@ def nearest_kneighbor_classifier():
     """
     from sklearn.neighbors import KNeighborsClassifier
 
-    k_neighbor_classifier_clf = Pipeline([
-        ('vect', CountVectorizer()),
-        ('tfidf', TfidfTransformer()),
-        ('clf', KNeighborsClassifier(n_neighbors=3)),
-    ])
+    # Predict n iterations and calculate mean accuracy.
+    mean_accuracy = 0.0
+    iterations = 1000
+    for index in range(0, iterations):
+        # Create randomized training and test set using our dataset.
+        create_training_and_test_set()
 
-    k_neighbor_classifier_clf.fit(tweet_train, target_train)
-    k_neighbor_classifier_predictions = k_neighbor_classifier_clf.predict(tweet_test)
+        k_neighbor_classifier_clf = Pipeline([
+            ('vect', CountVectorizer()),
+            ('tfidf', TfidfTransformer()),
+            ('clf', KNeighborsClassifier(n_neighbors=3)),
+        ])
 
-    # Measure accuracy.
-    print()
-    print("Accuracy for test set predictions using KNeighbor_classifier:")
-    print(str(np.mean(k_neighbor_classifier_predictions == target_test)))
-    print()
+        k_neighbor_classifier_clf.fit(tweet_train, target_train)
+        k_neighbor_classifier_predictions = k_neighbor_classifier_clf.predict(tweet_test)
 
-    print("KNeighbor_classifier Metrics")
-    print(metrics.classification_report(target_test, k_neighbor_classifier_predictions,
-                                        target_names=['economic', 'environmental', 'social']))
+        # Calculate the accuracy of our predictions.
+        accuracy = np.mean(k_neighbor_classifier_predictions == target_test)
 
-    print("KNeighbor_classifier confusion matrix:")
-    print(metrics.confusion_matrix(target_test, k_neighbor_classifier_predictions))
+        if debug_classifier_iterations:
+            # Measure accuracy.
+            log.debug("\n")
+            log.debug("Accuracy for test set predictions using KNeighbor Classifier:")
+            log.debug(str(accuracy))
+            log.debug("\n")
+
+            log.debug("KNeighbor_classifier Metrics")
+            log.debug(metrics.classification_report(target_test, k_neighbor_classifier_predictions,
+                                                    target_names=['economic', 'environmental', 'social']))
+
+            log.debug("KNeighbor_classifier confusion matrix:")
+            log.debug(metrics.confusion_matrix(target_test, k_neighbor_classifier_predictions))
+
+        mean_accuracy += accuracy
+
+    mean_accuracy = mean_accuracy / iterations
+    log.debug("KNeighbor Classifier:")
+    log.debug("Mean accuracy over " + str(iterations) + " iterations is: " + str(mean_accuracy))
+    log.debug("\n")
 
 
 ################################################################################################################
@@ -478,27 +644,45 @@ def decision_tree_classifier():
     """
     from sklearn import tree
 
-    decision_tree_classifier_clf = Pipeline([
-        ('vect', CountVectorizer()),
-        ('tfidf', TfidfTransformer()),
-        ('clf', tree.DecisionTreeClassifier(random_state=0)),
-    ])
+    # Predict n iterations and calculate mean accuracy.
+    mean_accuracy = 0.0
+    iterations = 1000
+    for index in range(0, iterations):
+        # Create randomized training and test set using our dataset.
+        create_training_and_test_set()
 
-    decision_tree_classifier_clf.fit(tweet_train, target_train)
-    decision_tree_classifier_predictions = decision_tree_classifier_clf.predict(tweet_test)
+        decision_tree_classifier_clf = Pipeline([
+            ('vect', CountVectorizer()),
+            ('tfidf', TfidfTransformer()),
+            ('clf', tree.DecisionTreeClassifier(random_state=0)),
+        ])
 
-    # Measure accuracy.
-    print()
-    print("Accuracy for test set predictions using DecisionTree_classifier:")
-    print(str(np.mean(decision_tree_classifier_predictions == target_test)))
-    print()
+        decision_tree_classifier_clf.fit(tweet_train, target_train)
+        decision_tree_classifier_predictions = decision_tree_classifier_clf.predict(tweet_test)
 
-    print("DecisionTree_classifier Metrics")
-    print(metrics.classification_report(target_test, decision_tree_classifier_predictions,
-                                        target_names=['economic', 'environmental', 'social']))
+        # Calculate the accuracy of our predictions.
+        accuracy = np.mean(decision_tree_classifier_predictions == target_test)
 
-    print("DecisionTree_classifier confusion matrix:")
-    print(metrics.confusion_matrix(target_test, decision_tree_classifier_predictions))
+        if debug_classifier_iterations:
+            # Measure accuracy.
+            log.debug("\n")
+            log.debug("Accuracy for test set predictions using Decision Tree Classifier:")
+            log.debug(str(accuracy))
+            log.debug("\n")
+
+            log.debug("DecisionTree_classifier Metrics")
+            log.debug(metrics.classification_report(target_test, decision_tree_classifier_predictions,
+                                                    target_names=['economic', 'environmental', 'social']))
+
+            log.debug("DecisionTree_classifier confusion matrix:")
+            log.debug(metrics.confusion_matrix(target_test, decision_tree_classifier_predictions))
+
+        mean_accuracy += accuracy
+
+    mean_accuracy = mean_accuracy / iterations
+    log.debug("Decision Tree Classifier:")
+    log.debug("Mean accuracy over " + str(iterations) + " iterations is: " + str(mean_accuracy))
+    log.debug("\n")
 
 
 ################################################################################################################
@@ -510,73 +694,110 @@ def multi_layer_perceptron_classifier():
     """
     from sklearn.neural_network import MLPClassifier
 
-    mlp_classifier_clf = Pipeline([
-        ('vect', CountVectorizer()),
-        ('tfidf', TfidfTransformer()),
-        ('clf', MLPClassifier(activation='relu', alpha=1e-5, batch_size='auto',
-                              beta_1=0.9, beta_2=0.999, early_stopping=True,
-                              epsilon=1e-08, hidden_layer_sizes=(15, 15, 15),
-                              learning_rate='constant', learning_rate_init=0.001,
-                              max_iter=1000, momentum=0.9, n_iter_no_change=10,
-                              nesterovs_momentum=True, power_t=0.5, random_state=1,
-                              shuffle=True, solver='lbfgs', tol=0.0001,
-                              validation_fraction=0.1, verbose=False, warm_start=False)),
-    ])
+    # Predict n iterations and calculate mean accuracy.
+    mean_accuracy = 0.0
+    iterations = 100
+    for index in range(0, iterations):
+        # Create randomized training and test set using our dataset.
+        create_training_and_test_set()
 
-    # from sklearn.preprocessing import StandardScaler
-    # scaler = StandardScaler(copy=True, with_mean=True, with_std=True)
-    # scaler.fit(tweet_train)
-    # tweet_train_scaled = scaler.transform(tweet_train)
-    # tweet_test_scaled = scaler.transform(tweet_test)
+        mlp_classifier_clf = Pipeline([
+            ('vect', CountVectorizer()),
+            ('tfidf', TfidfTransformer()),
+            ('clf', MLPClassifier(activation='relu', alpha=1e-5, batch_size='auto',
+                                  beta_1=0.9, beta_2=0.999, early_stopping=True,
+                                  epsilon=1e-08, hidden_layer_sizes=(15, 15, 15),
+                                  learning_rate='constant', learning_rate_init=0.001,
+                                  max_iter=1000, momentum=0.9, n_iter_no_change=10,
+                                  nesterovs_momentum=True, power_t=0.5, random_state=1,
+                                  shuffle=True, solver='lbfgs', tol=0.0001,
+                                  validation_fraction=0.1, verbose=False, warm_start=False)),
+        ])
 
-    mlp_classifier_clf.fit(tweet_train, target_train)
-    mlp_classifier_predictions = mlp_classifier_clf.predict(tweet_test)
+        # from sklearn.preprocessing import StandardScaler
+        # scaler = StandardScaler(copy=True, with_mean=True, with_std=True)
+        # scaler.fit(tweet_train)
+        # tweet_train_scaled = scaler.transform(tweet_train)
+        # tweet_test_scaled = scaler.transform(tweet_test)
 
-    # Measure accuracy.
-    print()
-    print("Accuracy for test set predictions using MLP_classifier:")
-    print(str(np.mean(mlp_classifier_predictions == target_test)))
-    print()
+        mlp_classifier_clf.fit(tweet_train, target_train)
+        mlp_classifier_predictions = mlp_classifier_clf.predict(tweet_test)
 
-    print("MLP_classifier Metrics")
-    print(metrics.classification_report(target_test, mlp_classifier_predictions,
-                                        target_names=['economic', 'environmental', 'social']))
+        # Calculate the accuracy of our predictions.
+        accuracy = np.mean(mlp_classifier_predictions == target_test)
 
-    print("MLP_classifier confusion matrix:")
-    print(metrics.confusion_matrix(target_test, mlp_classifier_predictions))
+        if debug_classifier_iterations:
+            # Measure accuracy.
+            log.debug("\n")
+            log.debug("Accuracy for test set predictions using Decision Tree Classifier:")
+            log.debug(str(accuracy))
+            log.debug("\n")
+
+            log.debug("MLP_classifier Metrics")
+            log.debug(metrics.classification_report(target_test, mlp_classifier_predictions,
+                                                    target_names=['economic', 'environmental', 'social']))
+
+            log.debug("MLP_classifier confusion matrix:")
+            log.debug(metrics.confusion_matrix(target_test, mlp_classifier_predictions))
+
+        mean_accuracy += accuracy
+
+    mean_accuracy = mean_accuracy / iterations
+    log.debug("Multi Layer Perceptron Neural Network Classifier:")
+    log.debug("Mean accuracy over " + str(iterations) + " iterations is: " + str(mean_accuracy))
+    log.debug("\n")
 
 
 ################################################################################################################
 def logistic_regression_classifier():
     """
-    Function trains a Logistic Regression Classifiers.
+    Function trains a Logistic Regression Classifier.
     
     :return: none. 
     """
     from sklearn.linear_model import LogisticRegression
 
-    logistic_regression_classifier_clf = Pipeline([
-        ('vect', CountVectorizer()),
-        ('tfidf', TfidfTransformer()),
-        ('clf', LogisticRegression(random_state=0, solver='lbfgs',
-                                   multi_class='multinomial')),
-    ])
+    # Predict n iterations and calculate mean accuracy.
+    mean_accuracy = 0.0
+    iterations = 1000
+    for index in range(0, iterations):
 
-    logistic_regression_classifier_clf.fit(tweet_train, target_train)
-    logistic_regression_classifier_predictions = logistic_regression_classifier_clf.predict(tweet_test)
+        # Create randomized training and test set using our dataset.
+        create_training_and_test_set()
 
-    # Measure accuracy.
-    print()
-    print("Accuracy for test set predictions using LogisticRegression_classifier:")
-    print(str(np.mean(logistic_regression_classifier_predictions == target_test)))
-    print()
+        logistic_regression_classifier_clf = Pipeline([
+            ('vect', CountVectorizer()),
+            ('tfidf', TfidfTransformer()),
+            ('clf', LogisticRegression(random_state=0, solver='lbfgs',
+                                       multi_class='multinomial')),
+        ])
 
-    print("LogisticRegression_classifier Metrics")
-    print(metrics.classification_report(target_test, logistic_regression_classifier_predictions,
-                                        target_names=['economic', 'environmental', 'social']))
+        logistic_regression_classifier_clf.fit(tweet_train, target_train)
+        logistic_regression_classifier_predictions = logistic_regression_classifier_clf.predict(tweet_test)
 
-    print("LogisticRegression_classifier confusion matrix:")
-    print(metrics.confusion_matrix(target_test, logistic_regression_classifier_predictions))
+        # Calculate the accuracy of our predictions.
+        accuracy = np.mean(logistic_regression_classifier_predictions == target_test)
+
+        if debug_classifier_iterations:
+            # Measure accuracy.
+            log.debug("\n")
+            log.debug("Accuracy for test set predictions using Logistic Regression Classifier:")
+            log.debug(str(accuracy))
+            log.debug("\n")
+
+            log.debug("LogisticRegression_classifier Metrics")
+            log.debug(metrics.classification_report(target_test, logistic_regression_classifier_predictions,
+                                                    target_names=['economic', 'environmental', 'social']))
+
+            log.debug("LogisticRegression_classifier confusion matrix:")
+            log.debug(metrics.confusion_matrix(target_test, logistic_regression_classifier_predictions))
+
+        mean_accuracy += accuracy
+
+    mean_accuracy = mean_accuracy / iterations
+    log.debug("Logistic Regression Classifier:")
+    log.debug("Mean accuracy over " + str(iterations) + " iterations is: " + str(mean_accuracy))
+    log.debug("\n")
 
 
 ################################################################################################################
@@ -593,6 +814,31 @@ def keras_deep_neural_network():
 
 ################################################################################################################
 
+def grid_search():
+    """
+    Function defines a grid search for optimal hyper parameters.
+    TODO - implement grid search for relevant classifiers.
+    :return: optimzal hyper parameters.
+    """
+
+    from sklearn.model_selection import GridSearchCV
+
+    # What parameters do we search for?
+    parameters = {
+        'vect__ngram_range': [(1, 1), (1, 2)],
+        'tfidf__use_idf': (True, False),
+        'clf__alpha': (1e-2, 1e-3),
+    }
+
+    # Perform the grid search using all cores.
+    # gs_clf = GridSearchCV(clf_multinomial_nb, parameters, cv=5, iid=False, n_jobs=-1)
+
+    # gs_clf_fit = gs_clf.fit(tweet_train, target_train)
+    # gs_clf_predict = gs_clf_fit.predict(tweet_test)
+
+    pass
+
+
 ############################################################################################
 """
 Main function.  Execute the program.
@@ -602,17 +848,30 @@ Main function.  Execute the program.
 debug_main = 0
 
 if __name__ == '__main__':
+
+    import time
+
+    start_time = time.time()
+
     # Call non-pipelined multinomial Naive Bayes classifier training function.
-    scikit_learn_multinomialnb_classifier_non_pipeline()
+    # scikit_learn_multinomialnb_classifier_non_pipeline()
 
     # Call pipelined classifier training functions.
-    multinomial_naive_bayes_classifier()
-    sgd_classifier()
-    svm_support_vector_classification()
-    svm_linear_support_vector_classification()
-    nearest_kneighbor_classifier()
-    decision_tree_classifier()
-    multi_layer_perceptron_classifier()
+    # multinomial_naive_bayes_classifier()
+    # sgd_classifier()
+    # svm_support_vector_classification()
+    # svm_linear_support_vector_classification()
+    # nearest_kneighbor_classifier()
+    # decision_tree_classifier()
+    # multi_layer_perceptron_classifier()
     logistic_regression_classifier()
+
+    end_time = time.time()
+
+    if debug:
+        log.debug("The time taken to train the classifier(s) is:")
+        total_time = end_time - start_time
+        log.debug(str(total_time))
+        log.debug("\n")
 
 ############################################################################################

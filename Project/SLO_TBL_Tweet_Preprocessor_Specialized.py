@@ -23,15 +23,21 @@ Refer to slo_topic_classification_original.py for a full list of URL's to online
 
 import re
 import string
+import time
 import warnings
 import pandas as pd
 import logging as log
 
+# Note: Need to set level AND turn on debug variables in order to see all debug output.
 log.basicConfig(level=log.DEBUG)
+
+# Miscellaneous parameter adjustments for pandas and python.
 pd.options.display.max_rows = 10
 pd.options.display.float_format = '{:.1f}'.format
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
+
+# Turn on and off to debug various sub-sections.
 debug = True
 
 
@@ -40,7 +46,7 @@ def tweet_dataset_preprocessor_1():
     """
     Function pre-processes tbl_training_set.csv in preparation for machine learning input feature creation.
 
-    :return:  the processed Tweet dataset.
+    :return: Nothing. Saves to CSV file.
     """
 
     # Import the dataset.
@@ -309,7 +315,11 @@ def tweet_dataset_preprocessor_1():
     slo_df_tokenized.index = pd.RangeIndex(len(slo_df_tokenized.index))
     # slo_df_tokenized.index = range(len(slo_df_tokenized.index))
 
-    return slo_df_tokenized
+    # Save to CSV file.
+    slo_df_tokenized.to_csv("preprocessed-datasets/tbl_training_set_PROCESSED.csv", sep=',',
+                            encoding='utf-8', index=False, header=['Tweet', 'SLO'])
+
+    # return slo_df_tokenized
 
 
 ################################################################################################################
@@ -317,8 +327,8 @@ def tweet_dataset_preprocessor_1():
 def tweet_dataset_preprocessor_2():
     """
       Function pre-processes tbl_kvlinden.csv in preparation for machine learning input feature creation.
-      TODO - implement.
-    :return: the processed Tweet dataset.
+
+    :return: Nothing. Saves to CSV file.
     """
 
     # Import the dataset.
@@ -349,15 +359,15 @@ def tweet_dataset_preprocessor_2():
     slo_dataframe.columns = column_names
 
     if debug:
-        print("The Tweets column:")
-        print(slo_dataframe['Tweet'])
-        print()
-        print("The SLO column:")
-        print(slo_dataframe['SLO1'])
-        print()
-        print("The 2nd SLO column:")
-        print(slo_dataframe['SLO2'])
-        print()
+        log.debug("The Tweets column:")
+        log.debug(slo_dataframe['Tweet'])
+        log.debug("\n")
+        log.debug("The SLO column:")
+        log.debug(slo_dataframe['SLO1'])
+        log.debug("\n")
+        log.debug("The 2nd SLO column:")
+        log.debug(slo_dataframe['SLO2'])
+        log.debug("\n")
 
     #######################################################
 
@@ -365,12 +375,12 @@ def tweet_dataset_preprocessor_2():
     slo_dataframe_column1 = slo_dataframe.drop('SLO2', axis=1)
 
     if debug:
-        print("The shape of dataframe with only slo column1:")
-        print(slo_dataframe_column1.shape)
-        print()
-        print("The contents of the dataframe with only slo column1:")
-        print(slo_dataframe_column1.sample())
-        print()
+        log.debug("The shape of dataframe with only slo column1:")
+        log.debug(slo_dataframe_column1.shape)
+        log.debug("\n")
+        log.debug("The contents of the dataframe with only slo column1:")
+        log.debug(slo_dataframe_column1.sample())
+        log.debug("\n")
 
     #######################################################
 
@@ -378,12 +388,12 @@ def tweet_dataset_preprocessor_2():
     slo_dataframe_column2 = slo_dataframe.dropna()
 
     if debug:
-        print("The contents of the dataframe with only examples containing multiple classifications")
+        log.debug("The contents of the dataframe with only examples containing multiple classifications")
         for index in slo_dataframe_column2.index:
-            print(slo_dataframe_column2['Tweet'][index] + '\tSLO1: '
-                  + str(slo_dataframe_column2['SLO1'][index])
-                  + '\tSLO2: ' + str(slo_dataframe_column2['SLO2'][index]))
-        print()
+            log.debug(slo_dataframe_column2['Tweet'][index] + '\tSLO1: '
+                      + str(slo_dataframe_column2['SLO1'][index])
+                      + '\tSLO2: ' + str(slo_dataframe_column2['SLO2'][index]))
+        log.debug("\n")
 
     # Drop SLO1 column to restrict to just 2nd classification label in SLO2 column.
     slo_dataframe_column2 = slo_dataframe_column2.drop('SLO1', axis=1)
@@ -396,21 +406,21 @@ def tweet_dataset_preprocessor_2():
     slo_dataframe_column2.columns = column_names
 
     if debug:
-        print("Check that we have renamed columns properly:")
-        print(slo_dataframe_column1.head())
-        print(slo_dataframe_column2.head())
-        print()
+        log.debug("Check that we have renamed columns properly:")
+        log.debug(slo_dataframe_column1.head())
+        log.debug(slo_dataframe_column2.head())
+        log.debug("\n")
 
     # Concatenate the individual dataframes back together.
     frames = [slo_dataframe_column1, slo_dataframe_column2]
     slo_dataframe_combined = pd.concat(frames, ignore_index=True)
 
     if debug:
-        print("Check that we have concatenated properly:")
-        print(slo_dataframe_combined.shape)
-        print()
-        print(slo_dataframe_combined.tail())
-        print()
+        log.debug("Check that we have concatenated properly:")
+        log.debug(slo_dataframe_combined.shape)
+        log.debug("\n")
+        log.debug(slo_dataframe_combined.tail())
+        log.debug("\n")
 
     #######################################################
 
@@ -464,13 +474,17 @@ def tweet_dataset_preprocessor_2():
     # slo_dataframe_combined.index = range(len(slo_dataframe_combined.index))
 
     if debug:
-        print("Check that we have pre-processed properly:")
+        log.debug("Check that we have pre-processed properly:")
         for index in slo_dataframe_combined.index:
-            print(slo_dataframe_combined['Tweet'][index] + '\tSLO: '
-                  + str(slo_dataframe_combined['SLO'][index]))
-        print()
+            log.debug(slo_dataframe_combined['Tweet'][index] + '\tSLO: '
+                      + str(slo_dataframe_combined['SLO'][index]))
+        log.debug("\n")
 
-    return slo_dataframe_combined
+    # Save to CSV file.
+    slo_dataframe_combined.to_csv("preprocessed-datasets/tbl_kvlinden_PROCESSED.csv", sep=',',
+                                  encoding='utf-8', index=False, header=['Tweet', 'SLO'])
+
+    # return slo_dataframe_combined
 
 
 ################################################################################################################
@@ -483,7 +497,7 @@ def tweet_dataset_preprocessor_3():
     pre-processing done on this already tokenized dataset.  Hence, we wish to normalize the difference between them
     as much as possible before using this dataset as our prediction set.
 
-    :return: the processed Tweet dataset.
+    :return: Nothing. Saves to CSV file.
     """
 
     # Import the dataset.
@@ -506,6 +520,57 @@ def tweet_dataset_preprocessor_3():
     log.debug(slo_dataframe_cmu.head)
     log.debug("\n")
 
+    #######################################################
+
+    def preprocess_tweet_text(tweet_text):
+        """
+        Helper function performs text pre-processing using regular expressions and other Python functions.
+
+        Notes:
+
+        Stop words are retained.
+
+        TODO - shrink character elongations
+        TODO - remove non-english tweets
+        TODO - remove non-company associated tweets
+        TODO - remove year and time.
+        TODO - remove cash items?
+
+        :return:
+        """
+
+        # Remove "RT" tags.
+        preprocessed_tweet_text = re.sub("rt", "", tweet_text)
+
+        # Remove URL's.
+        preprocessed_tweet_text = re.sub("http[s]?://\S+", "slo_url", preprocessed_tweet_text)
+
+        # Remove Tweet mentions.
+        preprocessed_tweet_text = re.sub("@\S+", "slo_mention", preprocessed_tweet_text)
+
+        # Remove Tweet hashtags.
+        preprocessed_tweet_text = re.sub("#\S+", "slo_hashtag", preprocessed_tweet_text)
+
+        # Remove all punctuation.
+        preprocessed_tweet_text = preprocessed_tweet_text.translate(str.maketrans('', '', string.punctuation))
+
+        return preprocessed_tweet_text
+
+        # Assign new dataframe to contents of old.
+
+    #######################################################
+
+    # Down-case all text.
+    slo_dataframe_cmu['tweet_t'] = slo_dataframe_cmu['tweet_t'].str.lower()
+
+    # Pre-process each tweet individually.
+    for index in slo_dataframe_cmu.index:
+        slo_dataframe_cmu['tweet_t'][index] = preprocess_tweet_text(slo_dataframe_cmu['tweet_t'][index])
+
+    # Reindex everything.
+    slo_dataframe_cmu.index = pd.RangeIndex(len(slo_dataframe_cmu.index))
+    # slo_dataframe_combined.index = range(len(slo_dataframe_combined.index))
+
     # Create input features.
     selected_features_cmu = slo_dataframe_cmu['tweet_t']
     processed_features_cmu = selected_features_cmu.copy()
@@ -519,7 +584,11 @@ def tweet_dataset_preprocessor_3():
         log.debug(processed_features_cmu.head)
         log.debug("\n")
 
-    return processed_features_cmu
+    # Save to CSV file.
+    slo_dataframe_cmu.to_csv("preprocessed-datasets/dataset_20100101-20180510_tok_PROCESSED.csv", sep=',',
+                             encoding='utf-8', index=False, header=['Tweet', 'SLO'])
+
+    # return processed_features_cmu
 
 
 ################################################################################################################
@@ -535,8 +604,23 @@ Note: Used to individually test that the preprocessors function as intended.
 debug_main = 0
 
 if __name__ == '__main__':
+
+    start_time = time.time()
+
+    """
+    Comment or uncomment in order to run the associated tweet preprocessor module.
+    """
     # tweet_dataset_preprocessor_1()
-    tweet_dataset_preprocessor_2()
+    # tweet_dataset_preprocessor_2()
     tweet_dataset_preprocessor_3()
+
+    end_time = time.time()
+
+    if debug:
+        log.debug("\n")
+        log.debug("Time taken to run pre-processor function:")
+        time_taken = end_time - start_time
+        log.debug(time_taken)
+        log.debug("\n")
 
 ############################################################################################
