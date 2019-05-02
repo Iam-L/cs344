@@ -14,6 +14,20 @@ of Classifiers.
 
 TODO - resolve SettingWithCopyWarning:
 
+TODO - train for N iterations and take mean of accuracy metric.
+
+TODO - preprocess borg prediction dataset to remove hashtags, etc.
+
+TODO - add kvlinden.csv dataset to training/test set.
+
+TODO - implement Keras NN"s - CNN.
+
+TODO - implement data visualizations via matplotlib and Seaborn.
+
+TODO - attempt to acquire additional labelet Tweets for topic classification.
+
+TODO - revise report.ipynb and paper as updates are made to progress.
+
 ###########################################################
 Resources Used:
 
@@ -43,7 +57,8 @@ from sklearn import metrics
 
 # Note: FIXME - indicates unresolved import error, but still runs fine.
 # noinspection PyUnresolvedReferences
-from SLO_TBL_Tweet_Preprocessor_Specialized import tweet_dataset_preprocessor_1, tweet_dataset_preprocessor_3
+from SLO_TBL_Tweet_Preprocessor_Specialized import tweet_dataset_preprocessor_1, tweet_dataset_preprocessor_2, \
+    tweet_dataset_preprocessor_3
 
 #############################################################
 
@@ -58,14 +73,23 @@ debug = True
 ################################################################################################################
 ################################################################################################################
 
-# Call Tweet pre-processing module.
-tweet_dataframe_processed = tweet_dataset_preprocessor_1()
+# Call Tweet pre-processing modules.
+tweet_dataframe_processed1 = tweet_dataset_preprocessor_1()
+tweet_dataframe_processed2 = tweet_dataset_preprocessor_2()
+
+# Concatenate the individual datasets together.
+frames = [tweet_dataframe_processed1, tweet_dataframe_processed2]
+slo_dataframe_combined = pd.concat(frames, ignore_index=True)
+
+# Reindex everything.
+slo_dataframe_combined.index = pd.RangeIndex(len(slo_dataframe_combined.index))
+# slo_dataframe_combined.index = range(len(slo_dataframe_combined.index))
 
 # Assign column names.
 tweet_dataframe_processed_column_names = ['Tweet', 'SLO']
 
 # Create input features.
-selected_features = tweet_dataframe_processed[tweet_dataframe_processed_column_names]
+selected_features = slo_dataframe_combined[tweet_dataframe_processed_column_names]
 processed_features = selected_features.copy()
 
 if debug:

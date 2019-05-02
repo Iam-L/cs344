@@ -23,9 +23,15 @@ Refer to slo_topic_classification_original.py for a full list of URL's to online
 
 import re
 import string
+import warnings
 import pandas as pd
 import logging as log
 
+log.basicConfig(level=log.DEBUG)
+pd.options.display.max_rows = 10
+pd.options.display.float_format = '{:.1f}'.format
+warnings.simplefilter(action='ignore', category=FutureWarning)
+warnings.simplefilter(action='ignore', category=DeprecationWarning)
 debug = True
 
 
@@ -314,7 +320,157 @@ def tweet_dataset_preprocessor_2():
       TODO - implement.
     :return: the processed Tweet dataset.
     """
-    pass
+
+    # Import the dataset.
+    slo_dataset = \
+        pd.read_csv("tbl-datasets/tbl_kvlinden.csv", sep=",")
+
+    # Shuffle the data randomly.
+    slo_dataset = slo_dataset.reindex(
+        pd.np.random.permutation(slo_dataset.index))
+
+    # Rename columns to something that makes sense.
+    column_names = ['Tweet', 'SLO1', 'SLO2']
+
+    # Generate a Pandas dataframe.
+    slo_dataframe = pd.DataFrame(slo_dataset)
+
+    if debug:
+        # Print shape and column names.
+        log.debug("The shape of our SLO dataframe:")
+        log.debug(slo_dataframe.shape)
+        log.debug("\n")
+        log.debug("The columns of our SLO dataframe:")
+        log.debug(slo_dataframe.head)
+        log.debug("\n")
+        log.debug("The 2nd column of our SLO dataframe:")
+
+    # Assign column names.
+    slo_dataframe.columns = column_names
+
+    if debug:
+        print("The Tweets column:")
+        print(slo_dataframe['Tweet'])
+        print()
+        print("The SLO column:")
+        print(slo_dataframe['SLO1'])
+        print()
+        print("The 2nd SLO column:")
+        print(slo_dataframe['SLO2'])
+        print()
+
+    #######################################################
+
+    # Restrict to just SLO1 column by dropping SLO2 column.
+    slo_dataframe_column1 = slo_dataframe.drop('SLO2', axis=1)
+
+    if debug:
+        print("The shape of dataframe with only slo column1:")
+        print(slo_dataframe_column1.shape)
+        print()
+        print("The contents of the dataframe with only slo column1:")
+        print(slo_dataframe_column1.sample())
+        print()
+
+    #######################################################
+
+    # Drop any row with "NaN" columns. (isolates examples with multiple TBL classification labels)
+    slo_dataframe_column2 = slo_dataframe.dropna()
+
+    if debug:
+        print("The contents of the dataframe with only examples containing multiple classifications")
+        for index in slo_dataframe_column2.index:
+            print(slo_dataframe_column2['Tweet'][index] + '\tSLO1: '
+                  + str(slo_dataframe_column2['SLO1'][index])
+                  + '\tSLO2: ' + str(slo_dataframe_column2['SLO2'][index]))
+        print()
+
+    # Drop SLO1 column to restrict to just 2nd classification label in SLO2 column.
+    slo_dataframe_column2 = slo_dataframe_column2.drop('SLO1', axis=1)
+
+    #######################################################
+
+    # Rename columns for concatenation back into a single dataframe.
+    column_names = ["Tweet", "SLO"]
+    slo_dataframe_column1.columns = column_names
+    slo_dataframe_column2.columns = column_names
+
+    if debug:
+        print("Check that we have renamed columns properly:")
+        print(slo_dataframe_column1.head())
+        print(slo_dataframe_column2.head())
+        print()
+
+    # Concatenate the individual dataframes back together.
+    frames = [slo_dataframe_column1, slo_dataframe_column2]
+    slo_dataframe_combined = pd.concat(frames, ignore_index=True)
+
+    if debug:
+        print("Check that we have concatenated properly:")
+        print(slo_dataframe_combined.shape)
+        print()
+        print(slo_dataframe_combined.tail())
+        print()
+
+    #######################################################
+
+    def preprocess_tweet_text(tweet_text):
+        """
+        Helper function performs text pre-processing using regular expressions and other Python functions.
+
+        Notes:
+
+        Stop words are retained.
+
+        TODO - shrink character elongations
+        TODO - remove non-english tweets
+        TODO - remove non-company associated tweets
+        TODO - remove year and time.
+        TODO - remove cash items?
+
+        :return:
+        """
+
+        # Remove "RT" tags.
+        preprocessed_tweet_text = re.sub("rt", "", tweet_text)
+
+        # Remove URL's.
+        preprocessed_tweet_text = re.sub("http[s]?://\S+", "slo_url", preprocessed_tweet_text)
+
+        # Remove Tweet mentions.
+        preprocessed_tweet_text = re.sub("@\S+", "slo_mention", preprocessed_tweet_text)
+
+        # Remove Tweet hashtags.
+        preprocessed_tweet_text = re.sub("#\S+", "slo_hashtag", preprocessed_tweet_text)
+
+        # Remove all punctuation.
+        preprocessed_tweet_text = preprocessed_tweet_text.translate(str.maketrans('', '', string.punctuation))
+
+        return preprocessed_tweet_text
+
+        # Assign new dataframe to contents of old.
+
+    #######################################################
+
+    # Down-case all text.
+    slo_dataframe_combined['Tweet'] = slo_dataframe_combined['Tweet'].str.lower()
+
+    # Pre-process each tweet individually.
+    for index in slo_dataframe_combined.index:
+        slo_dataframe_combined['Tweet'][index] = preprocess_tweet_text(slo_dataframe_combined['Tweet'][index])
+
+    # Reindex everything.
+    slo_dataframe_combined.index = pd.RangeIndex(len(slo_dataframe_combined.index))
+    # slo_dataframe_combined.index = range(len(slo_dataframe_combined.index))
+
+    if debug:
+        print("Check that we have pre-processed properly:")
+        for index in slo_dataframe_combined.index:
+            print(slo_dataframe_combined['Tweet'][index] + '\tSLO: '
+                  + str(slo_dataframe_combined['SLO'][index]))
+        print()
+
+    return slo_dataframe_combined
 
 
 ################################################################################################################
@@ -322,6 +478,10 @@ def tweet_dataset_preprocessor_2():
 def tweet_dataset_preprocessor_3():
     """
     Function pre-processes dataset_20100101-20180510_tok.csv in preparation for machine learning input feature creation.
+
+    Note: We are doing this as our pre-processing for the other datasets we are using is different from the
+    pre-processing done on this already tokenized dataset.  Hence, we wish to normalize the difference between them
+    as much as possible before using this dataset as our prediction set.
 
     :return: the processed Tweet dataset.
     """
@@ -361,4 +521,22 @@ def tweet_dataset_preprocessor_3():
 
     return processed_features_cmu
 
+
 ################################################################################################################
+
+############################################################################################
+"""
+Main function.  Execute the program.
+
+Note: Used to individually test that the preprocessors function as intended.
+"""
+
+# Debug variable.
+debug_main = 0
+
+if __name__ == '__main__':
+    # tweet_dataset_preprocessor_1()
+    tweet_dataset_preprocessor_2()
+    tweet_dataset_preprocessor_3()
+
+############################################################################################
