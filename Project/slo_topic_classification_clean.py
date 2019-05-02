@@ -373,6 +373,66 @@ def scikit_learn_multinomialnb_classifier_non_pipeline():
 
 
 ################################################################################################################
+def multinomial_naive_bayes_classifier_grid_search():
+    """
+    Function performs a exhaustive grid search to find the best hyper-parameters for use training the model.
+
+    :return: Nothing.  Global variable used.
+    """
+
+    from sklearn.linear_model import SGDClassifier
+
+    # Create randomized training and test set using our dataset.
+    create_training_and_test_set()
+
+    sgd_classifier_clf = Pipeline([
+        ('vect', CountVectorizer()),
+        ('tfidf', TfidfTransformer()),
+        ('clf', SGDClassifier(alpha=0.0001, average=False, class_weight=None,
+                              early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,
+                              l1_ratio=0.15, learning_rate='optimal', loss='hinge', max_iter=5,
+                              n_iter=None, n_iter_no_change=5, n_jobs=None, penalty='l2',
+                              power_t=0.5, random_state=None, shuffle=True, tol=None,
+                              validation_fraction=0.1, verbose=0, warm_start=False)),
+    ])
+
+    from sklearn.model_selection import GridSearchCV
+
+    # What parameters do we search for?
+    parameters = {
+        'vect__ngram_range': [(1, 1), (1, 2), (1, 3), (1, 4)],
+        'tfidf__use_idf': (True, False),
+        'clf__alpha': (1e-1, 1e-2, 1e-3, 0.00001, 0.000001),
+    }
+
+    # Perform the grid search using all cores.
+    sgd_classifier_clf = GridSearchCV(sgd_classifier_clf, parameters, cv=5, iid=False, n_jobs=-1)
+
+    # Train and predict on optimal parameters found by Grid Search.
+    sgd_classifier_clf.fit(tweet_train, target_train)
+    sgd_classifier_predictions = sgd_classifier_clf.predict(tweet_test)
+
+    if debug:
+        # View all the information stored in the model after training it.
+        classifier_results = pd.DataFrame(sgd_classifier_clf.cv_results_)
+        print("The shape of the SGD Classifier model's result data structure is:")
+        print(classifier_results.shape)
+        print("The contents of the SGD Classifier model's result data structure is:")
+        print(classifier_results.head())
+
+    # Display the optimal parameters.
+    print("The optimal parameters found for the SGD Classifier is:")
+    for param_name in sorted(parameters.keys()):
+        print("%s: %r" % (param_name, sgd_classifier_clf.best_params_[param_name]))
+    print()
+
+    # Display the accuracy we obtained using the optimal parameters.
+    print("Accuracy using Stochastic Gradient Descent Classifier Grid Search is: ")
+    print(np.mean(sgd_classifier_predictions == target_test))
+    print()
+
+
+################################################################################################################
 def multinomial_naive_bayes_classifier():
     """
     Functions trains a Multinomial Naive Bayes Classifier.
@@ -424,6 +484,67 @@ def multinomial_naive_bayes_classifier():
 
 
 ################################################################################################################
+
+def sgd_classifier_grid_search():
+    """
+    Function performs a exhaustive grid search to find the best hyper-parameters for use training the model.
+
+    :return: Nothing.  Global variable used.
+    """
+
+    from sklearn.linear_model import SGDClassifier
+
+    # Create randomized training and test set using our dataset.
+    create_training_and_test_set()
+
+    sgd_classifier_clf = Pipeline([
+        ('vect', CountVectorizer()),
+        ('tfidf', TfidfTransformer()),
+        ('clf', SGDClassifier(alpha=0.0001, average=False, class_weight=None,
+                              early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,
+                              l1_ratio=0.15, learning_rate='optimal', loss='hinge', max_iter=5,
+                              n_iter=None, n_iter_no_change=5, n_jobs=None, penalty='l2',
+                              power_t=0.5, random_state=None, shuffle=True, tol=None,
+                              validation_fraction=0.1, verbose=0, warm_start=False)),
+    ])
+
+    from sklearn.model_selection import GridSearchCV
+
+    # What parameters do we search for?
+    parameters = {
+        'vect__ngram_range': [(1, 1), (1, 2), (1, 3), (1, 4)],
+        'tfidf__use_idf': (True, False),
+        'clf__alpha': (1e-1, 1e-2, 1e-3, 0.00001, 0.000001),
+    }
+
+    # Perform the grid search using all cores.
+    sgd_classifier_clf = GridSearchCV(sgd_classifier_clf, parameters, cv=5, iid=False, n_jobs=-1)
+
+    # Train and predict on optimal parameters found by Grid Search.
+    sgd_classifier_clf.fit(tweet_train, target_train)
+    sgd_classifier_predictions = sgd_classifier_clf.predict(tweet_test)
+
+    if debug:
+        # View all the information stored in the model after training it.
+        classifier_results = pd.DataFrame(sgd_classifier_clf.cv_results_)
+        print("The shape of the SGD Classifier model's result data structure is:")
+        print(classifier_results.shape)
+        print("The contents of the SGD Classifier model's result data structure is:")
+        print(classifier_results.head())
+
+    # Display the optimal parameters.
+    print("The optimal parameters found for the SGD Classifier is:")
+    for param_name in sorted(parameters.keys()):
+        print("%s: %r" % (param_name, sgd_classifier_clf.best_params_[param_name]))
+    print()
+
+    # Display the accuracy we obtained using the optimal parameters.
+    print("Accuracy using Stochastic Gradient Descent Classifier Grid Search is: ")
+    print(np.mean(sgd_classifier_predictions == target_test))
+    print()
+
+
+################################################################################################################
 def sgd_classifier():
     """
     Function trains a Stochastic Gradient Descent Classifier.
@@ -441,9 +562,9 @@ def sgd_classifier():
         create_training_and_test_set()
 
         sgd_classifier_clf = Pipeline([
-            ('vect', CountVectorizer()),
-            ('tfidf', TfidfTransformer()),
-            ('clf', SGDClassifier(alpha=0.0001, average=False, class_weight=None,
+            ('vect', CountVectorizer(ngram_range=(1, 1))),
+            ('tfidf', TfidfTransformer(use_idf=True)),
+            ('clf', SGDClassifier(alpha=0.1, average=False, class_weight=None,
                                   early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,
                                   l1_ratio=0.15, learning_rate='optimal', loss='hinge', max_iter=5,
                                   n_iter=None, n_iter_no_change=5, n_jobs=None, penalty='l2',
@@ -814,31 +935,6 @@ def keras_deep_neural_network():
 
 ################################################################################################################
 
-def grid_search():
-    """
-    Function defines a grid search for optimal hyper parameters.
-    TODO - implement grid search for relevant classifiers.
-    :return: optimzal hyper parameters.
-    """
-
-    from sklearn.model_selection import GridSearchCV
-
-    # What parameters do we search for?
-    parameters = {
-        'vect__ngram_range': [(1, 1), (1, 2)],
-        'tfidf__use_idf': (True, False),
-        'clf__alpha': (1e-2, 1e-3),
-    }
-
-    # Perform the grid search using all cores.
-    # gs_clf = GridSearchCV(clf_multinomial_nb, parameters, cv=5, iid=False, n_jobs=-1)
-
-    # gs_clf_fit = gs_clf.fit(tweet_train, target_train)
-    # gs_clf_predict = gs_clf_fit.predict(tweet_test)
-
-    pass
-
-
 ############################################################################################
 """
 Main function.  Execute the program.
@@ -856,15 +952,17 @@ if __name__ == '__main__':
     # Call non-pipelined multinomial Naive Bayes classifier training function.
     # scikit_learn_multinomialnb_classifier_non_pipeline()
 
-    # Call pipelined classifier training functions.
-    # multinomial_naive_bayes_classifier()
-    # sgd_classifier()
+    # Call pipelined classifier training functions and grid search functions.
+    multinomial_naive_bayes_classifier_grid_search()
+    multinomial_naive_bayes_classifier()
+    sgd_classifier_grid_search()
+    sgd_classifier()
     # svm_support_vector_classification()
     # svm_linear_support_vector_classification()
     # nearest_kneighbor_classifier()
     # decision_tree_classifier()
     # multi_layer_perceptron_classifier()
-    logistic_regression_classifier()
+    # logistic_regression_classifier()
 
     end_time = time.time()
 
