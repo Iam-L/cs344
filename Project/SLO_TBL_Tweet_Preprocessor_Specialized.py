@@ -578,7 +578,7 @@ def tweet_dataset_preprocessor_3():
     # Check what we are using for predictions.
     if debug:
         log.debug("The shape of our SLO CMU feature dataframe:")
-        log.debug(slo_dataframe_cmu.shape)
+        log.debug(processed_features_cmu.shape)
         log.debug("\n")
         log.debug("The columns of our SLO CMU feature dataframe:")
         log.debug(processed_features_cmu.head)
@@ -586,7 +586,7 @@ def tweet_dataset_preprocessor_3():
 
     # Save to CSV file.
     slo_dataframe_cmu.to_csv("preprocessed-datasets/dataset_20100101-20180510_tok_PROCESSED.csv", sep=',',
-                             encoding='utf-8', index=False, header=['Tweet', 'SLO'])
+                             encoding='utf-8', index=False)
 
     # return processed_features_cmu
 

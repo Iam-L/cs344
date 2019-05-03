@@ -12,22 +12,21 @@ Notes:
 Utilizes Scikit-Learn machine learning algorithms for fast prototyping and topic classification using a variety
 of Classifiers.
 
-TODO - resolve SettingWithCopyWarning:
-
-TODO - train for N iterations and take mean of accuracy metric.
-
-TODO - implement Keras NN"s - CNN.
+TODO - resolve SettingWithCopyWarning.
 
 TODO - implement data visualizations via matplotlib and Seaborn.
 
 TODO - attempt to acquire additional labeled Tweets for topic classification.
 
-TODO - revise report.ipynb and paper as updates are made to progress.
+TODO - revise report.ipynb and paper as updates are made to implementation and code-base.
 
 ###########################################################
 Resources Used:
 
 Refer to original un-cleaned version.
+
+https://scikit-plot.readthedocs.io/en/stable/index.html
+(visualizations simplified)
 
 """
 
@@ -254,7 +253,7 @@ def scikit_learn_multinomialnb_classifier_non_pipeline():
         log.debug(tweet_test_encoded_tfidf.shape)
         log.debug("\n")
 
-    ################################################################################################################
+    #######################################################
 
     from sklearn.naive_bayes import MultinomialNB
 
@@ -280,13 +279,13 @@ def scikit_learn_multinomialnb_classifier_non_pipeline():
     for doc, category in zip(tweet_test, clf_multinomial_nb_predict):
         log.debug('%r => %s' % (doc, category))
 
-    ################################################################################################################
+
+################################################################################################################
+def create_prediction_set():
     """
-    Make predictions using pre-processed and post-processed Tweets from CMU Tweet Tagger.
-    
-    Note: Probably won't be the best generalization to new data as the vocabulary between these two different 
-    datasets could be drastically different.
-    
+    Function prepares the borg-classifier dataset to be used for predictions in trained models.
+
+    :return: the prepared dataset.
     """
 
     # Import the dataset.
@@ -303,10 +302,10 @@ def scikit_learn_multinomialnb_classifier_non_pipeline():
     if debug:
         # Print shape and column names.
         log.debug("\n")
-        log.debug("The shape of our SLO dataframe 1:")
+        log.debug("The shape of our SLO CMUdataframe:")
         log.debug(slo_dataframe_cmu.shape)
         log.debug("\n")
-        log.debug("The columns of our SLO dataframe 1:")
+        log.debug("The columns of our SLO CMU dataframe:")
         log.debug(slo_dataframe_cmu.head)
         log.debug("\n")
 
@@ -314,62 +313,18 @@ def scikit_learn_multinomialnb_classifier_non_pipeline():
     slo_dataframe_cmu.index = pd.RangeIndex(len(slo_dataframe_cmu.index))
     # slo_dataframe_cmu.index = range(len(slo_dataframe_cmu.index))
 
-    # Assign column names.
-    slo_dataframe_cmu_column_names = ['Tweet', 'SLO']
-
     # Create input features.
-    selected_features_cmu = slo_dataframe_cmu[slo_dataframe_cmu_column_names]
+    selected_features_cmu = slo_dataframe_cmu['tweet_t']
     processed_features_cmu = selected_features_cmu.copy()
 
     if debug:
         # Check what we are using as inputs.
         log.debug("\n")
         log.debug("The Tweets in our input feature:")
-        log.debug(processed_features_cmu['Tweet'])
-        log.debug("\n")
-        log.debug("SLO TBL topic classification label for each Tweet:")
-        log.debug(processed_features_cmu['SLO'])
+        log.debug(processed_features_cmu['tweet_t'])
         log.debug("\n")
 
-    #######################################################
-
-    # Vectorize the categorical data for use in predictions.
-    tweet_predict_encoded = vectorizer.transform(processed_features_cmu)
-
-    if debug:
-        log.debug("Vectorized tweet predictions set:")
-        log.debug(tweet_predict_encoded)
-        log.debug("\n")
-        log.debug("Shape of the tweet predictions set:")
-        log.debug(tweet_predict_encoded.shape)
-        log.debug("\n")
-
-    # Convert to term frequencies.
-    tweet_predict_encoded_tfidf = tfidf_transformer.transform(tweet_predict_encoded)
-
-    if debug:
-        log.debug("Vectorized tweet predictions set term frequencies down-sampled:")
-        log.debug(tweet_predict_encoded_tfidf)
-        log.debug("\n")
-        log.debug("Shape of the tweet predictions set term frequencies: ")
-        log.debug(tweet_predict_encoded_tfidf.shape)
-        log.debug("\n")
-
-    # Generalize to new data and predict.
-    tweet_generalize_new_data_predictions = clf_multinomial_nb.predict(tweet_predict_encoded_tfidf)
-
-    prediction_df = pd.DataFrame(tweet_generalize_new_data_predictions)
-    log.debug("The shape of our prediction dataframe:")
-    log.debug(prediction_df.shape)
-    log.debug("The columns of our prediction dataframe:")
-    log.debug(prediction_df.head())
-    log.debug("Samples from our prediction dataframe:")
-    log.debug(prediction_df.tail())
-
-    # View the results as Tweet => predicted topic classification label.
-    # Note: There are 500k+ Tweets in this dataset, don't log.debug out unless you want a very long output list.
-    # for doc, category in zip(processed_features_cmu, tweet_generalize_new_data_predictions):
-    #     log.debug('%r => %s' % (doc, category))
+    return processed_features_cmu
 
 
 ################################################################################################################
@@ -435,6 +390,12 @@ def multinomial_naive_bayes_classifier():
     """
     from sklearn.naive_bayes import MultinomialNB
 
+    multinomial_nb_clf = Pipeline([
+        ('vect', CountVectorizer(ngram_range=(1, 1))),
+        ('tfidf', TfidfTransformer(use_idf=False)),
+        ('clf', MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)),
+    ])
+
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
     iterations = 1000
@@ -442,12 +403,6 @@ def multinomial_naive_bayes_classifier():
 
         # Create randomized training and test set using our dataset.
         create_training_and_test_set()
-
-        multinomial_nb_clf = Pipeline([
-            ('vect', CountVectorizer(ngram_range=(1, 1))),
-            ('tfidf', TfidfTransformer(use_idf=False)),
-            ('clf', MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)),
-        ])
 
         multinomial_nb_clf.fit(tweet_train, target_train)
         multinomial_nb_predictions = multinomial_nb_clf.predict(tweet_test)
@@ -475,6 +430,50 @@ def multinomial_naive_bayes_classifier():
     log.debug("Multinomial Naive Bayes Classifier:")
     log.debug("Mean accuracy over " + str(iterations) + " iterations is: " + str(mean_accuracy))
     log.debug("\n")
+
+    # Make predictions of the borg-slo-classifiers dataset.
+    multinomial_nb_predictions_cmu = multinomial_nb_clf.predict(create_prediction_set())
+
+    # Store predictions in Pandas dataframe.
+    results_df = pd.DataFrame(multinomial_nb_predictions_cmu)
+
+    # Assign column names.
+    results_df_column_name = ['TBL_classification']
+    results_df.columns = results_df_column_name
+
+    if debug:
+        log.debug("The shape of our prediction results dataframe:")
+        log.debug(results_df.shape)
+        log.debug("\n")
+        log.debug("The contents of our prediction results dataframe:")
+        log.debug(results_df.head())
+        log.debug("\n")
+
+    # Count # of each classifications made.
+    social_counter = 0
+    economic_counter = 0
+    environmental_counter = 0
+
+    for index in results_df.index:
+        if results_df['TBL_classification'][index] == 0:
+            economic_counter += 1
+        if results_df['TBL_classification'][index] == 1:
+            environmental_counter += 1
+        if results_df['TBL_classification'][index] == 2:
+            social_counter += 1
+
+    # Calculate percentages for each classification.
+    social_percentage = (social_counter / results_df.shape[0]) * 100.0
+    economic_percentage = (economic_counter / results_df.shape[0]) * 100.0
+    environmental_percentage = (environmental_counter / results_df.shape[0]) * 100.0
+
+    # Display our statistics.
+    log.debug("The number of Tweets identified as social is :" + str(social_counter))
+    log.debug("The % of Tweets identified as social in the entire dataset is: " + str(social_percentage))
+    log.debug("The number of Tweets identified as economic is :" + str(economic_counter))
+    log.debug("The % of Tweets identified as economic in the entire dataset is: " + str(economic_percentage))
+    log.debug("The number of Tweets identified as environmental is :" + str(environmental_counter))
+    log.debug("The % of Tweets identified as environmental in the entire dataset is: " + str(environmental_percentage))
 
 
 ################################################################################################################
@@ -1084,7 +1083,7 @@ def multi_layer_perceptron_classifier_grid_search():
         'vect__ngram_range': [(1, 1), (1, 2), (1, 3), (1, 4)],
         'tfidf__use_idf': (True, False),
         # 'clf__hidden_layer_sizes': [(15, 15), (50, 50)],
-        'clf_activation': ['identity', 'logistic', 'tanh', 'relu'],
+        'clf__activation': ['identity', 'logistic', 'tanh', 'relu'],
         'clf__solver': ['lbfgs', 'sgd', 'adam'],
         'clf__alpha': [1e-1, 1e-2, 1e-4, 1e-6, 1e-8],
         'clf__batch_size': [5, 10, 20, 40, 80, 160],
@@ -1093,15 +1092,15 @@ def multi_layer_perceptron_classifier_grid_search():
         # 'clf__power_t': [0.1, 0.25, 0.5, 0.75, 1.0],
         'clf__max_iter': [200, 400, 800, 1600],
         # 'clf_shuffle': [True, False],
-        'clf_tol': [1e-1, 1e-2, 1e-4, 1e-6, 1e-8],
-        'clf_momentum': [0.1, 0.3, 0.6, 0.9],
+        'clf__tol': [1e-1, 1e-2, 1e-4, 1e-6, 1e-8],
+        'clf__momentum': [0.1, 0.3, 0.6, 0.9],
         # 'clf_nestesrovs_momentum': [True, False],
         # 'clf_early_stopping': [True, False],
-        'clf_validation_fraction': [0.1, 0.2, 0.4],
+        'clf__validation_fraction': [0.1, 0.2, 0.4],
         # 'clf_beta_1': [0.1, 0.2, 0.4, 0.6, 0.8],
         # 'clf_beta_2': [0.1, 0.2, 0.4, 0.6, 0.8],
         # 'clf_epsilon': [1e-1, 1e-2, 1e-4, 1e-8],
-        'clf_n_iter_no_change': [1, 2, 4, 8, 16]
+        'clf__n_iter_no_change': [1, 2, 4, 8, 16]
 
     }
 
@@ -1279,10 +1278,10 @@ def logistic_regression_classifier():
         create_training_and_test_set()
 
         logistic_regression_classifier_clf = Pipeline([
-            ('vect', CountVectorizer()),
-            ('tfidf', TfidfTransformer()),
-            ('clf', LogisticRegression(random_state=0, solver='lbfgs',
-                                       multi_class='multinomial')),
+            ('vect', CountVectorizer(ngram_range=(1, 1))),
+            ('tfidf', TfidfTransformer(use_idf=False)),
+            ('clf', LogisticRegression(C=1.0, class_weight=None, fit_intercept=False, max_iter=2000,
+                                       multi_class='ovr', penalty='l2', solver='sag', tol=1e-1)),
         ])
 
         logistic_regression_classifier_clf.fit(tweet_train, target_train)
@@ -1324,6 +1323,8 @@ def keras_deep_neural_network():
     from keras.models import Sequential
     from keras import layers
 
+    pass
+
 
 ################################################################################################################
 
@@ -1357,10 +1358,11 @@ if __name__ == '__main__':
     # nearest_kneighbor_classifier()
     # decision_tree_classifier_grid_search()
     # decision_tree_classifier()
-    # multi_layer_perceptron_classifier_grid_search()
+    multi_layer_perceptron_classifier_grid_search()
     # multi_layer_perceptron_classifier()
-    logistic_regression_classifier_grid_search()
+    # logistic_regression_classifier_grid_search()
     # logistic_regression_classifier()
+
     end_time = time.time()
 
     if debug:
