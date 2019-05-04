@@ -71,7 +71,7 @@ warnings.simplefilter(action='ignore', category=DeprecationWarning)
 # Turn on and off to debug various sub-sections.
 debug = False
 debug_pipeline = False
-debug_preprocess_tweets = False
+debug_preprocess_tweets = True
 debug_train_test_set_creation = False
 debug_classifier_iterations = False
 debug_create_prediction_set = False

@@ -35,6 +35,8 @@ TODO - tune hyper parameters for better training results and enhanced predictive
 
 TODO - clean the code base for style and readability purposes.
 
+TODO - update this README.md as necessary to reflect updates to project.
+
 &nbsp;
 
 ## GitHub Repositories:
