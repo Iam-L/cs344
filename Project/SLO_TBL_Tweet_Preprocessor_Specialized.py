@@ -9,7 +9,7 @@ Final Project - SLO TBL Topic Classification
 ###########################################################
 Notes:
 
-These function(s) performs Tweet pre-processing SPECIFIC TO THIS DATASET ONLY.
+These function(s) performs Tweet pre-processing SPECIFIC TO A SINGLE DATASET ONLY.
 This is NOT a generalized Tweet dataset preprocessor!!!
 
 ###########################################################
@@ -612,7 +612,7 @@ if __name__ == '__main__':
     """
     # tweet_dataset_preprocessor_1()
     # tweet_dataset_preprocessor_2()
-    tweet_dataset_preprocessor_3()
+    # tweet_dataset_preprocessor_3()
 
     end_time = time.time()
 

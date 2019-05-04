@@ -34,11 +34,8 @@ Write a predicate crossword/6 that tells us how to fill in the grid. The first t
 words from left to right, and the last three arguments the horizontal words from top to bottom.
 
 ################################################################################################################
-
 Consider the following situation in the blocks world:
 
-block A on block B
-		on table
 Given the (separate) facts that:
 
 A is on B

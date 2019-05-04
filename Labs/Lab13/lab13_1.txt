@@ -2,7 +2,7 @@
 Course: CS 344 - Artificial Intelligence
 Instructor: Professor VanderLinden
 Name: Joseph Jinn
-Date: 4-18-19
+Date: 5-3-19
 Assignment: Lab 13 - Planning
 
 Notes:
@@ -23,7 +23,19 @@ Exercise 5.3
 Does Prolog implement a version of generalized modus ponens? If so, demonstrate how it’s done; if not, explain why not.
 If it doesn’t, can you implement one? Why or why not?
 
-TODO - answer this later.
+Yes, Prolog does implement a generalized version of modus ponens (resolution-refutation proofs)
+
+Prolog takes the query that you are trying to prove and assumes the opposite (the negation of the statement).
+
+Prolog then uses the Horn Clauses, which are a subset of conjunctive normal form, from the knowledge base to perform
+unification.
+
+Some terms in the Horn Clauses cancel out, resulting in a reduced clause with fewer terms.
+
+Rinse and repeat.
+
+Resolution eventually leads to the empty clause, which represents a contradiction.  Hence, the original query must be
+true.
 
 ###########################################################################################
 Have you ever seen anything similar to the “successor” rule discussed in LPN!’s Chapter 3.1, Example 3? Where?

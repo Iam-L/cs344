@@ -24,7 +24,6 @@ crossword(V1, V2, V3, H1, H2, H3) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Part 2 - Consider the following situation in the blocks world:
- %% FIXME - not working doing it this way.
 
 %% Knowledge Base.
 :- discontiguous isOn/2. %% Disable warning.
@@ -51,7 +50,6 @@ above(E1, E2) :- isOn(E1, E2).
 above(E1, E3) :-
                     above(E1, E2),
                     above(E2, E3).
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

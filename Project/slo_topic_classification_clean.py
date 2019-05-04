@@ -16,7 +16,8 @@ TODO - resolve SettingWithCopyWarning.
 
 TODO - implement data visualizations via matplotlib and Seaborn.
 
-TODO - attempt to acquire additional labeled Tweets for topic classification.
+TODO - attempt to acquire additional labeled Tweets for topic classification using pattern matching and pandas queries.
+TODO - reference settings.py and autocoding.py for template of how to do this.
 
 TODO - revise report.ipynb and paper as updates are made to implementation and code-base.
 
@@ -68,9 +69,13 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
 
 # Turn on and off to debug various sub-sections.
-debug = True
+debug = False
+debug_pipeline = False
+debug_preprocess_tweets = False
 debug_train_test_set_creation = False
 debug_classifier_iterations = False
+debug_create_prediction_set = False
+debug_make_predictions = False
 
 ################################################################################################################
 ################################################################################################################
@@ -93,7 +98,7 @@ tweet_dataset_processed2 = tweet_dataset_processed2.reindex(
 tweet_dataframe_processed1 = pd.DataFrame(tweet_dataset_processed1)
 tweet_dataframe_processed2 = pd.DataFrame(tweet_dataset_processed2)
 
-if debug:
+if debug_preprocess_tweets:
     # Print shape and column names.
     log.debug("\n")
     log.debug("The shape of our SLO dataframe 1:")
@@ -126,7 +131,7 @@ tweet_dataframe_processed_column_names = ['Tweet', 'SLO']
 selected_features = slo_dataframe_combined[tweet_dataframe_processed_column_names]
 processed_features = selected_features.copy()
 
-if debug:
+if debug_preprocess_tweets:
     # Check what we are using as inputs.
     log.debug("\n")
     log.debug("The Tweets in our input feature:")
@@ -299,10 +304,10 @@ def create_prediction_set():
     # Generate a Pandas dataframe.
     slo_dataframe_cmu = pd.DataFrame(slo_dataset_cmu)
 
-    if debug:
+    if debug_create_prediction_set:
         # Print shape and column names.
         log.debug("\n")
-        log.debug("The shape of our SLO CMUdataframe:")
+        log.debug("The shape of our SLO CMU dataframe:")
         log.debug(slo_dataframe_cmu.shape)
         log.debug("\n")
         log.debug("The columns of our SLO CMU dataframe:")
@@ -314,17 +319,91 @@ def create_prediction_set():
     # slo_dataframe_cmu.index = range(len(slo_dataframe_cmu.index))
 
     # Create input features.
-    selected_features_cmu = slo_dataframe_cmu['tweet_t']
+    # Note: using "filter()" - other methods seems to result in shape of (658982, ) instead of (658982, 1)
+    selected_features_cmu = slo_dataframe_cmu.filter(['tweet_t'])
     processed_features_cmu = selected_features_cmu.copy()
 
-    if debug:
+    # Rename column.
+    processed_features_cmu.columns = ['Tweets']
+
+    if debug_create_prediction_set:
+        # Print shape and column names.
+        log.debug("\n")
+        log.debug("The shape of our processed features:")
+        log.debug(processed_features_cmu.shape)
+        log.debug("\n")
+        log.debug("The columns of our processed features:")
+        log.debug(processed_features_cmu.head)
+        log.debug("\n")
+
+    if debug_create_prediction_set:
         # Check what we are using as inputs.
         log.debug("\n")
         log.debug("The Tweets in our input feature:")
-        log.debug(processed_features_cmu['tweet_t'])
+        log.debug(processed_features_cmu['Tweets'])
         log.debug("\n")
 
     return processed_features_cmu
+
+
+################################################################################################################
+
+def make_predictions(trained_model):
+    """
+    Function makes predictions using the trained model passed as an argument.
+
+    :param trained_model
+    :return: Nothingl.
+    """
+
+    # Generate the dataset to be used for predictions.
+    prediction_set = create_prediction_set()
+
+    # Make predictions of the borg-slo-classifiers dataset.
+    # Note to self: don't be an idiot and try to make predictions on the entire dataframe object instead of a column.
+    predictions = trained_model.predict(prediction_set['Tweets'])
+
+    # Store predictions in Pandas dataframe.
+    results_df = pd.DataFrame(predictions)
+
+    # Assign column names.
+    results_df_column_name = ['TBL_classification']
+    results_df.columns = results_df_column_name
+
+    if debug_make_predictions:
+        log.debug("The shape of our prediction results dataframe:")
+        log.debug(results_df.shape)
+        log.debug("\n")
+        log.debug("The contents of our prediction results dataframe:")
+        log.debug(results_df.head())
+        log.debug("\n")
+
+    # Count # of each classifications made.
+    social_counter = 0
+    economic_counter = 0
+    environmental_counter = 0
+
+    for index in results_df.index:
+        if results_df['TBL_classification'][index] == 'economic':
+            economic_counter += 1
+        if results_df['TBL_classification'][index] == 'social':
+            social_counter += 1
+        if results_df['TBL_classification'][index] == 'environmental':
+            environmental_counter += 1
+
+    # Calculate percentages for each classification.
+    social_percentage = (social_counter / results_df.shape[0]) * 100.0
+    economic_percentage = (economic_counter / results_df.shape[0]) * 100.0
+    environmental_percentage = (environmental_counter / results_df.shape[0]) * 100.0
+
+    # Display our statistics.
+    log.debug("The number of Tweets identified as social is :" + str(social_counter))
+    log.debug("The % of Tweets identified as social in the entire dataset is: " + str(social_percentage))
+    log.debug("The number of Tweets identified as economic is :" + str(economic_counter))
+    log.debug("The % of Tweets identified as economic in the entire dataset is: " + str(economic_percentage))
+    log.debug("The number of Tweets identified as environmental is :" + str(environmental_counter))
+    log.debug("The % of Tweets identified as environmental in the entire dataset is: " + str(environmental_percentage))
+    log.debug("\n")
 
 
 ################################################################################################################
@@ -361,7 +440,7 @@ def multinomial_naive_bayes_classifier_grid_search():
     multinomial_nb_clf.fit(tweet_train, target_train)
     multinomial_nb_predictions = multinomial_nb_clf.predict(tweet_test)
 
-    if debug:
+    if debug_pipeline:
         # View all the information stored in the model after training it.
         classifier_results = pd.DataFrame(multinomial_nb_clf.cv_results_)
         log.debug("The shape of the Multinomial Naive Bayes Classifier model's result data structure is:")
@@ -431,49 +510,9 @@ def multinomial_naive_bayes_classifier():
     log.debug("Mean accuracy over " + str(iterations) + " iterations is: " + str(mean_accuracy))
     log.debug("\n")
 
-    # Make predictions of the borg-slo-classifiers dataset.
-    multinomial_nb_predictions_cmu = multinomial_nb_clf.predict(create_prediction_set())
-
-    # Store predictions in Pandas dataframe.
-    results_df = pd.DataFrame(multinomial_nb_predictions_cmu)
-
-    # Assign column names.
-    results_df_column_name = ['TBL_classification']
-    results_df.columns = results_df_column_name
-
-    if debug:
-        log.debug("The shape of our prediction results dataframe:")
-        log.debug(results_df.shape)
-        log.debug("\n")
-        log.debug("The contents of our prediction results dataframe:")
-        log.debug(results_df.head())
-        log.debug("\n")
-
-    # Count # of each classifications made.
-    social_counter = 0
-    economic_counter = 0
-    environmental_counter = 0
-
-    for index in results_df.index:
-        if results_df['TBL_classification'][index] == 0:
-            economic_counter += 1
-        if results_df['TBL_classification'][index] == 1:
-            environmental_counter += 1
-        if results_df['TBL_classification'][index] == 2:
-            social_counter += 1
-
-    # Calculate percentages for each classification.
-    social_percentage = (social_counter / results_df.shape[0]) * 100.0
-    economic_percentage = (economic_counter / results_df.shape[0]) * 100.0
-    environmental_percentage = (environmental_counter / results_df.shape[0]) * 100.0
-
-    # Display our statistics.
-    log.debug("The number of Tweets identified as social is :" + str(social_counter))
-    log.debug("The % of Tweets identified as social in the entire dataset is: " + str(social_percentage))
-    log.debug("The number of Tweets identified as economic is :" + str(economic_counter))
-    log.debug("The % of Tweets identified as economic in the entire dataset is: " + str(economic_percentage))
-    log.debug("The number of Tweets identified as environmental is :" + str(environmental_counter))
-    log.debug("The % of Tweets identified as environmental in the entire dataset is: " + str(environmental_percentage))
+    # Make predictions using trained model.
+    log.debug("Prediction statistics using Multinomial Naive Bayes Classifier:")
+    make_predictions(multinomial_nb_clf)
 
 
 ################################################################################################################
@@ -516,7 +555,7 @@ def sgd_classifier_grid_search():
     sgd_classifier_clf.fit(tweet_train, target_train)
     sgd_classifier_predictions = sgd_classifier_clf.predict(tweet_test)
 
-    if debug:
+    if debug_pipeline:
         # View all the information stored in the model after training it.
         classifier_results = pd.DataFrame(sgd_classifier_clf.cv_results_)
         log.debug("The shape of the SGD Classifier model's result data structure is:")
@@ -545,6 +584,17 @@ def sgd_classifier():
     """
     from sklearn.linear_model import SGDClassifier
 
+    sgd_classifier_clf = Pipeline([
+        ('vect', CountVectorizer(ngram_range=(1, 1))),
+        ('tfidf', TfidfTransformer(use_idf=True)),
+        ('clf', SGDClassifier(alpha=0.1, average=False, class_weight=None,
+                              early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,
+                              l1_ratio=0.15, learning_rate='optimal', loss='hinge', max_iter=5,
+                              n_iter=None, n_iter_no_change=5, n_jobs=None, penalty='l2',
+                              power_t=0.5, random_state=None, shuffle=True, tol=None,
+                              validation_fraction=0.1, verbose=0, warm_start=False)),
+    ])
+
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
     iterations = 1000
@@ -552,17 +602,6 @@ def sgd_classifier():
 
         # Create randomized training and test set using our dataset.
         create_training_and_test_set()
-
-        sgd_classifier_clf = Pipeline([
-            ('vect', CountVectorizer(ngram_range=(1, 1))),
-            ('tfidf', TfidfTransformer(use_idf=True)),
-            ('clf', SGDClassifier(alpha=0.1, average=False, class_weight=None,
-                                  early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,
-                                  l1_ratio=0.15, learning_rate='optimal', loss='hinge', max_iter=5,
-                                  n_iter=None, n_iter_no_change=5, n_jobs=None, penalty='l2',
-                                  power_t=0.5, random_state=None, shuffle=True, tol=None,
-                                  validation_fraction=0.1, verbose=0, warm_start=False)),
-        ])
 
         sgd_classifier_clf.fit(tweet_train, target_train)
         sgd_classifier_predictions = sgd_classifier_clf.predict(tweet_test)
@@ -590,6 +629,10 @@ def sgd_classifier():
     log.debug("Stochastic Gradient Descent Classifier:")
     log.debug("Mean accuracy over " + str(iterations) + " iterations is: " + str(mean_accuracy))
     log.debug("\n")
+
+    # Make predictions using trained model.
+    log.debug("Prediction statistics using Stochastic Gradient Descent Classifier:")
+    make_predictions(sgd_classifier_clf)
 
 
 ################################################################################################################
@@ -635,7 +678,7 @@ def svm_support_vector_classification_grid_search():
     svc_classifier_clf.fit(tweet_train, target_train)
     svc_classifier_predictions = svc_classifier_clf.predict(tweet_test)
 
-    if debug:
+    if debug_pipeline:
         # View all the information stored in the model after training it.
         classifier_results = pd.DataFrame(svc_classifier_clf.cv_results_)
         log.debug("The shape of the Support Vector Classification Classifier model's result data structure is:")
@@ -664,21 +707,21 @@ def svm_support_vector_classification():
     """
     from sklearn import svm
 
+    svc_classifier_clf = Pipeline([
+        ('vect', CountVectorizer(ngram_range=(1, 1))),
+        ('tfidf', TfidfTransformer(use_idf=False)),
+        ('clf', svm.SVC(C=0.9, cache_size=200, class_weight=None, coef0=0.0,
+                        decision_function_shape='ovo', degree=3, gamma='scale', kernel='sigmoid',
+                        max_iter=-1, probability=True, random_state=None, shrinking=True,
+                        tol=0.01, verbose=False)),
+    ])
+
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
     iterations = 1000
     for index in range(0, iterations):
         # Create randomized training and test set using our dataset.
         create_training_and_test_set()
-
-        svc_classifier_clf = Pipeline([
-            ('vect', CountVectorizer(ngram_range=(1, 1))),
-            ('tfidf', TfidfTransformer(use_idf=False)),
-            ('clf', svm.SVC(C=0.9, cache_size=200, class_weight=None, coef0=0.0,
-                            decision_function_shape='ovo', degree=3, gamma='scale', kernel='sigmoid',
-                            max_iter=-1, probability=True, random_state=None, shrinking=True,
-                            tol=0.01, verbose=False)),
-        ])
 
         svc_classifier_clf.fit(tweet_train, target_train)
         svc_classifier_predictions = svc_classifier_clf.predict(tweet_test)
@@ -706,6 +749,10 @@ def svm_support_vector_classification():
     log.debug("Support Vector Classification Classifier:")
     log.debug("Mean accuracy over " + str(iterations) + " iterations is: " + str(mean_accuracy))
     log.debug("\n")
+
+    # Make predictions using trained model.
+    log.debug("Prediction statistics using Support Vector Classification Classifier:")
+    make_predictions(svc_classifier_clf)
 
 
 ################################################################################################################
@@ -752,7 +799,7 @@ def svm_linear_support_vector_classification_grid_search():
     linear_svc_classifier_clf.fit(tweet_train, target_train)
     linear_svc_classifier_predictions = linear_svc_classifier_clf.predict(tweet_test)
 
-    if debug:
+    if debug_pipeline:
         # View all the information stored in the model after training it.
         classifier_results = pd.DataFrame(linear_svc_classifier_clf.cv_results_)
         log.debug("The shape of the Linear Support Vector Classification Classifier model's result data structure is:")
@@ -782,21 +829,21 @@ def svm_linear_support_vector_classification():
     """
     from sklearn import svm
 
+    linear_svc_classifier_clf = Pipeline([
+        ('vect', CountVectorizer(ngram_range=(1, 1))),
+        ('tfidf', TfidfTransformer(use_idf=False)),
+        ('clf', svm.LinearSVC(C=0.1, class_weight=None, dual=True, fit_intercept=True,
+                              intercept_scaling=1, loss='squared_hinge', max_iter=2000,
+                              multi_class='ovr', penalty='l2', random_state=None, tol=0.1,
+                              verbose=0)),
+    ])
+
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
     iterations = 1000
     for index in range(0, iterations):
         # Create randomized training and test set using our dataset.
         create_training_and_test_set()
-
-        linear_svc_classifier_clf = Pipeline([
-            ('vect', CountVectorizer(ngram_range=(1, 1))),
-            ('tfidf', TfidfTransformer(use_idf=False)),
-            ('clf', svm.LinearSVC(C=0.1, class_weight=None, dual=True, fit_intercept=True,
-                                  intercept_scaling=1, loss='squared_hinge', max_iter=2000,
-                                  multi_class='ovr', penalty='l2', random_state=None, tol=0.1,
-                                  verbose=0)),
-        ])
 
         linear_svc_classifier_clf.fit(tweet_train, target_train)
         linear_svc_classifier_predictions = linear_svc_classifier_clf.predict(tweet_test)
@@ -824,6 +871,10 @@ def svm_linear_support_vector_classification():
     log.debug("Linear Support Vector Classification Classifier:")
     log.debug("Mean accuracy over " + str(iterations) + " iterations is: " + str(mean_accuracy))
     log.debug("\n")
+
+    # Make predictions using trained model.
+    log.debug("Prediction statistics using Linear Support Vector Classification Classifier:")
+    make_predictions(linear_svc_classifier_clf)
 
 
 ################################################################################################################
@@ -865,7 +916,7 @@ def nearest_kneighbor_classifier_grid_search():
     k_neighbor_classifier_clf.fit(tweet_train, target_train)
     k_neighbor_classifier_predictions = k_neighbor_classifier_clf.predict(tweet_test)
 
-    if debug:
+    if debug_pipeline:
         # View all the information stored in the model after training it.
         classifier_results = pd.DataFrame(k_neighbor_classifier_clf.cv_results_)
         log.debug("The shape of the KNeighbor Classifier model's result data structure is:")
@@ -895,19 +946,19 @@ def nearest_kneighbor_classifier():
     """
     from sklearn.neighbors import KNeighborsClassifier
 
+    k_neighbor_classifier_clf = Pipeline([
+        ('vect', CountVectorizer(ngram_range=(1, 2))),
+        ('tfidf', TfidfTransformer(use_idf=False)),
+        ('clf', KNeighborsClassifier(n_neighbors=30, algorithm='auto', leaf_size=10, metric='euclidean', p=1,
+                                     weights='uniform', n_jobs=-1)),
+    ])
+
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
     iterations = 1000
     for index in range(0, iterations):
         # Create randomized training and test set using our dataset.
         create_training_and_test_set()
-
-        k_neighbor_classifier_clf = Pipeline([
-            ('vect', CountVectorizer(ngram_range=(1, 2))),
-            ('tfidf', TfidfTransformer(use_idf=False)),
-            ('clf', KNeighborsClassifier(n_neighbors=30, algorithm='auto', leaf_size=10, metric='euclidean', p=1,
-                                         weights='uniform', n_jobs=-1)),
-        ])
 
         k_neighbor_classifier_clf.fit(tweet_train, target_train)
         k_neighbor_classifier_predictions = k_neighbor_classifier_clf.predict(tweet_test)
@@ -935,6 +986,10 @@ def nearest_kneighbor_classifier():
     log.debug("KNeighbor Classifier:")
     log.debug("Mean accuracy over " + str(iterations) + " iterations is: " + str(mean_accuracy))
     log.debug("\n")
+
+    # Make predictions using trained model.
+    log.debug("Prediction statistics using KNeighbor Classifier:")
+    make_predictions(k_neighbor_classifier_clf)
 
 
 ################################################################################################################
@@ -978,7 +1033,7 @@ def decision_tree_classifier_grid_search():
     decision_tree_classifier_clf.fit(tweet_train, target_train)
     decision_tree_classifier_predictions = decision_tree_classifier_clf.predict(tweet_test)
 
-    if debug:
+    if debug_pipeline:
         # View all the information stored in the model after training it.
         classifier_results = pd.DataFrame(decision_tree_classifier_clf.cv_results_)
         log.debug("The shape of the Decision Tree Classifier model's result data structure is:")
@@ -1008,20 +1063,20 @@ def decision_tree_classifier():
     """
     from sklearn import tree
 
+    decision_tree_classifier_clf = Pipeline([
+        ('vect', CountVectorizer(ngram_range=(1, 2))),
+        ('tfidf', TfidfTransformer(use_idf=False)),
+        ('clf', tree.DecisionTreeClassifier(criterion='gini', max_depth=None, max_features=None,
+                                            max_leaf_nodes=3, min_impurity_decrease=1e-5, min_samples_leaf=1,
+                                            min_samples_split=2, min_weight_fraction_leaf=0)),
+    ])
+
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
     iterations = 1000
     for index in range(0, iterations):
         # Create randomized training and test set using our dataset.
         create_training_and_test_set()
-
-        decision_tree_classifier_clf = Pipeline([
-            ('vect', CountVectorizer(ngram_range=(1, 2))),
-            ('tfidf', TfidfTransformer(use_idf=False)),
-            ('clf', tree.DecisionTreeClassifier(criterion='gini', max_depth=None, max_features=None,
-                                                max_leaf_nodes=3, min_impurity_decrease=1e-5, min_samples_leaf=1,
-                                                min_samples_split=2, min_weight_fraction_leaf=0)),
-        ])
 
         decision_tree_classifier_clf.fit(tweet_train, target_train)
         decision_tree_classifier_predictions = decision_tree_classifier_clf.predict(tweet_test)
@@ -1050,6 +1105,10 @@ def decision_tree_classifier():
     log.debug("Mean accuracy over " + str(iterations) + " iterations is: " + str(mean_accuracy))
     log.debug("\n")
 
+    # Make predictions using trained model.
+    log.debug("Prediction statistics using Decision Tree Classifier:")
+    make_predictions(decision_tree_classifier_clf)
+
 
 ################################################################################################################
 def multi_layer_perceptron_classifier_grid_search():
@@ -1066,13 +1125,13 @@ def multi_layer_perceptron_classifier_grid_search():
     mlp_classifier_clf = Pipeline([
         ('vect', CountVectorizer()),
         ('tfidf', TfidfTransformer()),
-        ('clf', MLPClassifier(activation='relu', alpha=1e-5, batch_size='auto',
+        ('clf', MLPClassifier(activation='logistic', alpha=1e-1, batch_size='auto',
                               beta_1=0.9, beta_2=0.999, early_stopping=True,
                               epsilon=1e-08, hidden_layer_sizes=(5, 2),
-                              learning_rate='constant', learning_rate_init=0.001,
+                              learning_rate='constant', learning_rate_init=1e-1,
                               max_iter=1000, momentum=0.9, n_iter_no_change=10,
                               nesterovs_momentum=True, power_t=0.5, random_state=1,
-                              shuffle=True, solver='lbfgs', tol=0.0001,
+                              shuffle=True, solver='sgd', tol=0.0001,
                               validation_fraction=0.1, verbose=False, warm_start=False)),
     ])
 
@@ -1080,27 +1139,27 @@ def multi_layer_perceptron_classifier_grid_search():
 
     # What parameters do we search for?
     parameters = {
-        'vect__ngram_range': [(1, 1), (1, 2), (1, 3), (1, 4)],
-        'tfidf__use_idf': (True, False),
+        'vect__ngram_range': [(1, 1)],
+        # 'tfidf__use_idf': (True, False),
         # 'clf__hidden_layer_sizes': [(15, 15), (50, 50)],
         'clf__activation': ['identity', 'logistic', 'tanh', 'relu'],
         'clf__solver': ['lbfgs', 'sgd', 'adam'],
         'clf__alpha': [1e-1, 1e-2, 1e-4, 1e-6, 1e-8],
-        'clf__batch_size': [5, 10, 20, 40, 80, 160],
+        # 'clf__batch_size': [5, 10, 20, 40, 80, 160],
         'clf__learning_rate': ['constant', 'invscaling', 'adaptive'],
         'clf__learning_rate_init': [1e-1, 1e-3, 1e-5],
         # 'clf__power_t': [0.1, 0.25, 0.5, 0.75, 1.0],
-        'clf__max_iter': [200, 400, 800, 1600],
+        # 'clf__max_iter': [200, 400, 800, 1600],
         # 'clf_shuffle': [True, False],
-        'clf__tol': [1e-1, 1e-2, 1e-4, 1e-6, 1e-8],
-        'clf__momentum': [0.1, 0.3, 0.6, 0.9],
+        # 'clf__tol': [1e-1, 1e-2, 1e-4, 1e-6, 1e-8],
+        # 'clf__momentum': [0.1, 0.3, 0.6, 0.9],
         # 'clf_nestesrovs_momentum': [True, False],
         # 'clf_early_stopping': [True, False],
-        'clf__validation_fraction': [0.1, 0.2, 0.4],
+        # 'clf__validation_fraction': [0.1, 0.2, 0.4],
         # 'clf_beta_1': [0.1, 0.2, 0.4, 0.6, 0.8],
         # 'clf_beta_2': [0.1, 0.2, 0.4, 0.6, 0.8],
         # 'clf_epsilon': [1e-1, 1e-2, 1e-4, 1e-8],
-        'clf__n_iter_no_change': [1, 2, 4, 8, 16]
+        # 'clf__n_iter_no_change': [1, 2, 4, 8, 16]
 
     }
 
@@ -1112,7 +1171,7 @@ def multi_layer_perceptron_classifier_grid_search():
     mlp_classifier_clf.fit(tweet_train, target_train)
     mlp_classifier_predictions = mlp_classifier_clf.predict(tweet_test)
 
-    if debug:
+    if debug_pipeline:
         # View all the information stored in the model after training it.
         classifier_results = pd.DataFrame(mlp_classifier_clf.cv_results_)
         log.debug("The shape of the Multi Layer Perceptron Neural Network Classifier model's result data structure is:")
@@ -1142,25 +1201,25 @@ def multi_layer_perceptron_classifier():
     """
     from sklearn.neural_network import MLPClassifier
 
+    mlp_classifier_clf = Pipeline([
+        ('vect', CountVectorizer(ngram_range=(1, 1))),
+        ('tfidf', TfidfTransformer(use_idf=False)),
+        ('clf', MLPClassifier(activation='identity', alpha=1e-1, batch_size='auto',
+                              beta_1=0.9, beta_2=0.999, early_stopping=True,
+                              epsilon=1e-08, hidden_layer_sizes=(5, 2),
+                              learning_rate='constant', learning_rate_init=1e-1,
+                              max_iter=1000, momentum=0.9, n_iter_no_change=10,
+                              nesterovs_momentum=True, power_t=0.5, random_state=1,
+                              shuffle=True, solver='lbfgs', tol=0.1,
+                              validation_fraction=0.1, verbose=False, warm_start=False)),
+    ])
+
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
-    iterations = 100
+    iterations = 1000
     for index in range(0, iterations):
         # Create randomized training and test set using our dataset.
         create_training_and_test_set()
-
-        mlp_classifier_clf = Pipeline([
-            ('vect', CountVectorizer()),
-            ('tfidf', TfidfTransformer()),
-            ('clf', MLPClassifier(activation='relu', alpha=1e-5, batch_size='auto',
-                                  beta_1=0.9, beta_2=0.999, early_stopping=True,
-                                  epsilon=1e-08, hidden_layer_sizes=(15, 15, 15),
-                                  learning_rate='constant', learning_rate_init=0.001,
-                                  max_iter=1000, momentum=0.9, n_iter_no_change=10,
-                                  nesterovs_momentum=True, power_t=0.5, random_state=1,
-                                  shuffle=True, solver='lbfgs', tol=0.0001,
-                                  validation_fraction=0.1, verbose=False, warm_start=False)),
-        ])
 
         # from sklearn.preprocessing import StandardScaler
         # scaler = StandardScaler(copy=True, with_mean=True, with_std=True)
@@ -1194,6 +1253,10 @@ def multi_layer_perceptron_classifier():
     log.debug("Multi Layer Perceptron Neural Network Classifier:")
     log.debug("Mean accuracy over " + str(iterations) + " iterations is: " + str(mean_accuracy))
     log.debug("\n")
+
+    # Make predictions using trained model.
+    log.debug("Prediction statistics using Multi Layer Perceptron Neural Network Classifier:")
+    make_predictions(mlp_classifier_clf)
 
 
 ################################################################################################################
@@ -1239,7 +1302,7 @@ def logistic_regression_classifier_grid_search():
     logistic_regression_classifier_clf.fit(tweet_train, target_train)
     logistic_regression_classifier_predictions = logistic_regression_classifier_clf.predict(tweet_test)
 
-    if debug:
+    if debug_pipeline:
         # View all the information stored in the model after training it.
         classifier_results = pd.DataFrame(logistic_regression_classifier_clf.cv_results_)
         log.debug("The shape of the  Logistic Regression Classifier model's result data structure is:")
@@ -1269,6 +1332,13 @@ def logistic_regression_classifier():
     """
     from sklearn.linear_model import LogisticRegression
 
+    logistic_regression_classifier_clf = Pipeline([
+        ('vect', CountVectorizer(ngram_range=(1, 1))),
+        ('tfidf', TfidfTransformer(use_idf=False)),
+        ('clf', LogisticRegression(C=1.0, class_weight=None, fit_intercept=False, max_iter=2000,
+                                   multi_class='ovr', penalty='l2', solver='sag', tol=1e-1)),
+    ])
+
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
     iterations = 1000
@@ -1276,13 +1346,6 @@ def logistic_regression_classifier():
 
         # Create randomized training and test set using our dataset.
         create_training_and_test_set()
-
-        logistic_regression_classifier_clf = Pipeline([
-            ('vect', CountVectorizer(ngram_range=(1, 1))),
-            ('tfidf', TfidfTransformer(use_idf=False)),
-            ('clf', LogisticRegression(C=1.0, class_weight=None, fit_intercept=False, max_iter=2000,
-                                       multi_class='ovr', penalty='l2', solver='sag', tol=1e-1)),
-        ])
 
         logistic_regression_classifier_clf.fit(tweet_train, target_train)
         logistic_regression_classifier_predictions = logistic_regression_classifier_clf.predict(tweet_test)
@@ -1310,6 +1373,10 @@ def logistic_regression_classifier():
     log.debug("Logistic Regression Classifier:")
     log.debug("Mean accuracy over " + str(iterations) + " iterations is: " + str(mean_accuracy))
     log.debug("\n")
+
+    # Make predictions using trained model.
+    log.debug("Prediction statistics using Logistic Regression Classifier:")
+    make_predictions(logistic_regression_classifier_clf)
 
 
 ################################################################################################################
@@ -1347,28 +1414,31 @@ if __name__ == '__main__':
 
     # Call pipelined classifier training functions and grid search functions.
     # multinomial_naive_bayes_classifier_grid_search()
-    # multinomial_naive_bayes_classifier()
+    multinomial_naive_bayes_classifier()
     # sgd_classifier_grid_search()
-    # sgd_classifier()
+    sgd_classifier()
     # svm_support_vector_classification_grid_search()
-    # svm_support_vector_classification()
+    svm_support_vector_classification()
     # svm_linear_support_vector_classification_grid_search()
-    # svm_linear_support_vector_classification()
+    svm_linear_support_vector_classification()
     # nearest_kneighbor_classifier_grid_search()
-    # nearest_kneighbor_classifier()
+    nearest_kneighbor_classifier()
     # decision_tree_classifier_grid_search()
-    # decision_tree_classifier()
-    multi_layer_perceptron_classifier_grid_search()
-    # multi_layer_perceptron_classifier()
+    decision_tree_classifier()
+    # multi_layer_perceptron_classifier_grid_search()
+    multi_layer_perceptron_classifier()
     # logistic_regression_classifier_grid_search()
-    # logistic_regression_classifier()
+    logistic_regression_classifier()
 
     end_time = time.time()
 
-    if debug:
+    if debug_pipeline:
         log.debug("The time taken to train the classifier(s) is:")
         total_time = end_time - start_time
         log.debug(str(total_time))
         log.debug("\n")
+
+    # For debug purposes.
+    # my_set = create_prediction_set()
 
 ############################################################################################

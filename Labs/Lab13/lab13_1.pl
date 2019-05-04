@@ -1,21 +1,4 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Section 3.1 Example. (for my own reference)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% Knowledge Base.
-child(anne,bridget).
-child(bridget,caroline).
-child(caroline,donna).
-child(donna,emily).
-
-%% Base Case.
-descend(X,Y)  :-  child(X,Y).
-
-%% Recursive Case.
-descend(X,Y)  :- child(X,Z),
-                 descend(Z,Y).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Exercise 3.2 - Russian Dolls
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

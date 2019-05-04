@@ -2,55 +2,58 @@
 Course: CS 344 - Artificial Intelligence
 Instructor: Professor VanderLinden
 Name: Joseph Jinn
-Date: 4-18-19
+Date: 5-3-19
 Assignment: Lab 13 - Planning
 
 Notes:
 
-Exercise 13.2 - Extend the LPN! exercises above as follows.
-
-TODO - work on and finish, time permitting (looking unlikely with 3 final projects and grading job).
-
 """
 
-###########################################################################################
-Exercise 3.2 - Modify your code to print the containment hierarchy as shown here:
+################################################################################################################
+Consider the following situation in the blocks world:
 
-?- in(katarina, olga, L).
-L = contains(katarina, olga)
+block A on block B on block C
+		on table
 
-?- in(katarina, irina, L).
-L = contains(katarina, olga, contains(olga, natasha, contains(natasha, irina)))
+Given the (separate) facts that:
 
-These examples produce a “stack trace” of the recursive executation.
-The first example is a base case, the second a recursive case.
+A is on B
+B is on C
+The table supports C
+For any two entities, if the first entity supports the second, then the second is on the first.
+For any two entities, if the first entity is on the second, then the first is “above” the second.
+For any three entities, if the first entity is above the second which is above the third, then the first is above the third.
+Write these facts in FOL and use resolution/unification to prove that A is above the table.
 
-###########################################################################################
-Exercise 4.5 - Modify your code to translate into either English or Chinese.
+################################################################################################################
 
-The Chinese numbers are yi, er, san, si, wu, liu, qi, ba, jiu. Your output should look something like this:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Part 2 - Consider the following situation in the blocks world:
 
-?- listtran3([eins,zwei],2,X).
-X = [one, two]
+%% Knowledge Base.
+:- discontiguous isOn/2. %% Disable warning.
 
-?- listtran3([eins,zwei],3,X).
-X = [yi, er].
+%% A is on B.
+isOn('A', 'B').
 
-?- listtran3(X,3,[yi, er]).
-X = [eins, zwei].
+%% B is on C.
+isOn('B', 'C').
 
-?- listtran3(X,2,[one, two]).
-X = [eins, zwei].
+%% The table supports C.
+supports('Table', 'C').
 
-Simple extensions of your original code will likely only support these language pairs;
-you don’t need to support Chinese-English translations.
+%% For any two entities, if the first entity supports the second, then the second is on the first.
+isOn(E2, E1) :- supports(E1, E2).
 
-###########################################################################################
-Exercise 5.3 - Add a new addN/3 predicate that adds an arbitrary value to each list element as specified
-by a numeric parameter.
 
-?- addN([1,2,3],2,X).
-X = [3, 4, 5].
+%% For any two entities, if the first entity is on the second, then the first is “above” the second.
+above(E1, E2) :- isOn(E1, E2).
 
-###########################################################################################
-Save your program in lab_2.pl.
+
+%% For any three entities, if the first entity is above the second which is above the third,
+%% then the first is above the third.
+above(E1, E3) :-
+                    above(E1, E2),
+                    above(E2, E3).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
