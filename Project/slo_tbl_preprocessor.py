@@ -15,7 +15,7 @@ This is NOT a generalized Tweet dataset preprocessor!!!
 ###########################################################
 Resources Used:
 
-Refer to slo_topic_classification_original.py for a full list of URL's to online resources referenced.
+Refer to slo_topic_classification_v1-0.py for a full list of URL's to online resources referenced.
 
 """
 
@@ -39,6 +39,42 @@ warnings.simplefilter(action='ignore', category=DeprecationWarning)
 
 # Turn on and off to debug various sub-sections.
 debug = True
+
+
+################################################################################################################
+def preprocess_tweet_text(tweet_text):
+    """
+    Helper function performs text pre-processing using regular expressions and other Python functions.
+
+    Notes:
+
+    Stop words are retained.
+
+    TODO - shrink character elongations
+    TODO - remove non-english tweets
+    TODO - remove non-company associated tweets
+    TODO - remove year and time.
+    TODO - remove cash items?
+
+    :return: the processed Tweet.
+    """
+
+    # Remove "RT" tags.
+    preprocessed_tweet_text = re.sub("rt", "", tweet_text)
+
+    # Remove URL's.
+    preprocessed_tweet_text = re.sub("http[s]?://\S+", "slo_url", preprocessed_tweet_text)
+
+    # Remove Tweet mentions.
+    preprocessed_tweet_text = re.sub("@\S+", "slo_mention", preprocessed_tweet_text)
+
+    # Remove Tweet hashtags.
+    preprocessed_tweet_text = re.sub("#\S+", "slo_hashtag", preprocessed_tweet_text)
+
+    # Remove all punctuation.
+    preprocessed_tweet_text = preprocessed_tweet_text.translate(str.maketrans('', '', string.punctuation))
+
+    return preprocessed_tweet_text
 
 
 ################################################################################################################
@@ -267,40 +303,6 @@ def tweet_dataset_preprocessor_1():
 
     #######################################################
 
-    def preprocess_tweet_text(tweet_text):
-        """
-        Helper function performs text pre-processing using regular expressions and other Python functions.
-
-        Notes:
-
-        Stop words are retained.
-
-        TODO - shrink character elongations
-        TODO - remove non-english tweets
-        TODO - remove non-company associated tweets
-        TODO - remove year and time.
-        TODO - remove cash items?
-
-        :return:
-        """
-
-        # Remove "RT" tags.
-        preprocessed_tweet_text = re.sub("rt", "", tweet_text)
-
-        # Remove URL's.
-        preprocessed_tweet_text = re.sub("http[s]?://\S+", "slo_url", preprocessed_tweet_text)
-
-        # Remove Tweet mentions.
-        preprocessed_tweet_text = re.sub("@\S+", "slo_mention", preprocessed_tweet_text)
-
-        # Remove Tweet hashtags.
-        preprocessed_tweet_text = re.sub("#\S+", "slo_hashtag", preprocessed_tweet_text)
-
-        # Remove all punctuation.
-        preprocessed_tweet_text = preprocessed_tweet_text.translate(str.maketrans('', '', string.punctuation))
-
-        return preprocessed_tweet_text
-
     # Assign new dataframe to contents of old.
     slo_df_tokenized = slo_dataframe_tbl_duplicates_dropped
 
@@ -424,44 +426,6 @@ def tweet_dataset_preprocessor_2():
 
     #######################################################
 
-    def preprocess_tweet_text(tweet_text):
-        """
-        Helper function performs text pre-processing using regular expressions and other Python functions.
-
-        Notes:
-
-        Stop words are retained.
-
-        TODO - shrink character elongations
-        TODO - remove non-english tweets
-        TODO - remove non-company associated tweets
-        TODO - remove year and time.
-        TODO - remove cash items?
-
-        :return:
-        """
-
-        # Remove "RT" tags.
-        preprocessed_tweet_text = re.sub("rt", "", tweet_text)
-
-        # Remove URL's.
-        preprocessed_tweet_text = re.sub("http[s]?://\S+", "slo_url", preprocessed_tweet_text)
-
-        # Remove Tweet mentions.
-        preprocessed_tweet_text = re.sub("@\S+", "slo_mention", preprocessed_tweet_text)
-
-        # Remove Tweet hashtags.
-        preprocessed_tweet_text = re.sub("#\S+", "slo_hashtag", preprocessed_tweet_text)
-
-        # Remove all punctuation.
-        preprocessed_tweet_text = preprocessed_tweet_text.translate(str.maketrans('', '', string.punctuation))
-
-        return preprocessed_tweet_text
-
-        # Assign new dataframe to contents of old.
-
-    #######################################################
-
     # Down-case all text.
     slo_dataframe_combined['Tweet'] = slo_dataframe_combined['Tweet'].str.lower()
 
@@ -522,44 +486,6 @@ def tweet_dataset_preprocessor_3():
 
     #######################################################
 
-    def preprocess_tweet_text(tweet_text):
-        """
-        Helper function performs text pre-processing using regular expressions and other Python functions.
-
-        Notes:
-
-        Stop words are retained.
-
-        TODO - shrink character elongations
-        TODO - remove non-english tweets
-        TODO - remove non-company associated tweets
-        TODO - remove year and time.
-        TODO - remove cash items?
-
-        :return:
-        """
-
-        # Remove "RT" tags.
-        preprocessed_tweet_text = re.sub("rt", "", tweet_text)
-
-        # Remove URL's.
-        preprocessed_tweet_text = re.sub("http[s]?://\S+", "slo_url", preprocessed_tweet_text)
-
-        # Remove Tweet mentions.
-        preprocessed_tweet_text = re.sub("@\S+", "slo_mention", preprocessed_tweet_text)
-
-        # Remove Tweet hashtags.
-        preprocessed_tweet_text = re.sub("#\S+", "slo_hashtag", preprocessed_tweet_text)
-
-        # Remove all punctuation.
-        preprocessed_tweet_text = preprocessed_tweet_text.translate(str.maketrans('', '', string.punctuation))
-
-        return preprocessed_tweet_text
-
-        # Assign new dataframe to contents of old.
-
-    #######################################################
-
     # Down-case all text.
     slo_dataframe_cmu['tweet_t'] = slo_dataframe_cmu['tweet_t'].str.lower()
 
@@ -599,9 +525,6 @@ Main function.  Execute the program.
 
 Note: Used to individually test that the preprocessors function as intended.
 """
-
-# Debug variable.
-debug_main = 0
 
 if __name__ == '__main__':
 

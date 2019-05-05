@@ -14,8 +14,6 @@ of Classifiers.
 
 TODO - resolve SettingWithCopyWarning.
 
-TODO - implement data visualizations via matplotlib and Seaborn.
-
 TODO - attempt to acquire additional labeled Tweets for topic classification using pattern matching and pandas queries.
 TODO - reference settings.py and autocoding.py for template of how to do this.
 
@@ -24,7 +22,7 @@ TODO - revise report.ipynb and paper as updates are made to implementation and c
 ###########################################################
 Resources Used:
 
-Refer to original un-cleaned version.
+Refer to slo_topic_classification_v1-0.py.
 
 https://scikit-plot.readthedocs.io/en/stable/index.html
 (visualizations simplified)
@@ -53,7 +51,7 @@ from sklearn import metrics
 
 # Note: FIXME - indicates unresolved import error, but still runs fine.
 # noinspection PyUnresolvedReferences
-from SLO_TBL_Tweet_Preprocessor_Specialized import tweet_dataset_preprocessor_1, tweet_dataset_preprocessor_2, \
+from slo_tbl_preprocessor import tweet_dataset_preprocessor_1, tweet_dataset_preprocessor_2, \
     tweet_dataset_preprocessor_3
 
 #############################################################
@@ -68,14 +66,41 @@ pd.options.display.float_format = '{:.1f}'.format
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
 
-# Turn on and off to debug various sub-sections.
-debug = False
+"""
+Turn debug log statements for various sections of code on/off.
+"""
+# Debug the scikit_learn_multinomialnb_classifier_non_pipeline() function.
+debug_MNB_nonPipeline = False
+# Debug the GridSearch functions for each Classifier.
 debug_pipeline = False
-debug_preprocess_tweets = True
+# Debug the initial dataset import and feature/target set creation.
+debug_preprocess_tweets = False
+# Debug create_training_and_test_set() function.
 debug_train_test_set_creation = False
-debug_classifier_iterations = False
+# Debug each iteration of training and predictions for each Classifier function().
+debug_classifier_iterations = True
+# Debug the create_prediction_set() function.
 debug_create_prediction_set = False
+# Debug the make_predictions() function.
 debug_make_predictions = False
+
+"""
+Controls the # of iterations to run each Classifier before outputting the mean accuracy metric obtained.
+
+IMPORTANT NOTE: SET to "1" unless you want each Classifier spitting out visualizations for each of N iterations
+when visualizations are enabled!
+"""
+iterations = 1
+
+"""
+Enable or disable making predictions using trained model on our large 650k+ Tweet dataset (takes a little while).
+"""
+enable_predictions = False
+
+"""
+Enable or disable plotting graph visualizations of the model's training and prediction results.
+"""
+enable_visualizations = True
 
 ################################################################################################################
 ################################################################################################################
@@ -147,7 +172,6 @@ slo_target_set = processed_features['SLO']
 
 
 #######################################################
-
 def create_training_and_test_set():
     """
     This functions splits the feature and target set into training and test sets for each set.
@@ -209,7 +233,6 @@ def create_training_and_test_set():
 
 
 #######################################################
-
 def scikit_learn_multinomialnb_classifier_non_pipeline():
     """
     Function trains a Multinomial Naive Bayes Classifier without using a Pipeline.
@@ -224,11 +247,11 @@ def scikit_learn_multinomialnb_classifier_non_pipeline():
     create_training_and_test_set()
 
     # Use Sci-kit learn to tokenize each Tweet and convert into a bag-of-words sparse feature vector.
-    vectorizer = CountVectorizer(min_df=0, lowercase=False)
+    vectorizer = CountVectorizer(min_df=0, lowercase=False, ngram_range=(1, 1))
     tweet_train_encoded = vectorizer.fit_transform(tweet_train)
     tweet_test_encoded = vectorizer.transform(tweet_test)
 
-    if debug:
+    if debug_MNB_nonPipeline:
         log.debug("Vectorized tweet training set:")
         log.debug(tweet_train_encoded)
         log.debug("Vectorized tweet testing set:")
@@ -241,12 +264,12 @@ def scikit_learn_multinomialnb_classifier_non_pipeline():
     #######################################################
 
     # Use Sci-kit learn to convert each tokenized Tweet into term frequencies.
-    tfidf_transformer = TfidfTransformer()
+    tfidf_transformer = TfidfTransformer(use_idf=False)
 
     tweet_train_encoded_tfidf = tfidf_transformer.fit_transform(tweet_train_encoded)
     tweet_test_encoded_tfidf = tfidf_transformer.transform(tweet_test_encoded)
 
-    if debug:
+    if debug_MNB_nonPipeline:
         log.debug("vectorized tweet training set term frequencies down-sampled:")
         log.debug(tweet_train_encoded_tfidf)
         log.debug("Shape of the tweet training set term frequencies down-sampled: ")
@@ -281,8 +304,8 @@ def scikit_learn_multinomialnb_classifier_non_pipeline():
     log.debug("\n")
 
     # View the results as Tweet => predicted topic classification label.
-    for doc, category in zip(tweet_test, clf_multinomial_nb_predict):
-        log.debug('%r => %s' % (doc, category))
+    for index, label in zip(tweet_test, clf_multinomial_nb_predict):
+        log.debug('%r => %s' % (index, label))
 
 
 ################################################################################################################
@@ -347,13 +370,12 @@ def create_prediction_set():
 
 
 ################################################################################################################
-
 def make_predictions(trained_model):
     """
     Function makes predictions using the trained model passed as an argument.
 
-    :param trained_model
-    :return: Nothingl.
+    :param trained_model.
+    :return: Nothing.
     """
 
     # Generate the dataset to be used for predictions.
@@ -404,6 +426,115 @@ def make_predictions(trained_model):
     log.debug("The number of Tweets identified as environmental is :" + str(environmental_counter))
     log.debug("The % of Tweets identified as environmental in the entire dataset is: " + str(environmental_percentage))
     log.debug("\n")
+
+
+################################################################################################################
+def create_metric_visualizations(model, model_predictions, model_predictions_probabilities, classifier_name):
+    """
+    This function visualizes the metrics for a single iteration of predictions.
+
+    :param classifier_name: string name of the classifier we are using.
+    :param model: the Scikit-Learn Classifier we are using.
+    :param model_predictions: the predictions made using the trained model.
+    :param model_predictions_probabilities: the predictions' probabilities made using the trained model.
+    :return: Nothing.
+    """
+
+    import scikitplot as skplt
+
+    # Plot the confusion matrix.
+    plt.figure(figsize=(16, 9), dpi=360)
+    skplt.metrics.plot_confusion_matrix(target_test, model_predictions, normalize=True,
+                                        title=str(classifier_name) + ' Confusion Matrix')
+    plt.show()
+
+    # Plot the ROC curve.
+    plt.figure(figsize=(16, 9), dpi=360)
+    skplt.metrics.plot_roc(target_test, model_predictions_probabilities,
+                           title=str(classifier_name) + ' ROC Curves')
+    plt.show()
+
+    # Plot the precision and recall curve.
+    plt.figure(figsize=(16, 9), dpi=360)
+    skplt.metrics.plot_precision_recall(target_test, model_predictions_probabilities,
+                                        title=str(classifier_name) + ' Precision-Recall Curve')
+    plt.show()
+
+    # Plot learning curve.
+    plt.figure(figsize=(16, 9), dpi=360)
+    skplt.estimators.plot_learning_curve(model, tweet_train, target_train,
+                                         title=str(classifier_name) + ' Learning Curve')
+    plt.show()
+
+
+################################################################################################################
+def create_metric_visualizations_linearsvc(model, model_predictions, classifier_name):
+    """
+    This function visualizes the metrics for a single iteration of predictions.
+
+    Note: Specific to LinearSVC Classifier (generalized version is not compatible)
+
+    :param classifier_name: string name of the classifier we are using.
+    :param model: the Scikit-Learn Classifier we are using.
+    :param model_predictions: the predictions made using the trained model.
+    :return: Nothing.
+    """
+
+    import scikitplot as skplt
+
+    # Plot the confusion matrix.
+    plt.figure(figsize=(16, 9), dpi=360)
+    skplt.metrics.plot_confusion_matrix(target_test, model_predictions, normalize=True,
+                                        title=str(classifier_name) + ' Confusion Matrix')
+    plt.show()
+
+    # Plot learning curve.
+    plt.figure(figsize=(16, 9), dpi=360)
+    skplt.estimators.plot_learning_curve(model, tweet_train, target_train,
+                                         title=str(classifier_name) + ' Learning Curve')
+    plt.show()
+
+
+################################################################################################################
+def create_metric_visualizations_kneighbor(model, model_predictions, model_predictions_probabilities, classifier_name):
+    """
+    This function visualizes the metrics for a single iteration of predictions.
+
+    Note: Specific to KNeighbors Classifier (generalized version is not compatible)
+
+    :param classifier_name: string name of the classifier we are using.
+    :param model: the Scikit-Learn Classifier we are using.
+    :param model_predictions: the predictions made using the trained model.
+    :param model_predictions_probabilities: the predictions' probabilities made using the trained model.
+    :return: Nothing.
+    """
+
+    import scikitplot as skplt
+
+    # Plot the confusion matrix.
+    plt.figure(figsize=(16, 9), dpi=360)
+    skplt.metrics.plot_confusion_matrix(target_test, model_predictions, normalize=True,
+                                        title=str(classifier_name) + ' Confusion Matrix')
+    plt.show()
+
+    # Plot the ROC curve.
+    plt.figure(figsize=(16, 9), dpi=360)
+    skplt.metrics.plot_roc(target_test, model_predictions_probabilities,
+                           title=str(classifier_name) + ' ROC Curves')
+    plt.show()
+
+    # Plot the precision and recall curve.
+    plt.figure(figsize=(16, 9), dpi=360)
+    skplt.metrics.plot_precision_recall(target_test, model_predictions_probabilities,
+                                        title=str(classifier_name) + ' Precision-Recall Curve')
+    plt.show()
+
+    # # Plot learning curve.
+    # plt.figure(figsize=(16, 9), dpi=360)
+    # # plt.figure(figsize=(3, 2), dpi=300)
+    # skplt.estimators.plot_learning_curve(model, tweet_train, target_train,
+    #                                      title=str(classifier_name) + ' Learning Curve')
+    # plt.show()
 
 
 ################################################################################################################
@@ -477,7 +608,6 @@ def multinomial_naive_bayes_classifier():
 
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
-    iterations = 1000
     for index in range(0, iterations):
 
         # Create randomized training and test set using our dataset.
@@ -485,6 +615,12 @@ def multinomial_naive_bayes_classifier():
 
         multinomial_nb_clf.fit(tweet_train, target_train)
         multinomial_nb_predictions = multinomial_nb_clf.predict(tweet_test)
+        multinomial_nb_predictions_probabilities = multinomial_nb_clf.predict_proba(tweet_test)
+
+        if enable_visualizations:
+            # Visualize the results of training our model.
+            create_metric_visualizations(multinomial_nb_clf, multinomial_nb_predictions,
+                                         multinomial_nb_predictions_probabilities, 'Multinomial Naive Bayes Classifier')
 
         # Calculate the accuracy of our predictions.
         accuracy = np.mean(multinomial_nb_predictions == target_test)
@@ -512,11 +648,11 @@ def multinomial_naive_bayes_classifier():
 
     # Make predictions using trained model.
     log.debug("Prediction statistics using Multinomial Naive Bayes Classifier:")
-    make_predictions(multinomial_nb_clf)
+    if enable_predictions:
+        make_predictions(multinomial_nb_clf)
 
 
 ################################################################################################################
-
 def sgd_classifier_grid_search():
     """
     Function performs a exhaustive grid search to find the best hyper-parameters for use training the model.
@@ -532,7 +668,7 @@ def sgd_classifier_grid_search():
         ('vect', CountVectorizer()),
         ('tfidf', TfidfTransformer()),
         ('clf', SGDClassifier(alpha=0.0001, average=False, class_weight=None,
-                              early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,
+                              early_stopping=False, epsilon=0.1, eta0=1.0, fit_intercept=True,
                               l1_ratio=0.15, learning_rate='optimal', loss='hinge', max_iter=5,
                               n_iter=None, n_iter_no_change=5, n_jobs=None, penalty='l2',
                               power_t=0.5, random_state=None, shuffle=True, tol=None,
@@ -545,7 +681,15 @@ def sgd_classifier_grid_search():
     parameters = {
         'vect__ngram_range': [(1, 1), (1, 2), (1, 3), (1, 4)],
         'tfidf__use_idf': (True, False),
-        'clf__alpha': (1e-1, 1e-2, 1e-3, 0.00001, 0.000001),
+        'clf__alpha': (1e-1, 1e-2, 1e-3, 1e-4, 1e-5),
+        'clf__fit_intercept': [True, False],
+        'clf__loss': ['hinge', 'log', 'modified_huber', 'squared_hinge', 'perceptron'],
+        'clf__penalty': ['none', 'l2', 'l1', 'elasticnet'],
+        'clf__n_jobs': [-1],
+        'clf__learning_rate': ['constant', 'optimal', 'invscaling', 'adaptive'],
+        'clf__early_stopping': [True, False],
+        'clf__validation_fraction': [0.1, 0.2, 0.4],
+
     }
 
     # Perform the grid search using all cores.
@@ -579,7 +723,9 @@ def sgd_classifier_grid_search():
 def sgd_classifier():
     """
     Function trains a Stochastic Gradient Descent Classifier.
-    
+
+    Note: "hinge" loss does not support probability estimates.
+
     :return: none.
     """
     from sklearn.linear_model import SGDClassifier
@@ -589,7 +735,7 @@ def sgd_classifier():
         ('tfidf', TfidfTransformer(use_idf=True)),
         ('clf', SGDClassifier(alpha=0.1, average=False, class_weight=None,
                               early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,
-                              l1_ratio=0.15, learning_rate='optimal', loss='hinge', max_iter=5,
+                              l1_ratio=0.15, learning_rate='optimal', loss='log', max_iter=5,
                               n_iter=None, n_iter_no_change=5, n_jobs=None, penalty='l2',
                               power_t=0.5, random_state=None, shuffle=True, tol=None,
                               validation_fraction=0.1, verbose=0, warm_start=False)),
@@ -597,7 +743,6 @@ def sgd_classifier():
 
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
-    iterations = 1000
     for index in range(0, iterations):
 
         # Create randomized training and test set using our dataset.
@@ -605,6 +750,13 @@ def sgd_classifier():
 
         sgd_classifier_clf.fit(tweet_train, target_train)
         sgd_classifier_predictions = sgd_classifier_clf.predict(tweet_test)
+        sgd_classifier_predictions_probabilities = sgd_classifier_clf.predict_proba(tweet_test)
+
+        if enable_visualizations:
+            # Visualize the results of training our model.
+            create_metric_visualizations(sgd_classifier_clf, sgd_classifier_predictions,
+                                         sgd_classifier_predictions_probabilities,
+                                         'Stochastic Gradient Descent Classifier')
 
         # Calculate the accuracy of our predictions.
         accuracy = np.mean(sgd_classifier_predictions == target_test)
@@ -632,7 +784,8 @@ def sgd_classifier():
 
     # Make predictions using trained model.
     log.debug("Prediction statistics using Stochastic Gradient Descent Classifier:")
-    make_predictions(sgd_classifier_clf)
+    if enable_predictions:
+        make_predictions(sgd_classifier_clf)
 
 
 ################################################################################################################
@@ -718,13 +871,19 @@ def svm_support_vector_classification():
 
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
-    iterations = 1000
     for index in range(0, iterations):
         # Create randomized training and test set using our dataset.
         create_training_and_test_set()
 
         svc_classifier_clf.fit(tweet_train, target_train)
         svc_classifier_predictions = svc_classifier_clf.predict(tweet_test)
+        svc_classifier_predictions_probabilities = svc_classifier_clf.predict_proba(tweet_test)
+
+        if enable_visualizations:
+            # Visualize the results of training our model.
+            create_metric_visualizations(svc_classifier_clf, svc_classifier_predictions,
+                                         svc_classifier_predictions_probabilities,
+                                         'Support Vector Classification Classifier')
 
         # Calculate the accuracy of our predictions.
         accuracy = np.mean(svc_classifier_predictions == target_test)
@@ -752,7 +911,8 @@ def svm_support_vector_classification():
 
     # Make predictions using trained model.
     log.debug("Prediction statistics using Support Vector Classification Classifier:")
-    make_predictions(svc_classifier_clf)
+    if enable_predictions:
+        make_predictions(svc_classifier_clf)
 
 
 ################################################################################################################
@@ -824,7 +984,9 @@ def svm_linear_support_vector_classification_grid_search():
 def svm_linear_support_vector_classification():
     """"
     Function trains a Support Vector Machine - Linear Support Vector Classification Classifier.
-    
+
+    Note: LinearSVC does not have attribute predict_proba.
+
     :return: none.
     """
     from sklearn import svm
@@ -840,13 +1002,17 @@ def svm_linear_support_vector_classification():
 
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
-    iterations = 1000
     for index in range(0, iterations):
         # Create randomized training and test set using our dataset.
         create_training_and_test_set()
 
         linear_svc_classifier_clf.fit(tweet_train, target_train)
         linear_svc_classifier_predictions = linear_svc_classifier_clf.predict(tweet_test)
+
+        if enable_visualizations:
+            # Visualize the results of training our model.
+            create_metric_visualizations_linearsvc(linear_svc_classifier_clf, linear_svc_classifier_predictions,
+                                                   'Linear Support Vector Classification Classifier')
 
         # Calculate the accuracy of our predictions.
         accuracy = np.mean(linear_svc_classifier_predictions == target_test)
@@ -874,7 +1040,8 @@ def svm_linear_support_vector_classification():
 
     # Make predictions using trained model.
     log.debug("Prediction statistics using Linear Support Vector Classification Classifier:")
-    make_predictions(linear_svc_classifier_clf)
+    if enable_predictions:
+        make_predictions(linear_svc_classifier_clf)
 
 
 ################################################################################################################
@@ -955,13 +1122,19 @@ def nearest_kneighbor_classifier():
 
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
-    iterations = 1000
     for index in range(0, iterations):
         # Create randomized training and test set using our dataset.
         create_training_and_test_set()
 
         k_neighbor_classifier_clf.fit(tweet_train, target_train)
         k_neighbor_classifier_predictions = k_neighbor_classifier_clf.predict(tweet_test)
+        k_neighbor_classifier_predictions_probabilities = k_neighbor_classifier_clf.predict_proba(tweet_test)
+
+        if enable_visualizations:
+            # Visualize the results of training our model.
+            create_metric_visualizations_kneighbor(k_neighbor_classifier_clf, k_neighbor_classifier_predictions,
+                                                   k_neighbor_classifier_predictions_probabilities,
+                                                   'KNeighbor Classifier')
 
         # Calculate the accuracy of our predictions.
         accuracy = np.mean(k_neighbor_classifier_predictions == target_test)
@@ -989,7 +1162,8 @@ def nearest_kneighbor_classifier():
 
     # Make predictions using trained model.
     log.debug("Prediction statistics using KNeighbor Classifier:")
-    make_predictions(k_neighbor_classifier_clf)
+    if enable_predictions:
+        make_predictions(k_neighbor_classifier_clf)
 
 
 ################################################################################################################
@@ -1073,13 +1247,19 @@ def decision_tree_classifier():
 
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
-    iterations = 1000
     for index in range(0, iterations):
         # Create randomized training and test set using our dataset.
         create_training_and_test_set()
 
         decision_tree_classifier_clf.fit(tweet_train, target_train)
         decision_tree_classifier_predictions = decision_tree_classifier_clf.predict(tweet_test)
+        decision_tree_classifier_predictions_probabilities = decision_tree_classifier_clf.predict_proba(tweet_test)
+
+        if enable_visualizations:
+            # Visualize the results of training our model.
+            create_metric_visualizations(decision_tree_classifier_clf, decision_tree_classifier_predictions,
+                                         decision_tree_classifier_predictions_probabilities,
+                                         'Decision Tree Classifier')
 
         # Calculate the accuracy of our predictions.
         accuracy = np.mean(decision_tree_classifier_predictions == target_test)
@@ -1107,7 +1287,8 @@ def decision_tree_classifier():
 
     # Make predictions using trained model.
     log.debug("Prediction statistics using Decision Tree Classifier:")
-    make_predictions(decision_tree_classifier_clf)
+    if enable_predictions:
+        make_predictions(decision_tree_classifier_clf)
 
 
 ################################################################################################################
@@ -1216,7 +1397,6 @@ def multi_layer_perceptron_classifier():
 
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
-    iterations = 1000
     for index in range(0, iterations):
         # Create randomized training and test set using our dataset.
         create_training_and_test_set()
@@ -1229,6 +1409,13 @@ def multi_layer_perceptron_classifier():
 
         mlp_classifier_clf.fit(tweet_train, target_train)
         mlp_classifier_predictions = mlp_classifier_clf.predict(tweet_test)
+        mlp_classifier_predictions_probabilities = mlp_classifier_clf.predict_proba(tweet_test)
+
+        if enable_visualizations:
+            # Visualize the results of training our model.
+            create_metric_visualizations(mlp_classifier_clf, mlp_classifier_predictions,
+                                         mlp_classifier_predictions_probabilities,
+                                         'Multi Layer Perceptron Neural Network Classifier')
 
         # Calculate the accuracy of our predictions.
         accuracy = np.mean(mlp_classifier_predictions == target_test)
@@ -1256,7 +1443,8 @@ def multi_layer_perceptron_classifier():
 
     # Make predictions using trained model.
     log.debug("Prediction statistics using Multi Layer Perceptron Neural Network Classifier:")
-    make_predictions(mlp_classifier_clf)
+    if enable_predictions:
+        make_predictions(mlp_classifier_clf)
 
 
 ################################################################################################################
@@ -1341,7 +1529,6 @@ def logistic_regression_classifier():
 
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
-    iterations = 1000
     for index in range(0, iterations):
 
         # Create randomized training and test set using our dataset.
@@ -1349,6 +1536,14 @@ def logistic_regression_classifier():
 
         logistic_regression_classifier_clf.fit(tweet_train, target_train)
         logistic_regression_classifier_predictions = logistic_regression_classifier_clf.predict(tweet_test)
+        logistic_regression_classifier_predictions_probabilities = logistic_regression_classifier_clf.predict_proba(
+            tweet_test)
+
+        if enable_visualizations:
+            # Visualize the results of training our model.
+            create_metric_visualizations(logistic_regression_classifier_clf, logistic_regression_classifier_predictions,
+                                         logistic_regression_classifier_predictions_probabilities,
+                                         'Logistic Regression Classifier')
 
         # Calculate the accuracy of our predictions.
         accuracy = np.mean(logistic_regression_classifier_predictions == target_test)
@@ -1376,7 +1571,8 @@ def logistic_regression_classifier():
 
     # Make predictions using trained model.
     log.debug("Prediction statistics using Logistic Regression Classifier:")
-    make_predictions(logistic_regression_classifier_clf)
+    if enable_predictions:
+        make_predictions(logistic_regression_classifier_clf)
 
 
 ################################################################################################################
@@ -1399,46 +1595,52 @@ def keras_deep_neural_network():
 """
 Main function.  Execute the program.
 """
-
-# Debug variable.
-debug_main = 0
+import time
 
 if __name__ == '__main__':
 
-    import time
+    # For debug purposes.
+    # my_set = create_prediction_set()
 
     start_time = time.time()
 
-    # Call non-pipelined multinomial Naive Bayes classifier training function.
+    # Call non-pipelined multinomial Naive Bayes Classifier training function.
     # scikit_learn_multinomialnb_classifier_non_pipeline()
 
-    # Call pipelined classifier training functions and grid search functions.
+    ################################################
+    """
+    This section calls grid search functions for automated hyper parameter tuning.
+    """
     # multinomial_naive_bayes_classifier_grid_search()
-    multinomial_naive_bayes_classifier()
     # sgd_classifier_grid_search()
-    sgd_classifier()
     # svm_support_vector_classification_grid_search()
-    svm_support_vector_classification()
     # svm_linear_support_vector_classification_grid_search()
-    svm_linear_support_vector_classification()
     # nearest_kneighbor_classifier_grid_search()
-    nearest_kneighbor_classifier()
     # decision_tree_classifier_grid_search()
-    decision_tree_classifier()
     # multi_layer_perceptron_classifier_grid_search()
-    multi_layer_perceptron_classifier()
     # logistic_regression_classifier_grid_search()
+
+    ################################################
+    """
+    This section calls Scikit-Learn classifer functions for model training and prediction.
+    """
+    multinomial_naive_bayes_classifier()
+    sgd_classifier()
+    svm_support_vector_classification()
+    svm_linear_support_vector_classification()
+    nearest_kneighbor_classifier()
+    decision_tree_classifier()
+    multi_layer_perceptron_classifier()
     logistic_regression_classifier()
+
+    ################################################
 
     end_time = time.time()
 
     if debug_pipeline:
-        log.debug("The time taken to train the classifier(s) is:")
+        log.debug("The time taken to train the classifier(s), make predictions, and visualize the results is:")
         total_time = end_time - start_time
         log.debug(str(total_time))
         log.debug("\n")
-
-    # For debug purposes.
-    # my_set = create_prediction_set()
 
 ############################################################################################
