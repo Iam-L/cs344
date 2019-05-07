@@ -78,7 +78,7 @@ debug_preprocess_tweets = False
 # Debug create_training_and_test_set() function.
 debug_train_test_set_creation = False
 # Debug each iteration of training and predictions for each Classifier function().
-debug_classifier_iterations = True
+debug_classifier_iterations = False
 # Debug the create_prediction_set() function.
 debug_create_prediction_set = False
 # Debug the make_predictions() function.
@@ -90,7 +90,7 @@ Controls the # of iterations to run each Classifier before outputting the mean a
 IMPORTANT NOTE: SET to "1" unless you want each Classifier spitting out visualizations for each of N iterations
 when visualizations are enabled!
 """
-iterations = 1
+iterations = 1000
 
 """
 Enable or disable making predictions using trained model on our large 650k+ Tweet dataset (takes a little while).
@@ -100,7 +100,7 @@ enable_predictions = False
 """
 Enable or disable plotting graph visualizations of the model's training and prediction results.
 """
-enable_visualizations = True
+enable_visualizations = False
 
 ################################################################################################################
 ################################################################################################################
@@ -665,13 +665,13 @@ def sgd_classifier_grid_search():
     create_training_and_test_set()
 
     sgd_classifier_clf = Pipeline([
-        ('vect', CountVectorizer()),
+        ('vect', CountVectorizer(ngram_range=(1, 1))),
         ('tfidf', TfidfTransformer()),
-        ('clf', SGDClassifier(alpha=0.0001, average=False, class_weight=None,
-                              early_stopping=False, epsilon=0.1, eta0=1.0, fit_intercept=True,
-                              l1_ratio=0.15, learning_rate='optimal', loss='hinge', max_iter=5,
-                              n_iter=None, n_iter_no_change=5, n_jobs=None, penalty='l2',
-                              power_t=0.5, random_state=None, shuffle=True, tol=None,
+        ('clf', SGDClassifier(alpha=0.1, average=False, class_weight=None,
+                              early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=False,
+                              l1_ratio=0.15, learning_rate='optimal', loss='log', max_iter=5,
+                              n_iter=None, n_iter_no_change=5, n_jobs=-1, penalty='l2',
+                              power_t=0.5, random_state=None, shuffle=True, tol=1e-1,
                               validation_fraction=0.1, verbose=0, warm_start=False)),
     ])
 
@@ -679,16 +679,16 @@ def sgd_classifier_grid_search():
 
     # What parameters do we search for?
     parameters = {
-        'vect__ngram_range': [(1, 1), (1, 2), (1, 3), (1, 4)],
+        # 'vect__ngram_range': [(1, 1), (1, 2), (1, 3), (1, 4)],
         'tfidf__use_idf': (True, False),
-        'clf__alpha': (1e-1, 1e-2, 1e-3, 1e-4, 1e-5),
+        'clf__alpha': (1e-1, 1e-3, 1e-5),
         'clf__fit_intercept': [True, False],
         'clf__loss': ['hinge', 'log', 'modified_huber', 'squared_hinge', 'perceptron'],
         'clf__penalty': ['none', 'l2', 'l1', 'elasticnet'],
-        'clf__n_jobs': [-1],
         'clf__learning_rate': ['constant', 'optimal', 'invscaling', 'adaptive'],
         'clf__early_stopping': [True, False],
         'clf__validation_fraction': [0.1, 0.2, 0.4],
+        'clf__tol': [1e-1, 1e-3, 1e-5],
 
     }
 
@@ -734,10 +734,10 @@ def sgd_classifier():
         ('vect', CountVectorizer(ngram_range=(1, 1))),
         ('tfidf', TfidfTransformer(use_idf=True)),
         ('clf', SGDClassifier(alpha=0.1, average=False, class_weight=None,
-                              early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,
+                              early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=False,
                               l1_ratio=0.15, learning_rate='optimal', loss='log', max_iter=5,
-                              n_iter=None, n_iter_no_change=5, n_jobs=None, penalty='l2',
-                              power_t=0.5, random_state=None, shuffle=True, tol=None,
+                              n_iter=None, n_iter_no_change=5, n_jobs=-1, penalty='l2',
+                              power_t=0.5, random_state=None, shuffle=True, tol=1e-1,
                               validation_fraction=0.1, verbose=0, warm_start=False)),
     ])
 
@@ -1624,14 +1624,14 @@ if __name__ == '__main__':
     """
     This section calls Scikit-Learn classifer functions for model training and prediction.
     """
-    multinomial_naive_bayes_classifier()
+    # multinomial_naive_bayes_classifier()
     sgd_classifier()
-    svm_support_vector_classification()
-    svm_linear_support_vector_classification()
-    nearest_kneighbor_classifier()
-    decision_tree_classifier()
-    multi_layer_perceptron_classifier()
-    logistic_regression_classifier()
+    # svm_support_vector_classification()
+    # svm_linear_support_vector_classification()
+    # nearest_kneighbor_classifier()
+    # decision_tree_classifier()
+    # multi_layer_perceptron_classifier()
+    # logistic_regression_classifier()
 
     ################################################
 
