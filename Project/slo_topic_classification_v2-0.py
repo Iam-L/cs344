@@ -70,11 +70,11 @@ warnings.simplefilter(action='ignore', category=DeprecationWarning)
 Turn debug log statements for various sections of code on/off.
 """
 # Debug the scikit_learn_multinomialnb_classifier_non_pipeline() function.
-debug_MNB_nonPipeline = False
+debug_MNB_nonPipeline = True
 # Debug the GridSearch functions for each Classifier.
 debug_pipeline = False
 # Debug the initial dataset import and feature/target set creation.
-debug_preprocess_tweets = False
+debug_preprocess_tweets = True
 # Debug create_training_and_test_set() function.
 debug_train_test_set_creation = False
 # Debug each iteration of training and predictions for each Classifier function().
@@ -238,7 +238,8 @@ def scikit_learn_multinomialnb_classifier_non_pipeline():
     Function trains a Multinomial Naive Bayes Classifier without using a Pipeline.
 
     Note: Implemented for educational purposes - so I can see the manual workflow, otherwise the Pipeline Class hides
-    these details and we only have to tune parameters.
+    these details and we only have to tune parameters.  Also, so I can see how large the bag-of-words vocabulary size
+    becomes.
 
     :return: none.
     """
@@ -292,10 +293,10 @@ def scikit_learn_multinomialnb_classifier_non_pipeline():
     # Predict using the Multinomial Naive Bayes Classifier.
     clf_multinomial_nb_predict = clf_multinomial_nb.predict(tweet_test_encoded_tfidf)
 
+    # FIXME - still working, but issue with string conversion of accuracy metric using accuracy function.
     from sklearn.metrics import accuracy_score
-
-    log.debug("MultinomialNB Classifier accuracy using accuracy_score() function : ",
-              accuracy_score(target_test_encoded, clf_multinomial_nb_predict, normalize=True))
+    accuracy_is = accuracy_score(target_test_encoded, clf_multinomial_nb_predict, normalize=True)
+    log.debug("MultinomialNB Classifier accuracy using accuracy_score() function : ", str(accuracy_is))
     log.debug("\n")
 
     # Another method of obtaining accuracy metric.
@@ -1605,7 +1606,7 @@ if __name__ == '__main__':
     start_time = time.time()
 
     # Call non-pipelined multinomial Naive Bayes Classifier training function.
-    # scikit_learn_multinomialnb_classifier_non_pipeline()
+    scikit_learn_multinomialnb_classifier_non_pipeline()
 
     ################################################
     """
@@ -1625,7 +1626,7 @@ if __name__ == '__main__':
     This section calls Scikit-Learn classifer functions for model training and prediction.
     """
     # multinomial_naive_bayes_classifier()
-    sgd_classifier()
+    # sgd_classifier()
     # svm_support_vector_classification()
     # svm_linear_support_vector_classification()
     # nearest_kneighbor_classifier()
