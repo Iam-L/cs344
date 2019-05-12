@@ -34,6 +34,8 @@ showcase(demo).ipynb: Demos our machine learning implementation using the Multin
 
 showcase(demo2).ipynb: Same as above, except shows overall implementation using all Classifiers.
 
+showcase(metrics).ipynb: Contains metrics for side-by-side comparison of all Classifiers used as well as some information on the datasets being used.
+
 updates.ipynb: Contains a summary of project updates made since instructor walkthrough (for the future).
 
 &nbsp;

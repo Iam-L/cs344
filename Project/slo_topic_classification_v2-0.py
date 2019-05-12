@@ -70,11 +70,11 @@ warnings.simplefilter(action='ignore', category=DeprecationWarning)
 Turn debug log statements for various sections of code on/off.
 """
 # Debug the scikit_learn_multinomialnb_classifier_non_pipeline() function.
-debug_MNB_nonPipeline = True
+debug_MNB_nonPipeline = False
 # Debug the GridSearch functions for each Classifier.
 debug_pipeline = False
 # Debug the initial dataset import and feature/target set creation.
-debug_preprocess_tweets = True
+debug_preprocess_tweets = False
 # Debug create_training_and_test_set() function.
 debug_train_test_set_creation = False
 # Debug each iteration of training and predictions for each Classifier function().
@@ -95,7 +95,7 @@ iterations = 1000
 """
 Enable or disable making predictions using trained model on our large 650k+ Tweet dataset (takes a little while).
 """
-enable_predictions = False
+enable_predictions = True
 
 """
 Enable or disable plotting graph visualizations of the model's training and prediction results.
@@ -607,6 +607,17 @@ def multinomial_naive_bayes_classifier():
         ('clf', MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)),
     ])
 
+    from sklearn.model_selection import cross_val_score
+
+    # Compute cross-validation metrics.
+    create_training_and_test_set()
+    cross_val_scores = cross_val_score(multinomial_nb_clf, tweet_train, target_train, cv=5)
+    # Display results.
+    log.debug("Multinomial Naive Bayes: ")
+    log.debug("Cross validated metrics (5-fold cross validation):")
+    log.debug("Accuracy: %0.2f (+/- %0.2f)" % (cross_val_scores.mean(), cross_val_scores.std() * 2))
+    log.debug("\n")
+
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
     for index in range(0, iterations):
@@ -648,8 +659,8 @@ def multinomial_naive_bayes_classifier():
     log.debug("\n")
 
     # Make predictions using trained model.
-    log.debug("Prediction statistics using Multinomial Naive Bayes Classifier:")
     if enable_predictions:
+        log.debug("Prediction statistics using Multinomial Naive Bayes Classifier:")
         make_predictions(multinomial_nb_clf)
 
 
@@ -742,6 +753,17 @@ def sgd_classifier():
                               validation_fraction=0.1, verbose=0, warm_start=False)),
     ])
 
+    from sklearn.model_selection import cross_val_score
+
+    # Compute cross-validation metrics.
+    create_training_and_test_set()
+    cross_val_scores = cross_val_score(sgd_classifier_clf, tweet_train, target_train, cv=5)
+    # Display results.
+    log.debug("Stochastic Gradient Descent: ")
+    log.debug("Cross validated metrics (5-fold cross validation):")
+    log.debug("Accuracy: %0.2f (+/- %0.2f)" % (cross_val_scores.mean(), cross_val_scores.std() * 2))
+    log.debug("\n")
+
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
     for index in range(0, iterations):
@@ -784,8 +806,8 @@ def sgd_classifier():
     log.debug("\n")
 
     # Make predictions using trained model.
-    log.debug("Prediction statistics using Stochastic Gradient Descent Classifier:")
     if enable_predictions:
+        log.debug("Prediction statistics using Stochastic Gradient Descent Classifier:")
         make_predictions(sgd_classifier_clf)
 
 
@@ -870,6 +892,17 @@ def svm_support_vector_classification():
                         tol=0.01, verbose=False)),
     ])
 
+    from sklearn.model_selection import cross_val_score
+
+    # Compute cross-validation metrics.
+    create_training_and_test_set()
+    cross_val_scores = cross_val_score(svc_classifier_clf, tweet_train, target_train, cv=5)
+    # Display results.
+    log.debug("Support Vector Classification: ")
+    log.debug("Cross validated metrics (5-fold cross validation):")
+    log.debug("Accuracy: %0.2f (+/- %0.2f)" % (cross_val_scores.mean(), cross_val_scores.std() * 2))
+    log.debug("\n")
+
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
     for index in range(0, iterations):
@@ -911,8 +944,8 @@ def svm_support_vector_classification():
     log.debug("\n")
 
     # Make predictions using trained model.
-    log.debug("Prediction statistics using Support Vector Classification Classifier:")
     if enable_predictions:
+        log.debug("Prediction statistics using Support Vector Classification Classifier:")
         make_predictions(svc_classifier_clf)
 
 
@@ -1001,6 +1034,17 @@ def svm_linear_support_vector_classification():
                               verbose=0)),
     ])
 
+    from sklearn.model_selection import cross_val_score
+
+    # Compute cross-validation metrics.
+    create_training_and_test_set()
+    cross_val_scores = cross_val_score(linear_svc_classifier_clf, tweet_train, target_train, cv=5)
+    # Display results.
+    log.debug("Linear Support Vector Classification: ")
+    log.debug("Cross validated metrics (5-fold cross validation):")
+    log.debug("Accuracy: %0.2f (+/- %0.2f)" % (cross_val_scores.mean(), cross_val_scores.std() * 2))
+    log.debug("\n")
+
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
     for index in range(0, iterations):
@@ -1040,8 +1084,8 @@ def svm_linear_support_vector_classification():
     log.debug("\n")
 
     # Make predictions using trained model.
-    log.debug("Prediction statistics using Linear Support Vector Classification Classifier:")
     if enable_predictions:
+        log.debug("Prediction statistics using Linear Support Vector Classification Classifier:")
         make_predictions(linear_svc_classifier_clf)
 
 
@@ -1121,6 +1165,17 @@ def nearest_kneighbor_classifier():
                                      weights='uniform', n_jobs=-1)),
     ])
 
+    from sklearn.model_selection import cross_val_score
+
+    # Compute cross-validation metrics.
+    create_training_and_test_set()
+    cross_val_scores = cross_val_score(k_neighbor_classifier_clf, tweet_train, target_train, cv=5)
+    # Display results.
+    log.debug("KNeighbor: ")
+    log.debug("Cross validated metrics (5-fold cross validation):")
+    log.debug("Accuracy: %0.2f (+/- %0.2f)" % (cross_val_scores.mean(), cross_val_scores.std() * 2))
+    log.debug("\n")
+
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
     for index in range(0, iterations):
@@ -1162,8 +1217,8 @@ def nearest_kneighbor_classifier():
     log.debug("\n")
 
     # Make predictions using trained model.
-    log.debug("Prediction statistics using KNeighbor Classifier:")
     if enable_predictions:
+        log.debug("Prediction statistics using KNeighbor Classifier:")
         make_predictions(k_neighbor_classifier_clf)
 
 
@@ -1246,6 +1301,17 @@ def decision_tree_classifier():
                                             min_samples_split=2, min_weight_fraction_leaf=0)),
     ])
 
+    from sklearn.model_selection import cross_val_score
+
+    # Compute cross-validation metrics.
+    create_training_and_test_set()
+    cross_val_scores = cross_val_score(decision_tree_classifier_clf, tweet_train, target_train, cv=5)
+    # Display results.
+    log.debug("Decision Tree: ")
+    log.debug("Cross validated metrics (5-fold cross validation):")
+    log.debug("Accuracy: %0.2f (+/- %0.2f)" % (cross_val_scores.mean(), cross_val_scores.std() * 2))
+    log.debug("\n")
+
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
     for index in range(0, iterations):
@@ -1287,8 +1353,8 @@ def decision_tree_classifier():
     log.debug("\n")
 
     # Make predictions using trained model.
-    log.debug("Prediction statistics using Decision Tree Classifier:")
     if enable_predictions:
+        log.debug("Prediction statistics using Decision Tree Classifier:")
         make_predictions(decision_tree_classifier_clf)
 
 
@@ -1396,6 +1462,17 @@ def multi_layer_perceptron_classifier():
                               validation_fraction=0.1, verbose=False, warm_start=False)),
     ])
 
+    from sklearn.model_selection import cross_val_score
+
+    # Compute cross-validation metrics.
+    create_training_and_test_set()
+    cross_val_scores = cross_val_score(mlp_classifier_clf, tweet_train, target_train, cv=5)
+    # Display results.
+    log.debug("Multi Layer Perceptron Neural Network: ")
+    log.debug("Cross validated metrics (5-fold cross validation):")
+    log.debug("Accuracy: %0.2f (+/- %0.2f)" % (cross_val_scores.mean(), cross_val_scores.std() * 2))
+    log.debug("\n")
+
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
     for index in range(0, iterations):
@@ -1443,8 +1520,8 @@ def multi_layer_perceptron_classifier():
     log.debug("\n")
 
     # Make predictions using trained model.
-    log.debug("Prediction statistics using Multi Layer Perceptron Neural Network Classifier:")
     if enable_predictions:
+        log.debug("Prediction statistics using Multi Layer Perceptron Neural Network Classifier:")
         make_predictions(mlp_classifier_clf)
 
 
@@ -1528,6 +1605,17 @@ def logistic_regression_classifier():
                                    multi_class='ovr', penalty='l2', solver='sag', tol=1e-1)),
     ])
 
+    from sklearn.model_selection import cross_val_score
+
+    # Compute cross-validation metrics.
+    create_training_and_test_set()
+    cross_val_scores = cross_val_score(logistic_regression_classifier_clf, tweet_train, target_train, cv=5)
+    # Display results.
+    log.debug("Logistic Regression: ")
+    log.debug("Cross validated metrics (5-fold cross validation):")
+    log.debug("Accuracy: %0.2f (+/- %0.2f)" % (cross_val_scores.mean(), cross_val_scores.std() * 2))
+    log.debug("\n")
+
     # Predict n iterations and calculate mean accuracy.
     mean_accuracy = 0.0
     for index in range(0, iterations):
@@ -1571,8 +1659,8 @@ def logistic_regression_classifier():
     log.debug("\n")
 
     # Make predictions using trained model.
-    log.debug("Prediction statistics using Logistic Regression Classifier:")
     if enable_predictions:
+        log.debug("Prediction statistics using Logistic Regression Classifier:")
         make_predictions(logistic_regression_classifier_clf)
 
 
@@ -1606,7 +1694,7 @@ if __name__ == '__main__':
     start_time = time.time()
 
     # Call non-pipelined multinomial Naive Bayes Classifier training function.
-    scikit_learn_multinomialnb_classifier_non_pipeline()
+    # scikit_learn_multinomialnb_classifier_non_pipeline()
 
     ################################################
     """
@@ -1625,14 +1713,14 @@ if __name__ == '__main__':
     """
     This section calls Scikit-Learn classifer functions for model training and prediction.
     """
-    # multinomial_naive_bayes_classifier()
-    # sgd_classifier()
-    # svm_support_vector_classification()
-    # svm_linear_support_vector_classification()
-    # nearest_kneighbor_classifier()
-    # decision_tree_classifier()
-    # multi_layer_perceptron_classifier()
-    # logistic_regression_classifier()
+    multinomial_naive_bayes_classifier()
+    sgd_classifier()
+    svm_support_vector_classification()
+    svm_linear_support_vector_classification()
+    nearest_kneighbor_classifier()
+    decision_tree_classifier()
+    multi_layer_perceptron_classifier()
+    logistic_regression_classifier()
 
     ################################################
 
