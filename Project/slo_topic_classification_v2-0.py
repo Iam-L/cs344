@@ -1668,14 +1668,49 @@ def logistic_regression_classifier():
 def keras_deep_neural_network():
     """
     Function implements a Keras Deep Neural Network Model.
-    TODO - most likely won't be implemented until summer research with much larger labeled datasets.
+    FIXME - non-functional at the moment.
     :return: none. 
     """
 
     from keras.models import Sequential
     from keras import layers
 
-    pass
+    from keras.models import Sequential
+    from keras.layers import Dense, Embedding, SimpleRNN
+
+    create_training_and_test_set()
+
+    model = Sequential()
+    model.add(Embedding(1000, 32))
+    model.add(SimpleRNN(32))
+    model.add(Dense(1, activation='sigmoid'))
+
+    model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['acc'])
+    history = model.fit(tweet_train, target_train,  # TODO - need to convert to numerical data first.
+                        epochs=10,
+                        batch_size=128,
+                        validation_split=0.2)
+
+    acc = history.history['acc']
+    val_acc = history.history['val_acc']
+    loss = history.history['loss']
+    val_loss = history.history['val_loss']
+
+    epochs = range(len(acc))
+
+    plt.plot(epochs, acc, 'bo', label='Training acc')
+    plt.plot(epochs, val_acc, 'b', label='Validation acc')
+    plt.title('Training and validation accuracy')
+    plt.legend()
+
+    plt.figure()
+
+    plt.plot(epochs, loss, 'bo', label='Training loss')
+    plt.plot(epochs, val_loss, 'b', label='Validation loss')
+    plt.title('Training and validation loss')
+    plt.legend()
+
+    plt.show()
 
 
 ################################################################################################################
@@ -1711,18 +1746,21 @@ if __name__ == '__main__':
 
     ################################################
     """
-    This section calls Scikit-Learn classifer functions for model training and prediction.
+    This section calls Scikit-Learn classifier functions for model training and prediction.
     """
-    multinomial_naive_bayes_classifier()
-    sgd_classifier()
-    svm_support_vector_classification()
-    svm_linear_support_vector_classification()
-    nearest_kneighbor_classifier()
-    decision_tree_classifier()
-    multi_layer_perceptron_classifier()
-    logistic_regression_classifier()
+    # multinomial_naive_bayes_classifier()
+    # sgd_classifier()
+    # svm_support_vector_classification()
+    # svm_linear_support_vector_classification()
+    # nearest_kneighbor_classifier()
+    # decision_tree_classifier()
+    # multi_layer_perceptron_classifier()
+    # logistic_regression_classifier()
 
     ################################################
+
+    # Keras RNN.
+    # keras_deep_neural_network()
 
     end_time = time.time()
 
